@@ -132,6 +132,22 @@
 
     </build>
 
+        <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sonatype-nexus-staging</id>
+            <name>Sonatype Production Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+
+        </repository>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sontatype Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+    
     <profiles>
         <profile>
             <id>release-sign-artifacts</id>
