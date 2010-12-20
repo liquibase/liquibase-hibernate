@@ -9,7 +9,9 @@
     <version>2.0.0-SNAPSHOT</version>
 
     <name>Liquibase Hibernate Integration</name>
-    <description>Liquibase extension for hibernate integration including generating changesets based on changed hibernate mapping files</description>
+    <description>Liquibase extension for hibernate integration including generating changesets based on changed
+        hibernate mapping files
+    </description>
     <url>http://liquibase.jira.com/wiki/display/CONTRIB/Hibernate+Integration</url>
 
     <organization>
@@ -34,20 +36,20 @@
     </scm>
 
     <developers>
-       <developer>
-         <id>nvoxland</id>
-         <name>Nathan Voxland</name>
-         <email>nathan@voxland.net</email>
-         <url>http://nathan.voxland.net</url>
-         <organizationUrl>http://nathan.voxland.net/</organizationUrl>
-         <roles>
-           <role>architect</role>
-           <role>developer</role>
-         </roles>
-         <timezone>-6</timezone>
-       </developer>
-     </developers>
-    
+        <developer>
+            <id>nvoxland</id>
+            <name>Nathan Voxland</name>
+            <email>nathan@voxland.net</email>
+            <url>http://nathan.voxland.net</url>
+            <organizationUrl>http://nathan.voxland.net/</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>-6</timezone>
+        </developer>
+    </developers>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -96,6 +98,7 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
             <plugins>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
@@ -110,31 +113,66 @@
                         <target>1.5</target>
                         <optimize>true</optimize>
                         <debug>true</debug>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                        <reportFormat>plain</reportFormat>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>enforce-java</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireJavaVersion>
+                                        <version>1.5</version>
+                                    </requireJavaVersion>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.4</version>
+                </plugin>
+
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.0</version>
+                    <configuration>
+                        <stagingRepository>/tmp/maven-snapshot</stagingRepository>
+                        <mavenExecutorId>forked-path</mavenExecutorId>
                     </configuration>
                 </plugin>
 
+
                 <plugin>
-                       <groupId>org.apache.maven.plugins</groupId>
-                       <artifactId>maven-dependency-plugin</artifactId>
-                       <executions>
-                         <execution>
-                           <id>copy-dependencies</id>
-                           <phase>package</phase>
-                           <goals>
-                             <goal>copy-dependencies</goal>
-                           </goals>
-                           <configuration>
-                             <!-- configure the plugin here -->
-                           </configuration>
-                         </execution>
-                       </executions>
-                     </plugin>
-           
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <configuration>
+                        <skip>false</skip>
+                    </configuration>
+                </plugin>
             </plugins>
 
+        </pluginManagement>
     </build>
 
-        <distributionManagement>
+    <distributionManagement>
         <repository>
             <uniqueVersion>false</uniqueVersion>
             <id>sonatype-nexus-staging</id>
@@ -149,7 +187,7 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
-    
+
     <profiles>
         <profile>
             <id>release-sign-artifacts</id>
@@ -178,5 +216,5 @@
             </build>
         </profile>
     </profiles>
-    
+
 </project>
