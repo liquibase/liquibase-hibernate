@@ -29,8 +29,8 @@
     </issueManagement>
 
     <scm>
-        <url>http://liquibase.jira.com/source/browse/CONTRIB/trunk/liquibase-hiberante/trunk</url>
-        <developerConnection>scm:svn:http://liquibase.jira.com/source/browse/CONTRIB/trunk/liquibase-hiberante/trunk</developerConnection>
+        <url>https://liquibase.jira.com/svn/CONTRIB/trunk/hibernate/trunk</url>
+        <developerConnection>scm:svn:https://liquibase.jira.com/svn/CONTRIB/trunk/hibernate/trunk</developerConnection>
     </scm>
 
     <developers>
