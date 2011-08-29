@@ -6,7 +6,6 @@ import liquibase.changelog.DatabaseChangeLog;
 import liquibase.changelog.RanChangeSet;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
-import liquibase.database.jvm.JdbcConnection;
 import liquibase.database.structure.DatabaseObject;
 import liquibase.exception.*;
 import liquibase.sql.visitor.SqlVisitor;
@@ -14,15 +13,18 @@ import liquibase.statement.DatabaseFunction;
 import liquibase.statement.SqlStatement;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.NamingStrategy;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.Writer;
-import java.sql.Connection;
+import java.net.URLDecoder;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class HibernateDatabase implements Database {
 
@@ -32,8 +34,17 @@ public class HibernateDatabase implements Database {
     public HibernateDatabase() {
     }
 
-    public String getConfigFile() {
-        return conn.getURL().replaceFirst("hibernate:", "");
+    public String getConfigFile(String url) {
+        String trimProtocol = url.replaceFirst("hibernate:", "");
+        String trimParameters = trimProtocol;
+        if(isParameterized(url)) {
+           trimParameters =  trimProtocol.substring(0, trimProtocol.indexOf("?"));
+        }
+        return trimParameters;
+    }
+
+    boolean isParameterized(String url) {
+        return (url.indexOf("?") != -1);
     }
 
     public boolean requiresPassword() {
@@ -357,7 +368,47 @@ public class HibernateDatabase implements Database {
     }
 
     public Configuration createConfiguration() {
-        return new AnnotationConfiguration();
+        String url = conn.getURL();
+        Configuration config = new AnnotationConfiguration();
+        config.configure(getConfigFile(url));
+        Properties properties = getProperties(url);
+        processProperties(config, properties);
+        return config;
+    }
+
+    Properties getProperties(String url) {
+        Properties properties = getPropertiesInstance();
+        if(isParameterized(url)) {
+            String parameters = url.substring(url.indexOf("?") + 1);
+            parameters = parameters.replaceAll("&", System.getProperty("line.separator"));
+            parameters = URLDecoder.decode(parameters);
+            try {
+                properties.load(new StringReader(parameters));
+            } catch (IOException ioe) {
+                throw new IllegalStateException("Failed to read properties from url", ioe);
+            }
+        }
+        return properties;
+    }
+
+    protected Properties getPropertiesInstance() {
+        return new Properties();
+    }
+
+    void processProperties(Configuration config, Properties properties) {
+        config.addProperties(properties);
+        String namingStrategy = properties.getProperty("hibernate.namingStrategy");
+        if(namingStrategy != null) {
+            try {
+                config.setNamingStrategy((NamingStrategy)Class.forName(namingStrategy).newInstance());
+            } catch (InstantiationException e) {
+                throw new IllegalStateException("Failed to instantiate naming strategy", e);
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException("Couldn't access naming strategy", e);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException("Failed to find naming strategy", e);
+            }
+        }
     }
 
     public boolean supportsRestrictForeignKeys() {

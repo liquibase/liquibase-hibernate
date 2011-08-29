@@ -1,2 +1,5 @@
 liquibase-hibernate.iml
 .idea/
+liquibase-hibernate.ipr
+liquibase-hibernate.iws
+target/
