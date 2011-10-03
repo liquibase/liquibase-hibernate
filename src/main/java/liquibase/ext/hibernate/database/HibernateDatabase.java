@@ -22,7 +22,9 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import org.hibernate.ejb.Ejb3Configuration;
 
 public class HibernateDatabase implements Database {
 
@@ -32,6 +34,10 @@ public class HibernateDatabase implements Database {
     public HibernateDatabase() {
     }
 
+	public boolean isEjb3Configuration() {
+		return conn.getURL().startsWith("persistence");
+	}
+	
     public String getConfigFile() {
         return conn.getURL().replaceFirst("hibernate:", "");
     }
@@ -48,7 +54,12 @@ public class HibernateDatabase implements Database {
     }
 
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
-        return conn.getURL().startsWith("hibernate:");
+        if (conn.getURL().startsWith("hibernate:")) {
+			return true;
+		} else if (conn.getURL().startsWith("persistence:")) {
+			return true;
+        }
+		return false;
     }
 
     public String getDefaultDriver(String url) {
@@ -357,7 +368,15 @@ public class HibernateDatabase implements Database {
     }
 
     public Configuration createConfiguration() {
-        return new AnnotationConfiguration();
+		if (isEjb3Configuration()) {
+			Ejb3Configuration ejb3Configuration = new Ejb3Configuration();
+			ejb3Configuration.configure(conn.getURL().substring("persistence:".length()), new HashMap());
+			Configuration configuration = ejb3Configuration.getHibernateConfiguration();
+			configuration.setProperty("hibernate.dialect", ejb3Configuration.getProperties().getProperty("hibernate.dialect"));
+			return configuration;
+		} else {
+			return new AnnotationConfiguration();
+		}
     }
 
     public boolean supportsRestrictForeignKeys() {
