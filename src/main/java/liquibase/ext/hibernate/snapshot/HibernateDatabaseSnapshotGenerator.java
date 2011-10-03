@@ -67,9 +67,6 @@ public class HibernateDatabaseSnapshotGenerator implements DatabaseSnapshotGener
     public DatabaseSnapshot createSnapshot(Database passed, String schema, Set<DiffStatusListener> listeners) throws DatabaseException {
         HibernateDatabase database = (HibernateDatabase) passed;
         try {
-			if (database.isEjb3Configuration()) {
-				
-			}
             Configuration cfg = database.createConfiguration();
 			if (!database.isEjb3Configuration()) {
 				cfg.configure(database.getConfigFile());
