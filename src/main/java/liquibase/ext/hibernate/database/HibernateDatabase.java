@@ -6,7 +6,6 @@ import liquibase.changelog.DatabaseChangeLog;
 import liquibase.changelog.RanChangeSet;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
-import liquibase.database.jvm.JdbcConnection;
 import liquibase.database.structure.DatabaseObject;
 import liquibase.exception.*;
 import liquibase.sql.visitor.SqlVisitor;
@@ -17,7 +16,6 @@ import org.hibernate.cfg.Configuration;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.sql.Connection;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -25,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.hibernate.ejb.Ejb3Configuration;
+import org.hibernate.envers.configuration.AuditConfiguration;
+import org.hibernate.event.PostInsertEventListener;
 
 public class HibernateDatabase implements Database {
 
@@ -373,6 +373,12 @@ public class HibernateDatabase implements Database {
 			ejb3Configuration.configure(conn.getURL().substring("persistence:".length()), new HashMap());
 			Configuration configuration = ejb3Configuration.getHibernateConfiguration();
 			configuration.setProperty("hibernate.dialect", ejb3Configuration.getProperties().getProperty("hibernate.dialect"));
+			for (PostInsertEventListener postInsertEventListener : configuration.getEventListeners().getPostInsertEventListeners()) {
+				if (postInsertEventListener instanceof org.hibernate.envers.event.AuditEventListener) {
+					AuditConfiguration.getFor(configuration);
+				}
+			}
+			
 			return configuration;
 		} else {
 			return new AnnotationConfiguration();
