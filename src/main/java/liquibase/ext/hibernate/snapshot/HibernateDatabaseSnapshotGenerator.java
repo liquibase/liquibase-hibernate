@@ -11,7 +11,7 @@ import liquibase.snapshot.DatabaseSnapshotGenerator;
 import liquibase.util.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.Mapping;
+import org.hibernate.engine.spi.Mapping;
 
 import java.util.ArrayList;
 import java.util.Iterator;
