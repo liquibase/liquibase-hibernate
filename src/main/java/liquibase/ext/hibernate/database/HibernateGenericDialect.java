@@ -19,7 +19,7 @@ public class HibernateGenericDialect extends Dialect {
     }
 
     @Override
-    public String getTypeName(int code, int length, int precision, int scale) throws HibernateException {
+    public String getTypeName(int code, long length, int precision, int scale) throws HibernateException {
         if (code == Types.BIGINT) {
             return "bigint";
         } else if (code == Types.BOOLEAN) {
