@@ -68,7 +68,6 @@ public class HibernateDatabaseSnapshotGenerator implements DatabaseSnapshotGener
         HibernateDatabase database = (HibernateDatabase) passed;
         try {
             Configuration cfg = database.createConfiguration();
-            cfg.configure(database.getConfigFile());
             this.database = database;
 
 //            Dialect dialect = (Dialect) Class.forName(cfg.getProperty("dialect")).newInstance();
