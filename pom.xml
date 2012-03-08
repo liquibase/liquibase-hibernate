@@ -4,7 +4,7 @@
 
     <groupId>org.liquibase.ext</groupId>
     <artifactId>liquibase-hibernate</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.0.3.1-WAF-SNAPSHOT</version>
 
     <name>Liquibase Hibernate Integration</name>
     <description>Liquibase extension for hibernate integration including generating changesets based on changed
@@ -29,8 +29,9 @@
     </issueManagement>
 
     <scm>
-        <url>https://liquibase.jira.com/svn/CONTRIB/trunk/hibernate/trunk</url>
-        <developerConnection>scm:svn:https://liquibase.jira.com/svn/CONTRIB/trunk/hibernate/trunk</developerConnection>
+	<connection>scm:git:git@github.com:rlamarche/liquibase-hibernate.git</connection>
+        <url>https://github.com/rlamarche/liquibase-hibernate</url>
+        <developerConnection>scm:git:git@github.com:rlamarche/liquibase-hibernate.git</developerConnection>
     </scm>
 
     <developers>
@@ -72,6 +73,20 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate</artifactId>
             <version>3.2.6.ga</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>3.4.0.GA</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.envers</groupId>
+            <artifactId>jboss-envers</artifactId>
+            <version>1.2.2.GA-hibernate-3.3</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -172,17 +187,14 @@
 
     <distributionManagement>
         <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sonatype-nexus-staging</id>
-            <name>Sonatype Production Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-
+            <id>nexus</id>
+            <name>Releases</name>
+            <url>http://repo.april-waf.local/nexus/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sontatype Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>nexus</id>
+            <name>Snapshots</name>
+            <url>http://repo.april-waf.local/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
