@@ -1,8 +1,10 @@
 package liquibase.ext.hibernate.database;
 
-import org.hibernate.Hibernate;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.RowIdLifetime;
+import java.sql.SQLException;
 
 public class HibernateConnectionMetadata implements DatabaseMetaData {
 
@@ -707,4 +709,14 @@ public class HibernateConnectionMetadata implements DatabaseMetaData {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return false;  
     }
+
+	public ResultSet getPseudoColumns(String catalog, String schemaPattern,
+			String tableNamePattern, String columnNamePattern)
+			throws SQLException {
+		return null;
+	}
+
+	public boolean generatedKeyAlwaysReturned() throws SQLException {
+		return false;
+	}
 }
