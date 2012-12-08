@@ -257,4 +257,8 @@ public class HibernateDatabaseSnapshotGenerator implements DatabaseSnapshotGener
     public boolean hasIndex(String s, String s1, String s2, Database database, String s3) throws DatabaseException {
         return false;
     }
+
+	public boolean hasView(String schemaName, String viewName, Database database) {
+		return false;
+	}
 }

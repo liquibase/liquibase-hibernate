@@ -16,6 +16,7 @@ import org.hibernate.cfg.Configuration;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.hibernate.ejb.Ejb3Configuration;
+import org.hibernate.ejb.event.EJB3PostInsertEventListener;
 import org.hibernate.envers.configuration.AuditConfiguration;
 import org.hibernate.event.PostInsertEventListener;
 
@@ -67,7 +69,7 @@ public class HibernateDatabase implements Database {
     }
 
     public DatabaseConnection getConnection() {
-        return null;
+        return conn;
     }
 
     public void setConnection(DatabaseConnection conn) {
@@ -374,7 +376,7 @@ public class HibernateDatabase implements Database {
 			Configuration configuration = ejb3Configuration.getHibernateConfiguration();
 			configuration.setProperty("hibernate.dialect", ejb3Configuration.getProperties().getProperty("hibernate.dialect"));
 			for (PostInsertEventListener postInsertEventListener : configuration.getEventListeners().getPostInsertEventListeners()) {
-				if (postInsertEventListener instanceof org.hibernate.envers.event.AuditEventListener) {
+				if (postInsertEventListener instanceof EJB3PostInsertEventListener) {
 					AuditConfiguration.getFor(configuration);
 				}
 			}
@@ -443,4 +445,9 @@ public class HibernateDatabase implements Database {
     public boolean supportsDropTableCascadeConstraints() {
         return false;
     }
+
+	public String getAutoIncrementClause(BigInteger startWith,
+			BigInteger incrementBy) {
+		return null;
+	}
 }
