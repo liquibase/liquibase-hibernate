@@ -22,6 +22,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.envers.configuration.AuditConfiguration;
 import org.hibernate.event.PostInsertEventListener;
@@ -37,7 +39,7 @@ public class HibernateDatabase implements Database {
 	public boolean isEjb3Configuration() {
 		return conn.getURL().startsWith("persistence");
 	}
-	
+
     public String getConfigFile() {
         return conn.getURL().replaceFirst("hibernate:", "");
     }
@@ -110,7 +112,7 @@ public class HibernateDatabase implements Database {
     }
 
     public void setAutoCommit(boolean b) throws DatabaseException {
-        
+
     }
 
     public boolean supportsDDLInTransaction() {
@@ -188,7 +190,7 @@ public class HibernateDatabase implements Database {
     public String getDatabaseChangeLogLockTableName() {
         return null;
     }
-    
+
     /**
      * Does nothing because this is a hibernate database
      * @see liquibase.database.Database#setDatabaseChangeLogLockTableName(java.lang.String)
@@ -373,12 +375,26 @@ public class HibernateDatabase implements Database {
 			ejb3Configuration.configure(conn.getURL().substring("persistence:".length()), new HashMap());
 			Configuration configuration = ejb3Configuration.getHibernateConfiguration();
 			configuration.setProperty("hibernate.dialect", ejb3Configuration.getProperties().getProperty("hibernate.dialect"));
+
+            String namingStrategy = ejb3Configuration.getProperties().getProperty("hibernate.ejb.naming_strategy");
+            if(namingStrategy != null) {
+                try {
+                    configuration.setNamingStrategy((NamingStrategy)Class.forName(namingStrategy).newInstance());
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalStateException("Failed to instantiate naming strategy", e);
+                } catch (InstantiationException e) {
+                    throw new IllegalStateException("Couldn't access naming strategy", e);
+                } catch (IllegalAccessException e) {
+                    throw new IllegalStateException("Failed to find naming strategy", e);
+                }
+            }
+
 			for (PostInsertEventListener postInsertEventListener : configuration.getEventListeners().getPostInsertEventListeners()) {
 				if (postInsertEventListener instanceof org.hibernate.envers.event.AuditEventListener) {
 					AuditConfiguration.getFor(configuration);
 				}
 			}
-			
+
 			return configuration;
 		} else {
 			return new AnnotationConfiguration();
