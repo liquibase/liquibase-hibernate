@@ -54,16 +54,20 @@ public class HibernateDatabase implements Database {
     }
 
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
-        if (conn.getURL().startsWith("hibernate:")) {
+        return isCorrectDatabaseImplementation(conn.getURL());
+    }
+
+    private static boolean isCorrectDatabaseImplementation(String url) {
+        if (url.startsWith("hibernate:")) {
 			return true;
-		} else if (conn.getURL().startsWith("persistence:")) {
+		} else if (url.startsWith("persistence:")) {
 			return true;
         }
 		return false;
     }
 
     public String getDefaultDriver(String url) {
-        return "liquibase.ext.hibernate.database.HibernateDriver";
+        return isCorrectDatabaseImplementation(url) ? "liquibase.ext.hibernate.database.HibernateDriver" : null;
     }
 
     public DatabaseConnection getConnection() {
