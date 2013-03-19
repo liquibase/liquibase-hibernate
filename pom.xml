@@ -29,9 +29,8 @@
     </issueManagement>
 
     <scm>
-	<connection>scm:git:git@github.com:rlamarche/liquibase-hibernate.git</connection>
-        <url>https://github.com/rlamarche/liquibase-hibernate</url>
-        <developerConnection>scm:git:git@github.com:rlamarche/liquibase-hibernate.git</developerConnection>
+        <url>https://liquibase.jira.com/svn/CONTRIB/trunk/hibernate/trunk</url>
+        <developerConnection>scm:svn:https://liquibase.jira.com/svn/CONTRIB/trunk/hibernate/trunk</developerConnection>
     </scm>
 
     <developers>
@@ -187,14 +186,17 @@
 
     <distributionManagement>
         <repository>
-            <id>nexus</id>
-            <name>Releases</name>
-            <url>http://repo.april-waf.local/nexus/content/repositories/releases/</url>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sonatype-nexus-staging</id>
+            <name>Sonatype Production Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+
         </repository>
         <snapshotRepository>
-            <id>nexus</id>
-            <name>Snapshots</name>
-            <url>http://repo.april-waf.local/nexus/content/repositories/snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sontatype Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
