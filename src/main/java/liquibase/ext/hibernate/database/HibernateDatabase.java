@@ -37,7 +37,7 @@ public class HibernateDatabase implements Database {
 	public boolean isEjb3Configuration() {
 		return conn.getURL().startsWith("persistence");
 	}
-	
+
     public String getConfigFile() {
         return conn.getURL().replaceFirst("hibernate:", "");
     }
@@ -54,16 +54,20 @@ public class HibernateDatabase implements Database {
     }
 
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
-        if (conn.getURL().startsWith("hibernate:")) {
+        return isCorrectDatabaseImplementation(conn.getURL());
+    }
+
+    private static boolean isCorrectDatabaseImplementation(String url) {
+        if (url.startsWith("hibernate:")) {
 			return true;
-		} else if (conn.getURL().startsWith("persistence:")) {
+		} else if (url.startsWith("persistence:")) {
 			return true;
         }
 		return false;
     }
 
     public String getDefaultDriver(String url) {
-        return "liquibase.ext.hibernate.database.HibernateDriver";
+        return isCorrectDatabaseImplementation(url) ? "liquibase.ext.hibernate.database.HibernateDriver" : null;
     }
 
     public DatabaseConnection getConnection() {
@@ -110,7 +114,7 @@ public class HibernateDatabase implements Database {
     }
 
     public void setAutoCommit(boolean b) throws DatabaseException {
-        
+
     }
 
     public boolean supportsDDLInTransaction() {
@@ -188,7 +192,7 @@ public class HibernateDatabase implements Database {
     public String getDatabaseChangeLogLockTableName() {
         return null;
     }
-    
+
     /**
      * Does nothing because this is a hibernate database
      * @see liquibase.database.Database#setDatabaseChangeLogLockTableName(java.lang.String)
@@ -378,10 +382,10 @@ public class HibernateDatabase implements Database {
 					AuditConfiguration.getFor(configuration);
 				}
 			}
-			
+
 			return configuration;
 		} else {
-			return new AnnotationConfiguration();
+			return new AnnotationConfiguration().configure(getConfigFile());
 		}
     }
 
