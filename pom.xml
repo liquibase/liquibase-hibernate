@@ -4,7 +4,7 @@
 
     <groupId>org.liquibase.ext</groupId>
     <artifactId>liquibase-hibernate</artifactId>
-    <version>2.0.3.1-WAF-SNAPSHOT</version>
+    <version>2.0.3.0-WAF</version>
 
     <name>Liquibase Hibernate Integration</name>
     <description>Liquibase extension for hibernate integration including generating changesets based on changed
