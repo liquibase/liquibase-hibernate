@@ -70,8 +70,8 @@
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate</artifactId>
-            <version>3.2.6.ga</version>
+            <artifactId>hibernate-core</artifactId>
+            <version>3.3.0.SP1</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -79,13 +79,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
             <version>3.4.0.GA</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.envers</groupId>
-            <artifactId>jboss-envers</artifactId>
-            <version>1.2.2.GA-hibernate-3.3</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -107,6 +100,12 @@
         </dependency>
 
 
+        <dependency>
+        	<groupId>org.hibernate</groupId>
+        	<artifactId>hibernate-envers</artifactId>
+        	<version>3.6.1.Final</version>
+        	<scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
