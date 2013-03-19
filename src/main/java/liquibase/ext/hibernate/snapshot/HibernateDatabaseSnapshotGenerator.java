@@ -63,14 +63,11 @@ public class HibernateDatabaseSnapshotGenerator implements DatabaseSnapshotGener
     public List<ForeignKey> getForeignKeys(String schemaName, String tableName, Database database) throws DatabaseException {
         return new ArrayList<ForeignKey>();
     }
-	
+
     public DatabaseSnapshot createSnapshot(Database passed, String schema, Set<DiffStatusListener> listeners) throws DatabaseException {
         HibernateDatabase database = (HibernateDatabase) passed;
         try {
             Configuration cfg = database.createConfiguration();
-			if (!database.isEjb3Configuration()) {
-				cfg.configure(database.getConfigFile());
-			}
             this.database = database;
 
 //            Dialect dialect = (Dialect) Class.forName(cfg.getProperty("dialect")).newInstance();
