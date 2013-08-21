@@ -25,7 +25,7 @@
 				
 		<property name="ends"/>
 		
-		<property name="condition" column="`CONDITION`"/>
+		<property name="condition" column="CONDITION"/>
 		
 		<many-to-one name="successfulBid" 
 				outer-join="false"/>

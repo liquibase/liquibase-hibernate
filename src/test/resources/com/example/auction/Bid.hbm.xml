@@ -26,7 +26,7 @@
 		
 		<property name="datetime" 
 				not-null="true" 
-				column="`datetime`"/>
+				column="datetime"/>
 		
 		<many-to-one name="bidder" 
 				not-null="true"/>
