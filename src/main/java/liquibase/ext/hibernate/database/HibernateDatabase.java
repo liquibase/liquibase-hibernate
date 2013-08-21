@@ -16,6 +16,7 @@ import org.hibernate.cfg.Configuration;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -442,5 +443,9 @@ public class HibernateDatabase implements Database {
 
     public boolean supportsDropTableCascadeConstraints() {
         return false;
+    }
+
+    public String getAutoIncrementClause(BigInteger startWith, BigInteger incrementBy) {
+        return null;
     }
 }
