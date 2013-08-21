@@ -1,8 +1,10 @@
 package liquibase.ext.hibernate.database;
 
-import org.hibernate.Hibernate;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.RowIdLifetime;
+import java.sql.SQLException;
 
 public class HibernateConnectionMetadata implements DatabaseMetaData {
 

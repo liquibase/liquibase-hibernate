@@ -1,10 +1,10 @@
 package liquibase.ext.hibernate.database;
 
+import java.sql.Types;
+
 import org.hibernate.HibernateException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
-
-import java.sql.Types;
 
 public class HibernateGenericDialect extends Dialect {
     private Dialect realDialect;

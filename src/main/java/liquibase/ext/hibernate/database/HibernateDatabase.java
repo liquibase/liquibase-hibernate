@@ -1,19 +1,5 @@
 package liquibase.ext.hibernate.database;
 
-import liquibase.change.Change;
-import liquibase.changelog.ChangeSet;
-import liquibase.changelog.DatabaseChangeLog;
-import liquibase.changelog.RanChangeSet;
-import liquibase.database.Database;
-import liquibase.database.DatabaseConnection;
-import liquibase.database.structure.DatabaseObject;
-import liquibase.exception.*;
-import liquibase.sql.visitor.SqlVisitor;
-import liquibase.statement.DatabaseFunction;
-import liquibase.statement.SqlStatement;
-import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.cfg.Configuration;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.math.BigInteger;
@@ -23,6 +9,27 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import liquibase.change.Change;
+import liquibase.changelog.ChangeSet;
+import liquibase.changelog.DatabaseChangeLog;
+import liquibase.changelog.RanChangeSet;
+import liquibase.database.Database;
+import liquibase.database.DatabaseConnection;
+import liquibase.database.structure.DatabaseObject;
+import liquibase.exception.DatabaseException;
+import liquibase.exception.DatabaseHistoryException;
+import liquibase.exception.DateParseException;
+import liquibase.exception.LiquibaseException;
+import liquibase.exception.RollbackImpossibleException;
+import liquibase.exception.StatementNotSupportedOnDatabaseException;
+import liquibase.exception.UnsupportedChangeException;
+import liquibase.sql.visitor.SqlVisitor;
+import liquibase.statement.DatabaseFunction;
+import liquibase.statement.SqlStatement;
+
+import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
 import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.envers.configuration.AuditConfiguration;
 import org.hibernate.event.PostInsertEventListener;
