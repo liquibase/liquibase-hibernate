@@ -7,7 +7,6 @@ public class Name {
 	private String firstName;
 	private String lastName;
 	private Character initial;
-	private Name() {}
 	public Name(String first, Character middle, String last) {
 		firstName = first;
 		initial = middle;

@@ -2,6 +2,8 @@ package liquibase.ext.hibernate.database;
 
 import java.sql.Types;
 
+import liquibase.exception.DatabaseException;
+
 import org.hibernate.HibernateException;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
@@ -9,13 +11,17 @@ import org.hibernate.dialect.Dialect;
 public class HibernateGenericDialect extends Dialect {
     private Dialect realDialect;
 
-    public HibernateGenericDialect(Configuration cfg) throws Exception {
+    public HibernateGenericDialect(Configuration cfg) throws DatabaseException {
         String dialectClass = cfg.getProperty("hibernate.dialect");
         if (dialectClass == null) {
             dialectClass = cfg.getProperty("dialect");
         }
 
-        realDialect = (Dialect) Class.forName(dialectClass).newInstance();
+        try {
+            realDialect = (Dialect) Class.forName(dialectClass).newInstance();
+        } catch (Exception e) {
+            throw new DatabaseException(e);
+        }
     }
 
     @Override
@@ -38,8 +44,8 @@ public class HibernateGenericDialect extends Dialect {
             return "datetime";
         } else if (code == Types.VARCHAR) {
             return "varchar";
-        } else if (code == -9 ) { // Types.NVARCHAR in 1.6
-            return "nvarchar";            
+        } else if (code == -9) { // Types.NVARCHAR in 1.6
+            return "nvarchar";
         } else {
             return realDialect.getTypeName(code, length, precision, scale);
         }

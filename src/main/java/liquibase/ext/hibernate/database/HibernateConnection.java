@@ -29,8 +29,6 @@ public class HibernateConnection implements Connection {
         return url;
     }
 
-
-
     public Statement createStatement() throws SQLException {
         return null;  
     }
@@ -80,7 +78,7 @@ public class HibernateConnection implements Connection {
     }
 
     public boolean isReadOnly() throws SQLException {
-        return false;  
+        return true;  
     }
 
     public void setCatalog(String catalog) throws SQLException {

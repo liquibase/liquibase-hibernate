@@ -10,6 +10,7 @@ public class Watcher {
     @Id
     private Integer id;
 
+    @SuppressWarnings("unused")
     private String name;
     
     @ManyToOne
