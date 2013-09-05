@@ -15,7 +15,10 @@ import org.hibernate.cfg.Configuration;
 
 public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
 
-    private Class<? extends DatabaseObject> defaultFor = null;
+    private static final int PRIORITY_HIBERNATE_ADDITIONAL = 200;
+	private static final int PRIORITY_HIBERNATE_DEFAULT = 100;
+	
+	private Class<? extends DatabaseObject> defaultFor = null;
     private Class<? extends DatabaseObject>[] addsTo = null;
 
     protected HibernateSnapshotGenerator(Class<? extends DatabaseObject> defaultFor) {
@@ -30,12 +33,12 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
     public int getPriority(Class<? extends DatabaseObject> objectType, Database database) {
         if (database instanceof HibernateDatabase) {
             if (defaultFor != null && defaultFor.isAssignableFrom(objectType)) {
-                return 100;
+                return PRIORITY_HIBERNATE_DEFAULT;
             }
             if (addsTo() != null) {
                 for (Class<? extends DatabaseObject> type : addsTo()) {
                     if (type.isAssignableFrom(objectType)) {
-                        return 200;
+                        return PRIORITY_HIBERNATE_ADDITIONAL;
                     }
                 }
             }

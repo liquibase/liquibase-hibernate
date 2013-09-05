@@ -113,7 +113,9 @@ public class HibernateIntegrationTest {
         ignoreDatabaseChangeLogTable(diffResult);
         // FIXME
         ignoreUnexpectedIndexes(diffResult);
+        // FIXME
         ignoreCaseDifferences(diffResult);
+        // FIXME
         ignoreSomeTypeDifferences(diffResult);
 
         String differences = toString(diffResult);
@@ -152,7 +154,9 @@ public class HibernateIntegrationTest {
         ignoreUnexpectedIndexes(diffResult);
         // FIXME
         ignoreMissingIndexes(diffResult);
+        // FIXME
         ignoreCaseDifferences(diffResult);
+        // FIXME
         ignoreSomeTypeDifferences(diffResult);
 
         String differences = toString(diffResult);

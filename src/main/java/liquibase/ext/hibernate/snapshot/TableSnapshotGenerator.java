@@ -46,6 +46,8 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
         Mapping mapping = cfg.buildMapping();
 
         org.hibernate.mapping.Table hibernateTable = findHibernateTable(example, snapshot);
+        if (hibernateTable == null)
+        	return null;
         Table table = new Table().setName(hibernateTable.getName());
         log.info("Found table " + table.getName());
 
