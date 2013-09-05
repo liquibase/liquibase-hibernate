@@ -12,7 +12,7 @@ public class Watcher {
 
     @SuppressWarnings("unused")
     private String name;
-    
+
     @ManyToOne
     private AuctionItem auctionItem;
 }

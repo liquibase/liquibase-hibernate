@@ -8,6 +8,7 @@ import liquibase.exception.DatabaseException;
 
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.envers.configuration.AuditConfiguration;
 import org.hibernate.event.PostInsertEventListener;
@@ -15,7 +16,7 @@ import org.hibernate.event.PostInsertEventListener;
 public class HibernateDatabase extends AbstractJdbcDatabase {
 
     private Configuration configuration;
-    private HibernateGenericDialect dialect;
+    private Dialect dialect;
 
     public HibernateDatabase() {
     }
@@ -70,7 +71,15 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
             configuration.configure(getConfigFile());
         }
         configuration.buildMappings();
-        dialect = new HibernateGenericDialect(configuration);
+        String dialectString = configuration.getProperty("hibernate.dialect");
+        if (dialectString != null)
+            try {
+                dialect = (Dialect) Class.forName(dialectString).newInstance();
+            } catch (Exception e) {
+                throw new DatabaseException(e);
+            }
+        else
+            dialect = new HibernateGenericDialect(configuration);
     }
 
     @Override
@@ -104,7 +113,7 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
         return configuration;
     }
 
-    public HibernateGenericDialect getDialect() throws DatabaseException {
+    public Dialect getDialect() throws DatabaseException {
         if (dialect == null)
             configure();
         return dialect;
@@ -119,7 +128,5 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
     protected String getConnectionSchemaName() {
         return null;
     }
-    
-    
 
 }
