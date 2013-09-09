@@ -3,8 +3,7 @@ package liquibase.ext.hibernate.snapshot;
 import java.util.Iterator;
 
 import liquibase.exception.DatabaseException;
-import liquibase.logging.LogFactory;
-import liquibase.logging.Logger;
+import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
@@ -13,9 +12,13 @@ import liquibase.structure.core.Index;
 import liquibase.structure.core.Table;
 import liquibase.structure.core.UniqueConstraint;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
 
-    private final static Logger log = LogFactory.getLogger();
+	private static final Logger LOG = LoggerFactory
+			.getLogger(HibernateDatabase.class);
 
     public IndexSnapshotGenerator() {
         super(Index.class, new Class[] { Table.class, ForeignKey.class, UniqueConstraint.class });
@@ -45,7 +48,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
                     org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
                     index.getColumns().add(hibernateColumn.getName());
                 }
-                log.info("Found index " + index.getName());
+                LOG.info("Found index " + index.getName());
                 table.getIndexes().add(index);
             }
         }

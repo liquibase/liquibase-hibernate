@@ -2,10 +2,15 @@ package liquibase.ext.hibernate.database;
 
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.example.auction.AuctionItem;
+import com.example.auction.Watcher;
 
 /**
  * Tests the {@link HibernateDatabase} class.
@@ -25,23 +30,25 @@ public class HibernateDatabaseTest {
 	}
 
 	@Test
-	public void testHibernateUrlSimple() {
+	public void testHibernateUrlSimple() throws DatabaseException {
 		conn = new JdbcConnection(new HibernateConnection(
-				"hibernate:hibernate/Hibernate.cfg.xml"));
+				"hibernate:Hibernate.cfg.xml"));
 		db.setConnection(conn);
-
-		// FIXME
-		// Configuration config = db.createConfiguration();
+		Assert.assertNotNull(db.getConfiguration().getClassMapping(
+				AuctionItem.class.getName()));
+		Assert.assertNotNull(db.getConfiguration().getClassMapping(
+				Watcher.class.getName()));
 	}
 
 	@Test
-	public void testSpringUrlSimple() {
-		conn = new JdbcConnection(
-				new HibernateConnection(
-						"spring:src/test/resources/hibernate/spring.ctx.xml?bean=sessionFactory"));
+	public void testSpringUrlSimple() throws DatabaseException {
+		conn = new JdbcConnection(new HibernateConnection(
+				"spring:spring.ctx.xml?bean=sessionFactory"));
 		db.setConnection(conn);
-		// FIXME
-		// Configuration config = db.createConfiguration();
+		Assert.assertNotNull(db.getConfiguration().getClassMapping(
+				AuctionItem.class.getName()));
+		Assert.assertNotNull(db.getConfiguration().getClassMapping(
+				Watcher.class.getName()));
 	}
 
 }

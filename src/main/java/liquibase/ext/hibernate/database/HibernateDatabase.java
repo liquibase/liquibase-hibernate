@@ -69,12 +69,19 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
 					AuditConfiguration.getFor(configuration);
 				}
 			}
+			break;
 		case SPRING:
-			configuration = new SpringConfigurator(locator)
-					.createSpringConfiguration();
+			try {
+				configuration = new SpringConfigurator(locator)
+						.createSpringConfiguration();
+			} catch (Exception e1) {
+				throw new DatabaseException(e1);
+			}
+			break;
 		case HIBERNATE:
 			configuration = new Configuration();
 			configuration.configure(locator.getPath());
+			break;
 		}
 		configuration.buildMappings();
 		String dialectString = configuration.getProperty("hibernate.dialect");
