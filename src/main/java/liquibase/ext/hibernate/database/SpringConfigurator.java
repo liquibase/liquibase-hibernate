@@ -39,9 +39,6 @@ public class SpringConfigurator {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(SpringConfigurator.class);
 
-	private static final Class<LocalSessionFactoryBean> FACTORY_BEAN_CLASS = LocalSessionFactoryBean.class;
-	private static final String SPRING_BEAN = "bean";
-	private static final String SPRING_BEAN_CLASS = "beanClass";
 	private final ConfigLocator locator;
 
 	public SpringConfigurator(ConfigLocator locator) {
@@ -66,10 +63,10 @@ public class SpringConfigurator {
 		reader.loadBeanDefinitions(new ClassPathResource(locator.getPath()));
 
 		Properties props = locator.getProperties();
-		Class<? extends LocalSessionFactoryBean> beanClass = FACTORY_BEAN_CLASS;
+		Class<? extends LocalSessionFactoryBean> beanClass = LocalSessionFactoryBean.class;
 
-		String beanName = props.getProperty(SPRING_BEAN, null);
-		String beanClassName = props.getProperty(SPRING_BEAN_CLASS, null);
+		String beanName = props.getProperty("bean", null);
+		String beanClassName = props.getProperty("beanClass", null);
 
 		if (beanClassName != null)
 			beanClass = findClass(beanClassName, beanClass);
@@ -155,7 +152,8 @@ public class SpringConfigurator {
 				TypedStringValue key = (TypedStringValue) entry.getKey();
 				TypedStringValue value = (TypedStringValue) entry.getValue();
 
-				configurationProperties.setProperty(key.getValue(), value.getValue());
+				configurationProperties.setProperty(key.getValue(),
+						value.getValue());
 			}
 
 			config.setProperties(configurationProperties);

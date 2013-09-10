@@ -15,14 +15,12 @@ public class HibernateDriver implements Driver {
 	}
 
 	public boolean acceptsURL(String url) throws SQLException {
-		return url.startsWith("hibernate:");
+		return ConfigType.forUrl(url) != null;
 	}
 
 	public DriverPropertyInfo[] getPropertyInfo(String url, Properties info)
 			throws SQLException {
-		return new DriverPropertyInfo[0]; // To change body of implemented
-											// methods use File | Settings |
-											// File Templates.
+		return new DriverPropertyInfo[0];
 	}
 
 	public int getMajorVersion() {
@@ -39,6 +37,6 @@ public class HibernateDriver implements Driver {
 
 	@Override
 	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-		return null;
+		throw new SQLFeatureNotSupportedException();
 	}
 }

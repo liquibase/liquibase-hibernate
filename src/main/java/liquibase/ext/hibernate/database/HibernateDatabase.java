@@ -88,11 +88,14 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
 		if (dialectString != null)
 			try {
 				dialect = (Dialect) Class.forName(dialectString).newInstance();
+				LOG.info("Using dialect " + dialectString);
 			} catch (Exception e) {
 				throw new DatabaseException(e);
 			}
-		else
-			dialect = new HibernateGenericDialect(configuration);
+		else {
+			LOG.info("Could not determine hibernate dialect, using HibernateGenericDialect");
+			dialect = new HibernateGenericDialect();
+		}
 	}
 
 	@Override

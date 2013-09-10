@@ -4,50 +4,32 @@ import java.sql.Types;
 
 import liquibase.exception.DatabaseException;
 
-import org.hibernate.HibernateException;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 
 public class HibernateGenericDialect extends Dialect {
-    private Dialect realDialect;
+	public HibernateGenericDialect() throws DatabaseException {
+		super();
+		registerColumnType(Types.BIGINT, "bigint");
+		registerColumnType(Types.BOOLEAN, "boolean");
+		registerColumnType(Types.BLOB, "blob");
+		registerColumnType(Types.CLOB, "clob");
+		registerColumnType(Types.DATE, "date");
+		registerColumnType(Types.FLOAT, "float");
+		registerColumnType(Types.TIME, "time");
+		registerColumnType(Types.TIMESTAMP, "timestamp");
+		registerColumnType(Types.VARCHAR, "varchar($l)");
+		registerColumnType(Types.BINARY, "binary");
+		registerColumnType(Types.BIT, "boolean");
+		registerColumnType(Types.CHAR, "char($l)");
+		registerColumnType(Types.DECIMAL, "decimal($p,$s)");
+		registerColumnType(Types.NUMERIC, "decimal($p,$s)");
+		registerColumnType(Types.DOUBLE, "double");
+		registerColumnType(Types.INTEGER, "integer");
+		registerColumnType(Types.LONGVARBINARY, "longvarbinary");
+		registerColumnType(Types.LONGVARCHAR, "longvarchar");
+		registerColumnType(Types.REAL, "real");
+		registerColumnType(Types.SMALLINT, "smallint");
+		registerColumnType(Types.TINYINT, "tinyint");
+	}
 
-    public HibernateGenericDialect(Configuration cfg) throws DatabaseException {
-        String dialectClass = cfg.getProperty("hibernate.dialect");
-        if (dialectClass == null) {
-            dialectClass = cfg.getProperty("dialect");
-        }
-
-        try {
-            realDialect = (Dialect) Class.forName(dialectClass).newInstance();
-        } catch (Exception e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-    @Override
-    public String getTypeName(int code, int length, int precision, int scale) throws HibernateException {
-        if (code == Types.BIGINT) {
-            return "bigint";
-        } else if (code == Types.BOOLEAN) {
-            return "boolean";
-        } else if (code == Types.BLOB) {
-            return "blob";
-        } else if (code == Types.CLOB) {
-            return "clob";
-        } else if (code == Types.DATE) {
-            return "date";
-        } else if (code == Types.FLOAT) {
-            return "float";
-        } else if (code == Types.TIME) {
-            return "time";
-        } else if (code == Types.TIMESTAMP) {
-            return "datetime";
-        } else if (code == Types.VARCHAR) {
-            return "varchar";
-        } else if (code == -9) { // Types.NVARCHAR in 1.6
-            return "nvarchar";
-        } else {
-            return realDialect.getTypeName(code, length, precision, scale);
-        }
-    }
 }
