@@ -42,7 +42,7 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
 	}
 
 	public String getDefaultDriver(String url) {
-		return "liquibase.ext.hibernate.database.HibernateDriver";
+		return HibernateDriver.class.getName();
 	}
 
 	public int getPriority() {
@@ -153,6 +153,12 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
 			DatabaseChangeLog databaseChangeLog, String... contexts)
 			throws DatabaseException {
 		// Nothing to do
+	}
+
+	@Override
+	public boolean isSafeToRunUpdate() throws DatabaseException {
+		// Do not prompt the user before running Liquibase
+		return true;
 	}
 
 }
