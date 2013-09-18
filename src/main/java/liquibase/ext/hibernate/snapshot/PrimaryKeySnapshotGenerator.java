@@ -5,6 +5,7 @@ import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
+import liquibase.structure.core.Index;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Table;
 
@@ -50,6 +51,12 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
 				}
 				LOG.info("Found primary key " + pk.getName());
 				table.setPrimaryKey(pk);
+				Index index = new Index();
+				index.setName("IX_" + pk.getName());
+				index.setTable(table);
+				index.setColumns(pk.getColumnNames());
+				pk.setBackingIndex(index);
+				table.getIndexes().add(index);
 			}
 		}
 	}

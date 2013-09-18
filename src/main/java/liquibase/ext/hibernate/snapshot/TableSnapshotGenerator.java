@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
 	private static final Logger LOG = LoggerFactory
-			.getLogger(HibernateDatabase.class);
+			.getLogger(TableSnapshotGenerator.class);
 
 	private final static Pattern pattern = Pattern
 			.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*\\)?");

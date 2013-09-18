@@ -9,20 +9,22 @@ import liquibase.structure.core.View;
 
 public class ViewSnapshotGenerator extends HibernateSnapshotGenerator {
 
-    public ViewSnapshotGenerator() {
-        super(View.class, new Class[] { Schema.class });
-    }
+	public ViewSnapshotGenerator() {
+		super(View.class, new Class[] { Schema.class });
+	}
 
-    @Override
-    protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	@Override
+	protected DatabaseObject snapshotObject(DatabaseObject example,
+			DatabaseSnapshot snapshot) throws DatabaseException,
+			InvalidExampleException {
+		throw new DatabaseException("No views in Hibernate mapping");
+	}
 
-    @Override
-    protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        // TODO Auto-generated method stub
+	@Override
+	protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot)
+			throws DatabaseException, InvalidExampleException {
+		// No views in Hibernate mapping
 
-    }
+	}
 
 }
