@@ -10,17 +10,17 @@ import liquibase.structure.core.Table;
 public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
 
     public ColumnSnapshotGenerator() {
-        super(Column.class, new Class[] { Table.class });
+	super(Column.class, new Class[] { Table.class });
     }
 
     @Override
     protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        return example;
+	return example;
     }
 
     @Override
     protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        // Nothing to do
+	// Nothing to do
     }
 
 }

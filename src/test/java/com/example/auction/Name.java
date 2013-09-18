@@ -4,46 +4,45 @@ package com.example.auction;
  * @author Gavin King
  */
 public class Name {
-	private String firstName;
-	private String lastName;
-	private Character initial;
-	public Name(String first, Character middle, String last) {
-		firstName = first;
-		initial = middle;
-		lastName = last;
-	}
-	public String getFirstName() {
-		return firstName;
-	}
+    private String firstName;
+    private String lastName;
+    private Character initial;
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    public Name(String first, Character middle, String last) {
+	firstName = first;
+	initial = middle;
+	lastName = last;
+    }
 
-	public Character getInitial() {
-		return initial;
-	}
+    public String getFirstName() {
+	return firstName;
+    }
 
-	public void setInitial(Character initial) {
-		this.initial = initial;
-	}
+    public void setFirstName(String firstName) {
+	this.firstName = firstName;
+    }
 
-	public String getLastName() {
-		return lastName;
-	}
+    public Character getInitial() {
+	return initial;
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-	
-	public String toString() {
-		StringBuffer buf = new StringBuffer()
-			.append(firstName)
-			.append(' ');
-		if (initial!=null) buf.append(initial)
-			.append(' ');
-		return buf.append(lastName)
-			.toString();
-	}
+    public void setInitial(Character initial) {
+	this.initial = initial;
+    }
+
+    public String getLastName() {
+	return lastName;
+    }
+
+    public void setLastName(String lastName) {
+	this.lastName = lastName;
+    }
+
+    public String toString() {
+	StringBuffer buf = new StringBuffer().append(firstName).append(' ');
+	if (initial != null)
+	    buf.append(initial).append(' ');
+	return buf.append(lastName).toString();
+    }
 
 }

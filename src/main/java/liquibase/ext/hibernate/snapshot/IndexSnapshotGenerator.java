@@ -17,41 +17,40 @@ import org.slf4j.LoggerFactory;
 
 public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(HibernateDatabase.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HibernateDatabase.class);
 
     public IndexSnapshotGenerator() {
-        super(Index.class, new Class[] { Table.class, ForeignKey.class, UniqueConstraint.class });
+	super(Index.class, new Class[] { Table.class, ForeignKey.class, UniqueConstraint.class });
     }
 
     @Override
     protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        return example;
+	return example;
     }
 
     @Override
     protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        if (!snapshot.getSnapshotControl().shouldInclude(Index.class)) {
-            return;
-        }
-        if (foundObject instanceof Table) {
-            Table table = (Table) foundObject;
-            org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
-            Iterator indexIterator = hibernateTable.getIndexIterator();
-            while (indexIterator.hasNext()) {
-                org.hibernate.mapping.Index hibernateIndex = (org.hibernate.mapping.Index) indexIterator.next();
-                Index index = new Index();
-                index.setTable(table);
-                index.setName(hibernateIndex.getName());
-                Iterator columnIterator = hibernateIndex.getColumnIterator();
-                while (columnIterator.hasNext()) {
-                    org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
-                    index.getColumns().add(hibernateColumn.getName());
-                }
-                LOG.info("Found index " + index.getName());
-                table.getIndexes().add(index);
-            }
-        }
+	if (!snapshot.getSnapshotControl().shouldInclude(Index.class)) {
+	    return;
+	}
+	if (foundObject instanceof Table) {
+	    Table table = (Table) foundObject;
+	    org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+	    Iterator indexIterator = hibernateTable.getIndexIterator();
+	    while (indexIterator.hasNext()) {
+		org.hibernate.mapping.Index hibernateIndex = (org.hibernate.mapping.Index) indexIterator.next();
+		Index index = new Index();
+		index.setTable(table);
+		index.setName(hibernateIndex.getName());
+		Iterator columnIterator = hibernateIndex.getColumnIterator();
+		while (columnIterator.hasNext()) {
+		    org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
+		    index.getColumns().add(hibernateColumn.getName());
+		}
+		LOG.info("Found index " + index.getName());
+		table.getIndexes().add(index);
+	    }
+	}
     }
 
 }
