@@ -20,7 +20,7 @@
 		<property name="password" 
 				not-null="true"
 				length="15"
-				column="`password`"/>
+				column="password"/>
 		
 		<property name="email"/>
 		
@@ -29,7 +29,7 @@
 					length="50"
 					not-null="true"/>
 			<property name="initial" 
-					column="`initial`"/>
+					column="initial"/>
 			<property name="lastName"
 					length="50"
 					not-null="true"/>
