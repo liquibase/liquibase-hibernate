@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.StringWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.ArrayList;
@@ -40,10 +41,13 @@ import liquibase.structure.core.Column;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.PrimaryKey;
+import liquibase.structure.core.Sequence;
 import liquibase.structure.core.Table;
+import liquibase.structure.core.UniqueConstraint;
 
 import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
+import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,8 +64,8 @@ public class HibernateIntegrationTest {
 	@Before
 	public void setUp() throws Exception {
 		Class.forName("org.hsqldb.jdbc.JDBCDriver");
-		connection = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB",
-				"SA", "");
+		connection = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB"
+				+ System.currentTimeMillis(), "SA", "");
 		database = new HsqlDatabase();
 		database.setConnection(new JdbcConnection(connection));
 
@@ -71,8 +75,8 @@ public class HibernateIntegrationTest {
 		typesToInclude.add(PrimaryKey.class);
 		typesToInclude.add(ForeignKey.class);
 		typesToInclude.add(Index.class);
-		// FIXME
-		// typesToInclude.add(UniqueConstraint.class);
+		typesToInclude.add(UniqueConstraint.class);
+		typesToInclude.add(Sequence.class);
 		compareControl = new CompareControl(typesToInclude);
 	}
 
@@ -84,6 +88,12 @@ public class HibernateIntegrationTest {
 		compareControl = null;
 	}
 
+	/**
+	 * Generates a changelog from the Hibernate mapping, creates the database
+	 * according to the changelog, compares, the database with the mapping.
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void runGeneratedChangeLog() throws Exception {
 
@@ -111,30 +121,33 @@ public class HibernateIntegrationTest {
 
 		liquibase = new Liquibase(outFile.toString(),
 				new FileSystemResourceAccessor(), database);
+		StringWriter stringWriter = new StringWriter();
+		liquibase.update(null, stringWriter);
+		log.info(stringWriter.toString());
 		liquibase.update(null);
 
 		diffResult = liquibase
 				.diff(hibernateDatabase, database, compareControl);
 
 		ignoreDatabaseChangeLogTable(diffResult);
-		// FIXME
-		ignoreUnexpectedIndexes(diffResult);
-		// FIXME
-		ignoreCaseDifferences(diffResult);
-		// FIXME
-		ignoreSomeTypeDifferences(diffResult);
+		ignoreConversionFromFloatToDouble64(diffResult);
 
 		String differences = toString(diffResult);
 
 		assertEquals(differences, 0, diffResult.getMissingObjects().size());
 		assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
-		// FIXME
-		// assertEquals(differences, 0, diffResult.getChangedObjects().size());
+		assertEquals(differences, 0, diffResult.getChangedObjects().size());
 
 	}
 
+	/**
+	 * Creates a database using Hibernate SchemaExport and compare the database
+	 * with the Hibernate mapping
+	 * 
+	 * @throws Exception
+	 */
 	@Test
-	public void hibernateSchemaUpdate() throws Exception {
+	public void hibernateSchemaExport() throws Exception {
 
 		SimpleNamingContextBuilder builder = SimpleNamingContextBuilder
 				.emptyActivatedContextBuilder();
@@ -161,22 +174,83 @@ public class HibernateIntegrationTest {
 				compareControl);
 
 		ignoreDatabaseChangeLogTable(diffResult);
-		// FIXME
-		ignoreUnexpectedIndexes(diffResult);
-		// FIXME
-		ignoreMissingIndexes(diffResult);
-		// FIXME
-		ignoreCaseDifferences(diffResult);
-		// FIXME
-		ignoreSomeTypeDifferences(diffResult);
+		ignoreConversionFromFloatToDouble64(diffResult);
 
 		String differences = toString(diffResult);
 
 		assertEquals(differences, 0, diffResult.getMissingObjects().size());
 		assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
-		// FIXME
-		// assertEquals(differences, 0, diffResult.getChangedObjects().size());
+		assertEquals(differences, 0, diffResult.getChangedObjects().size());
 
+	}
+
+	/**
+	 * Generates the changelog from Hibernate mapping, creates 2 databases,
+	 * updates 1 of the databases with HibernateSchemaUpdate. Compare the 2
+	 * databases.
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void hibernateSchemaUpdate() throws Exception {
+
+		Liquibase liquibase = new Liquibase(null,
+				new ClassLoaderResourceAccessor(), database);
+
+		Database hibernateDatabase = new HibernateDatabase();
+		hibernateDatabase.setDefaultSchemaName("PUBLIC");
+		hibernateDatabase.setDefaultCatalogName("TESTDB");
+		hibernateDatabase.setConnection(new JdbcConnection(
+				new HibernateConnection("hibernate:" + HIBERNATE_CONFIG_FILE)));
+
+		DiffResult diffResult = liquibase.diff(hibernateDatabase, database,
+				compareControl);
+
+		assertTrue(diffResult.getMissingObjects().size() > 0);
+
+		File outFile = File.createTempFile("lb-test", ".xml");
+		OutputStream outChangeLog = new FileOutputStream(outFile);
+		String changeLogString = toChangeLog(diffResult);
+		outChangeLog.write(changeLogString.getBytes("UTF-8"));
+		outChangeLog.close();
+
+		log.info("Changelog:\n" + changeLogString);
+
+		liquibase = new Liquibase(outFile.toString(),
+				new FileSystemResourceAccessor(), database);
+		StringWriter stringWriter = new StringWriter();
+		liquibase.update(null, stringWriter);
+		log.info(stringWriter.toString());
+		liquibase.update(null);
+
+		Connection connection2 = DriverManager.getConnection(
+				"jdbc:hsqldb:mem:TESTDB2", "SA", "");
+		Database database2 = new HsqlDatabase();
+		database2.setConnection(new JdbcConnection(connection2));
+		liquibase = new Liquibase(outFile.toString(),
+				new FileSystemResourceAccessor(), database2);
+		liquibase.update(null);
+
+		SimpleNamingContextBuilder builder = SimpleNamingContextBuilder
+				.emptyActivatedContextBuilder();
+		SingleConnectionDataSource ds = new SingleConnectionDataSource(
+				connection, true);
+		builder.bind("java:/data", ds);
+		builder.activate();
+
+		Configuration cfg = new Configuration();
+		cfg.configure(HIBERNATE_CONFIG_FILE);
+
+		SchemaUpdate update = new SchemaUpdate(cfg);
+		update.execute(true, true);
+
+		diffResult = liquibase.diff(database, database2, compareControl);
+
+		String differences = toString(diffResult);
+
+		assertEquals(differences, 0, diffResult.getMissingObjects().size());
+		assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
+		assertEquals(differences, 0, diffResult.getChangedObjects().size());
 	}
 
 	private String toString(DiffResult diffResult) throws Exception {
@@ -244,19 +318,15 @@ public class HibernateIntegrationTest {
 		}
 	}
 
-	private void ignoreUnexpectedIndexes(DiffResult diffResult)
+	/**
+	 * Columns created as float are seen as DOUBLE(64) in database metadata.
+	 * HsqlDB bug?
+	 * 
+	 * @param diffResult
+	 * @throws Exception
+	 */
+	private void ignoreConversionFromFloatToDouble64(DiffResult diffResult)
 			throws Exception {
-		Set<Index> unexpectedIndexes = diffResult
-				.getUnexpectedObjects(Index.class);
-		diffResult.getUnexpectedObjects().removeAll(unexpectedIndexes);
-	}
-
-	private void ignoreMissingIndexes(DiffResult diffResult) throws Exception {
-		Set<Index> missingIndexes = diffResult.getMissingObjects(Index.class);
-		diffResult.getMissingObjects().removeAll(missingIndexes);
-	}
-
-	private void ignoreCaseDifferences(DiffResult diffResult) throws Exception {
 		Map<DatabaseObject, ObjectDifferences> differences = diffResult
 				.getChangedObjects();
 		List<DatabaseObject> objectsToRemove = new ArrayList<DatabaseObject>();
@@ -268,11 +338,9 @@ public class HibernateIntegrationTest {
 			for (Iterator<Difference> iterator2 = changedObject.getValue()
 					.getDifferences().iterator(); iterator2.hasNext();) {
 				Difference difference = iterator2.next();
-				if (difference
-						.getReferenceValue()
-						.toString()
-						.equalsIgnoreCase(
-								difference.getComparedValue().toString())) {
+				if (difference.getReferenceValue().toString().equals("float")
+						&& difference.getComparedValue().toString()
+								.startsWith("DOUBLE(64)")) {
 					log.info("Ignoring difference "
 							+ changedObject.getKey().toString() + " "
 							+ difference.toString());
@@ -294,55 +362,4 @@ public class HibernateIntegrationTest {
 		}
 	}
 
-	private void ignoreSomeTypeDifferences(DiffResult diffResult)
-			throws Exception {
-		Map<DatabaseObject, ObjectDifferences> differences = diffResult
-				.getChangedObjects();
-		List<DatabaseObject> objectsToRemove = new ArrayList<DatabaseObject>();
-		for (Iterator<Entry<DatabaseObject, ObjectDifferences>> iterator = differences
-				.entrySet().iterator(); iterator.hasNext();) {
-			Entry<DatabaseObject, ObjectDifferences> changedObject = iterator
-					.next();
-			List<String> differencesToRemove = new ArrayList<String>();
-			for (Iterator<Difference> iterator2 = changedObject.getValue()
-					.getDifferences().iterator(); iterator2.hasNext();) {
-				Difference difference = iterator2.next();
-				if ((difference.getReferenceValue().toString().equals("bigint") && difference
-						.getComparedValue().toString().equals("BIGINT(19)"))
-						|| (difference.getReferenceValue().toString()
-								.equals("integer") && difference
-								.getComparedValue().toString()
-								.startsWith("INTEGER(10)"))
-						|| (difference.getReferenceValue().toString()
-								.equals("varchar") && difference
-								.getComparedValue().toString()
-								.startsWith("VARCHAR(2147483647)"))
-						|| (difference.getReferenceValue().toString()
-								.equals("datetime") && difference
-								.getComparedValue().toString()
-								.startsWith("TIMESTAMP(23, 10)"))
-						|| (difference.getReferenceValue().toString()
-								.equals("float") && difference
-								.getComparedValue().toString()
-								.startsWith("DOUBLE(17)"))) {
-					log.info("Ignoring difference "
-							+ changedObject.getKey().toString() + " "
-							+ difference.toString());
-					differencesToRemove.add(difference.getField());
-				}
-			}
-			for (Iterator<String> iterator2 = differencesToRemove.iterator(); iterator2
-					.hasNext();) {
-				String differenceToRemove = iterator2.next();
-				changedObject.getValue().removeDifference(differenceToRemove);
-			}
-			if (!changedObject.getValue().hasDifferences())
-				objectsToRemove.add(changedObject.getKey());
-		}
-		for (Iterator<DatabaseObject> iterator = objectsToRemove.iterator(); iterator
-				.hasNext();) {
-			DatabaseObject objectToRemove = iterator.next();
-			differences.remove(objectToRemove);
-		}
-	}
 }

@@ -9,6 +9,7 @@ import liquibase.exception.DatabaseException;
 
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.envers.configuration.AuditConfiguration;
 import org.hibernate.event.PostInsertEventListener;
@@ -22,6 +23,7 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
 
 	private Configuration configuration;
 	private Dialect dialect;
+	private boolean indexesForForeignKeys = false;
 
 	private ConfigLocator locator;
 
@@ -96,6 +98,13 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
 			LOG.info("Could not determine hibernate dialect, using HibernateGenericDialect");
 			dialect = new HibernateGenericDialect();
 		}
+		if (dialect instanceof MySQLDialect)
+			indexesForForeignKeys = true;
+	}
+
+	@Override
+	public boolean createsIndexesForForeignKeys() {
+		return indexesForForeignKeys;
 	}
 
 	@Override

@@ -6,59 +6,64 @@ import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
-import liquibase.structure.core.Index;
 import liquibase.structure.core.Table;
 import liquibase.structure.core.UniqueConstraint;
 
-public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerator {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    public UniqueConstraintSnapshotGenerator() {
-        super(UniqueConstraint.class, new Class[] { Table.class });
-    }
+public class UniqueConstraintSnapshotGenerator extends
+		HibernateSnapshotGenerator {
 
-    @Override
-    protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        return example;
-    }
+	private static final Logger LOG = LoggerFactory
+			.getLogger(UniqueConstraintSnapshotGenerator.class);
 
-    @Override
-    protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        if (!snapshot.getSnapshotControl().shouldInclude(UniqueConstraint.class)) {
-            return;
-        }
+	public UniqueConstraintSnapshotGenerator() {
+		super(UniqueConstraint.class, new Class[] { Table.class });
+	}
 
-        if (foundObject instanceof Table) {
-            Table table = (Table) foundObject;
-            org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
-            Iterator uniqueIterator = hibernateTable.getUniqueKeyIterator();
-            while (uniqueIterator.hasNext()) {
-                org.hibernate.mapping.UniqueKey hibernateUnique = (org.hibernate.mapping.UniqueKey) uniqueIterator.next();
+	@Override
+	protected DatabaseObject snapshotObject(DatabaseObject example,
+			DatabaseSnapshot snapshot) throws DatabaseException,
+			InvalidExampleException {
+		return example;
+	}
 
-                Index index = new Index();
-                index.setTable(table);
+	@Override
+	protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot)
+			throws DatabaseException, InvalidExampleException {
+		if (!snapshot.getSnapshotControl()
+				.shouldInclude(UniqueConstraint.class)) {
+			return;
+		}
 
-                // FIXME
-                index.setName(table.getName() + "_" + hibernateUnique.getName());
+		if (foundObject instanceof Table) {
+			Table table = (Table) foundObject;
+			org.hibernate.mapping.Table hibernateTable = findHibernateTable(
+					table, snapshot);
+			Iterator uniqueIterator = hibernateTable.getUniqueKeyIterator();
+			while (uniqueIterator.hasNext()) {
+				org.hibernate.mapping.UniqueKey hibernateUnique = (org.hibernate.mapping.UniqueKey) uniqueIterator
+						.next();
 
-                UniqueConstraint uniqueConstraint = new UniqueConstraint();
-                uniqueConstraint.setTable(table);
-
-                uniqueConstraint.setName(hibernateUnique.getName());
-
-                uniqueConstraint.setBackingIndex(index);
-
-                Iterator columnIterator = hibernateUnique.getColumnIterator();
-                int i = 0;
-                while (columnIterator.hasNext()) {
-                    org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
-                    index.getColumns().add(hibernateColumn.getName());
-                    uniqueConstraint.addColumn(i, hibernateColumn.getName());
-                    i++;
-                }
-                table.getUniqueConstraints().add(uniqueConstraint);
-                table.getIndexes().add(index);
-            }
-        }
-    }
+				UniqueConstraint uniqueConstraint = new UniqueConstraint();
+				String name = "UC_" + table.getName().toUpperCase();
+				uniqueConstraint.setTable(table);
+				Iterator columnIterator = hibernateUnique.getColumnIterator();
+				int i = 0;
+				while (columnIterator.hasNext()) {
+					org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator
+							.next();
+					name += "_" + hibernateColumn.getName().toUpperCase();
+					uniqueConstraint.addColumn(i, hibernateColumn.getName());
+					i++;
+				}
+				uniqueConstraint.setName(name);
+				LOG.info("Found unique constraint "
+						+ uniqueConstraint.toString());
+				table.getUniqueConstraints().add(uniqueConstraint);
+			}
+		}
+	}
 
 }
