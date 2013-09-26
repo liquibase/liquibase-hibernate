@@ -12,26 +12,26 @@ public class AuctionInfo {
     private Float maxAmount;
 
     public String getDescription() {
-	return description;
+        return description;
     }
 
     public Date getEnds() {
-	return ends;
+        return ends;
     }
 
     public long getId() {
-	return id;
+        return id;
     }
 
     public Float getMaxAmount() {
-	return maxAmount;
+        return maxAmount;
     }
 
     public AuctionInfo(long id, String description, Date ends, Float maxAmount) {
-	this.id = id;
-	this.description = description;
-	this.ends = ends;
-	this.maxAmount = maxAmount;
+        this.id = id;
+        this.description = description;
+        this.ends = ends;
+        this.maxAmount = maxAmount;
     }
 
 }

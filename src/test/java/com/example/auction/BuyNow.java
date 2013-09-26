@@ -5,10 +5,10 @@ package com.example.auction;
  */
 public class BuyNow extends Bid {
     public boolean isBuyNow() {
-	return true;
+        return true;
     }
 
     public String toString() {
-	return super.toString() + " (buy now)";
+        return super.toString() + " (buy now)";
     }
 }

@@ -14,55 +14,55 @@ public class User extends Persistent {
     private List auctions;
 
     public String getEmail() {
-	return email;
+        return email;
     }
 
     public String getPassword() {
-	return password;
+        return password;
     }
 
     public String getUserName() {
-	return userName;
+        return userName;
     }
 
     public void setEmail(String string) {
-	email = string;
+        email = string;
     }
 
     public void setPassword(String string) {
-	password = string;
+        password = string;
     }
 
     public void setUserName(String string) {
-	userName = string;
+        userName = string;
     }
 
     public List getAuctions() {
-	return auctions;
+        return auctions;
     }
 
     public List getBids() {
-	return bids;
+        return bids;
     }
 
     public void setAuctions(List list) {
-	auctions = list;
+        auctions = list;
     }
 
     public void setBids(List list) {
-	bids = list;
+        bids = list;
     }
 
     public String toString() {
-	return userName;
+        return userName;
     }
 
     public Name getName() {
-	return name;
+        return name;
     }
 
     public void setName(Name name) {
-	this.name = name;
+        this.name = name;
     }
 
 }

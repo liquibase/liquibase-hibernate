@@ -9,40 +9,40 @@ public class Name {
     private Character initial;
 
     public Name(String first, Character middle, String last) {
-	firstName = first;
-	initial = middle;
-	lastName = last;
+        firstName = first;
+        initial = middle;
+        lastName = last;
     }
 
     public String getFirstName() {
-	return firstName;
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
-	this.firstName = firstName;
+        this.firstName = firstName;
     }
 
     public Character getInitial() {
-	return initial;
+        return initial;
     }
 
     public void setInitial(Character initial) {
-	this.initial = initial;
+        this.initial = initial;
     }
 
     public String getLastName() {
-	return lastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-	this.lastName = lastName;
+        this.lastName = lastName;
     }
 
     public String toString() {
-	StringBuffer buf = new StringBuffer().append(firstName).append(' ');
-	if (initial != null)
-	    buf.append(initial).append(' ');
-	return buf.append(lastName).toString();
+        StringBuffer buf = new StringBuffer().append(firstName).append(' ');
+        if (initial != null)
+            buf.append(initial).append(' ');
+        return buf.append(lastName).toString();
     }
 
 }

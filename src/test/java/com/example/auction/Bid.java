@@ -12,43 +12,43 @@ public class Bid extends Persistent {
     private User bidder;
 
     public AuctionItem getItem() {
-	return item;
+        return item;
     }
 
     public void setItem(AuctionItem item) {
-	this.item = item;
+        this.item = item;
     }
 
     public float getAmount() {
-	return amount;
+        return amount;
     }
 
     public Date getDatetime() {
-	return datetime;
+        return datetime;
     }
 
     public void setAmount(float f) {
-	amount = f;
+        amount = f;
     }
 
     public void setDatetime(Date date) {
-	datetime = date;
+        datetime = date;
     }
 
     public User getBidder() {
-	return bidder;
+        return bidder;
     }
 
     public void setBidder(User user) {
-	bidder = user;
+        bidder = user;
     }
 
     public String toString() {
-	return bidder.getUserName() + " $" + amount;
+        return bidder.getUserName() + " $" + amount;
     }
 
     public boolean isBuyNow() {
-	return false;
+        return false;
     }
 
 }

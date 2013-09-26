@@ -21,28 +21,28 @@ public class HibernateDatabaseTest {
 
     @Before
     public void setUp() throws Exception {
-	db = new HibernateDatabase();
+        db = new HibernateDatabase();
     }
 
     @After
     public void tearDown() throws Exception {
-	db.close();
+        db.close();
     }
 
     @Test
     public void testHibernateUrlSimple() throws DatabaseException {
-	conn = new JdbcConnection(new HibernateConnection("hibernate:Hibernate.cfg.xml"));
-	db.setConnection(conn);
-	Assert.assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
-	Assert.assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
+        conn = new JdbcConnection(new HibernateConnection("hibernate:Hibernate.cfg.xml"));
+        db.setConnection(conn);
+        Assert.assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
+        Assert.assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
     }
 
     @Test
     public void testSpringUrlSimple() throws DatabaseException {
-	conn = new JdbcConnection(new HibernateConnection("spring:spring.ctx.xml?bean=sessionFactory"));
-	db.setConnection(conn);
-	Assert.assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
-	Assert.assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
+        conn = new JdbcConnection(new HibernateConnection("spring:spring.ctx.xml?bean=sessionFactory"));
+        db.setConnection(conn);
+        Assert.assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
+        Assert.assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
     }
 
 }

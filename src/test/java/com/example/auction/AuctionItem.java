@@ -16,63 +16,63 @@ public class AuctionItem extends Persistent {
     private int condition;
 
     public List getBids() {
-	return bids;
+        return bids;
     }
 
     public String getDescription() {
-	return description;
+        return description;
     }
 
     public User getSeller() {
-	return seller;
+        return seller;
     }
 
     public Bid getSuccessfulBid() {
-	return successfulBid;
+        return successfulBid;
     }
 
     public void setBids(List bids) {
-	this.bids = bids;
+        this.bids = bids;
     }
 
     public void setDescription(String string) {
-	description = string;
+        description = string;
     }
 
     public void setSeller(User user) {
-	seller = user;
+        seller = user;
     }
 
     public void setSuccessfulBid(Bid bid) {
-	successfulBid = bid;
+        successfulBid = bid;
     }
 
     public Date getEnds() {
-	return ends;
+        return ends;
     }
 
     public void setEnds(Date date) {
-	ends = date;
+        ends = date;
     }
 
     public int getCondition() {
-	return condition;
+        return condition;
     }
 
     public void setCondition(int i) {
-	condition = i;
+        condition = i;
     }
 
     public String toString() {
-	return shortDescription + " (" + description + ": " + condition + "/10)";
+        return shortDescription + " (" + description + ": " + condition + "/10)";
     }
 
     public String getShortDescription() {
-	return shortDescription;
+        return shortDescription;
     }
 
     public void setShortDescription(String shortDescription) {
-	this.shortDescription = shortDescription;
+        this.shortDescription = shortDescription;
     }
 
 }
