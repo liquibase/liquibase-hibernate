@@ -52,6 +52,7 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
     private void configure() throws DatabaseException {
         LOG.info("Reading configuration " + getConnection().getURL());
         locator = new ConfigLocator(getConnection().getURL());
+        String namingStrategy;
         switch (locator.getType()) {
             case EJB3:
                 Ejb3Configuration ejb3Configuration = new Ejb3Configuration();
@@ -59,7 +60,7 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
                 configuration = ejb3Configuration.getHibernateConfiguration();
                 configuration.setProperty("hibernate.dialect", ejb3Configuration.getProperties().getProperty("hibernate.dialect"));
 
-                String namingStrategy = ejb3Configuration.getProperties().getProperty("hibernate.ejb.naming_strategy");
+                namingStrategy = ejb3Configuration.getProperties().getProperty("hibernate.ejb.naming_strategy");
                 if (namingStrategy != null) {
                     try {
                         configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
@@ -88,7 +89,20 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
             case HIBERNATE:
                 configuration = new Configuration();
                 configuration.configure(locator.getPath());
-                break;
+
+                namingStrategy = configuration.getProperty("hibernate.namingStrategy");
+                if (namingStrategy != null) {
+                    try {
+                        configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
+                    } catch (InstantiationException e) {
+                        throw new IllegalStateException("Failed to instantiate naming strategy", e);
+                    } catch (IllegalAccessException e) {
+                        throw new IllegalStateException("Couldn't access naming strategy", e);
+                    } catch (ClassNotFoundException e) {
+                        throw new IllegalStateException("Failed to find naming strategy", e);
+                    }
+                    break;
+                }
         }
         configuration.buildMappings();
         String dialectString = configuration.getProperty("hibernate.dialect");
