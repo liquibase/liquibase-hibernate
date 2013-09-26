@@ -9,21 +9,21 @@ class ToStringCompareFunction extends ObjectDifferences.StandardCompareFunction 
 
     public ToStringCompareFunction(Database accordingTo) {
         super(accordingTo);
-	caseSensitive = accordingTo.isCaseSensitive();
+        caseSensitive = accordingTo.isCaseSensitive();
     }
 
     @Override
     public boolean areEqual(Object referenceValue, Object compareToValue) {
-	if (referenceValue == null && compareToValue == null) {
-	    return true;
-	}
-	if (referenceValue == null || compareToValue == null) {
-	    return false;
-	}
+        if (referenceValue == null && compareToValue == null) {
+            return true;
+        }
+        if (referenceValue == null || compareToValue == null) {
+            return false;
+        }
 
-	if (caseSensitive)
-	    return referenceValue.toString().equals(compareToValue.toString());
-	else
-	    return referenceValue.toString().equalsIgnoreCase(compareToValue.toString());
+        if (caseSensitive)
+            return referenceValue.toString().equals(compareToValue.toString());
+        else
+            return referenceValue.toString().equalsIgnoreCase(compareToValue.toString());
     }
 }

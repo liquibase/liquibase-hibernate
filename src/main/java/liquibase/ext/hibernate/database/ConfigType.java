@@ -6,22 +6,22 @@ public enum ConfigType {
     private final String prefix;
 
     ConfigType(String prefix) {
-	this.prefix = prefix;
+        this.prefix = prefix;
     }
 
     public String getPrefix() {
-	return prefix;
+        return prefix;
     }
 
     public boolean matches(String url) {
-	return url.startsWith(prefix + ":");
+        return url.startsWith(prefix + ":");
     }
 
     public static ConfigType forUrl(String url) {
-	for (ConfigType cfg : values()) {
-	    if (cfg.matches(url))
-		return cfg;
-	}
-	return null;
+        for (ConfigType cfg : values()) {
+            if (cfg.matches(url))
+                return cfg;
+        }
+        return null;
     }
 }

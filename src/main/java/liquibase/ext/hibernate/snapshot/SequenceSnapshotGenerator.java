@@ -10,18 +10,18 @@ import liquibase.structure.core.Sequence;
 public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
 
     public SequenceSnapshotGenerator() {
-	super(Sequence.class, new Class[] { Schema.class });
+        super(Sequence.class, new Class[]{Schema.class});
     }
 
     @Override
     protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-	// Not supported yet
-	return null;
+        // Not supported yet
+        return null;
     }
 
     @Override
     protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-	// Not supported yet
+        // Not supported yet
     }
 
 }

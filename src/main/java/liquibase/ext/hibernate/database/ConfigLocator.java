@@ -16,61 +16,61 @@ public class ConfigLocator {
     private Properties properties;
 
     public ConfigLocator(String url) {
-	this.url = url;
-	type = ConfigType.forUrl(url);
-	if (type == null)
-	    throw new IllegalStateException("Unsupported URL format: " + url);
+        this.url = url;
+        type = ConfigType.forUrl(url);
+        if (type == null)
+            throw new IllegalStateException("Unsupported URL format: " + url);
 
-	// Trim the prefix off the URL for the path
-	path = url.substring(type.getPrefix().length() + 1);
+        // Trim the prefix off the URL for the path
+        path = url.substring(type.getPrefix().length() + 1);
 
-	// Check if there is a parameter/query string value.
-	properties = new Properties();
+        // Check if there is a parameter/query string value.
+        properties = new Properties();
 
-	int queryIndex = path.indexOf('?');
-	if (queryIndex >= 0) {
-	    // Convert the query string into properties
-	    loadProperties(path.substring(queryIndex + 1));
-	    // Remove the query string
-	    path = path.substring(0, queryIndex);
-	}
+        int queryIndex = path.indexOf('?');
+        if (queryIndex >= 0) {
+            // Convert the query string into properties
+            loadProperties(path.substring(queryIndex + 1));
+            // Remove the query string
+            path = path.substring(0, queryIndex);
+        }
     }
 
     private void loadProperties(String query) {
-	query = query.replaceAll("&", System.getProperty("line.separator"));
-	try {
-	    query = URLDecoder.decode(query, "UTF-8");
-	    properties.load(new StringReader(query));
-	} catch (IOException ioe) {
-	    throw new IllegalStateException("Failed to read properties from url", ioe);
-	}
+        query = query.replaceAll("&", System.getProperty("line.separator"));
+        try {
+            query = URLDecoder.decode(query, "UTF-8");
+            properties.load(new StringReader(query));
+        } catch (IOException ioe) {
+            throw new IllegalStateException("Failed to read properties from url", ioe);
+        }
     }
 
     /**
      * Returns the original URL used to create the locator.
-     * 
+     *
      * @return The original URL.
      */
     public String getUrl() {
-	return url;
+        return url;
     }
 
     /**
      * The {@link ConfigType} for this locator.
-     * 
+     *
      * @return The type.
      */
     public ConfigType getType() {
-	return type;
+        return type;
     }
 
     /**
      * The path to the file provided by the URL.
-     * 
+     *
      * @return The file path.
      */
     public String getPath() {
-	return path;
+        return path;
     }
 
     /**
@@ -79,16 +79,15 @@ public class ConfigLocator {
      * <code>hibernate:/path/to/hibernate.cfg.xml?foo=bar</code>
      * <p/>
      * This will have a property called 'foo' with a value of 'bar'.
-     * 
+     *
      * @return The property set.
      */
     public Properties getProperties() {
-	return properties;
+        return properties;
     }
 
     /**
-     * @param obj
-     *            the reference object with which to compare.
+     * @param obj the reference object with which to compare.
      * @return {@code true} if this object is the same as the obj argument;
      *         {@code false} otherwise.
      * @see #hashCode()
@@ -96,7 +95,7 @@ public class ConfigLocator {
      */
     @Override
     public boolean equals(Object obj) {
-	return ((ConfigLocator) obj).url.equals(url);
+        return ((ConfigLocator) obj).url.equals(url);
     }
 
     /**
@@ -128,14 +127,14 @@ public class ConfigLocator {
      * is typically implemented by converting the internal address of the object
      * into an integer, but this implementation technique is not required by the
      * Java<font size="-2"><sup>TM</sup></font> programming language.)
-     * 
+     *
      * @return a hash code value for this object.
      * @see Object#equals(Object)
      * @see System#identityHashCode
      */
     @Override
     public int hashCode() {
-	return 7 + url.hashCode();
+        return 7 + url.hashCode();
     }
 
     /**
@@ -150,17 +149,17 @@ public class ConfigLocator {
      * the at-sign character `{@code @}', and the unsigned hexadecimal
      * representation of the hash code of the object. In other words, this
      * method returns a string equal to the value of: <blockquote>
-     * 
+     * <p/>
      * <pre>
      * getClass().getName() + '@' + Integer.toHexString(hashCode())
      * </pre>
-     * 
+     * <p/>
      * </blockquote>
-     * 
+     *
      * @return a string representation of the object.
      */
     @Override
     public String toString() {
-	return url;
+        return url;
     }
 }

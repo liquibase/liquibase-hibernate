@@ -10,17 +10,17 @@ import liquibase.structure.core.Schema;
 public class SchemaSnapshotGenerator extends HibernateSnapshotGenerator {
 
     public SchemaSnapshotGenerator() {
-	super(Schema.class, new Class[] { Catalog.class });
+        super(Schema.class, new Class[]{Catalog.class});
     }
 
     @Override
     protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-	return example;
+        return example;
     }
 
     @Override
     protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-	// Nothing to do
+        // Nothing to do
     }
 
 }
