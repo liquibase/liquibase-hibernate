@@ -6,7 +6,7 @@ import liquibase.structure.core.PrimaryKey;
 public class PrimaryKeyCompareFunction extends ToStringCompareFunction {
 
     public PrimaryKeyCompareFunction(Database accordingTo) {
-	super(accordingTo);
+	    super(accordingTo);
     }
 
     @Override

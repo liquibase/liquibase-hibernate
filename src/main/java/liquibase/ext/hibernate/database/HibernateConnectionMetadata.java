@@ -712,12 +712,12 @@ public class HibernateConnectionMetadata implements DatabaseMetaData {
 	return false;
     }
 
-    @Override
+    //@Override only override for java 1.7
     public boolean generatedKeyAlwaysReturned() throws SQLException {
 	return false;
     }
 
-    @Override
+    //@Override only override for java 1.7
     public ResultSet getPseudoColumns(String arg0, String arg1, String arg2, String arg3) throws SQLException {
 	return null;
     }

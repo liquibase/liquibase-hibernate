@@ -8,6 +8,7 @@ class ToStringCompareFunction extends ObjectDifferences.StandardCompareFunction 
     private final boolean caseSensitive;
 
     public ToStringCompareFunction(Database accordingTo) {
+        super(accordingTo);
 	caseSensitive = accordingTo.isCaseSensitive();
     }
 

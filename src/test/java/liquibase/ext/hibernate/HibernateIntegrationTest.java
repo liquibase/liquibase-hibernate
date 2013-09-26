@@ -22,6 +22,7 @@ import java.util.Set;
 import liquibase.Liquibase;
 import liquibase.database.Database;
 import liquibase.database.core.HsqlDatabase;
+import liquibase.database.core.MySQLDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.diff.DiffResult;
 import liquibase.diff.Difference;
@@ -45,6 +46,7 @@ import liquibase.structure.core.Sequence;
 import liquibase.structure.core.Table;
 import liquibase.structure.core.UniqueConstraint;
 
+import liquibase.util.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
@@ -68,15 +70,33 @@ public class HibernateIntegrationTest {
 	database = new HsqlDatabase();
 	database.setConnection(new JdbcConnection(connection));
 
-	Set<Class<? extends DatabaseObject>> typesToInclude = new HashSet<Class<? extends DatabaseObject>>();
+//        Class.forName("com.mysql.jdbc.Driver");
+//        connection = DriverManager.getConnection("jdbc:mysql://10.10.100.100/liquibase", "liquibase", "liquibase");
+//        database = new MySQLDatabase();
+//        database.setConnection(new JdbcConnection(connection));
+
+        Set<Class<? extends DatabaseObject>> typesToInclude = new HashSet<Class<? extends DatabaseObject>>();
 	typesToInclude.add(Table.class);
 	typesToInclude.add(Column.class);
 	typesToInclude.add(PrimaryKey.class);
 	typesToInclude.add(ForeignKey.class);
-	typesToInclude.add(Index.class);
+//	typesToInclude.add(Index.class); //databases generate ones that hibernate doesn't know about
 	typesToInclude.add(UniqueConstraint.class);
 	typesToInclude.add(Sequence.class);
 	compareControl = new CompareControl(typesToInclude);
+        compareControl.addSuppressedField(Table.class, "remarks");
+        compareControl.addSuppressedField(Table.class, "hibernate");
+        compareControl.addSuppressedField(Column.class, "remarks");
+        compareControl.addSuppressedField(Column.class, "certainDataType");
+        compareControl.addSuppressedField(Column.class, "hibernate");
+        compareControl.addSuppressedField(Column.class, "autoIncrementInformation");
+        compareControl.addSuppressedField(ForeignKey.class, "deleteRule");
+        compareControl.addSuppressedField(ForeignKey.class, "updateRule");
+        compareControl.addSuppressedField(ForeignKey.class, "hibernate");
+        compareControl.addSuppressedField(Index.class, "unique");
+        compareControl.addSuppressedField(Index.class, "hibernate");
+        compareControl.addSuppressedField(PrimaryKey.class, "hibernate");
+        compareControl.addSuppressedField(UniqueConstraint.class, "hibernate");
     }
 
     @After
@@ -287,29 +307,16 @@ public class HibernateIntegrationTest {
      * @throws Exception
      */
     private void ignoreConversionFromFloatToDouble64(DiffResult diffResult) throws Exception {
-	Map<DatabaseObject, ObjectDifferences> differences = diffResult.getChangedObjects();
-	List<DatabaseObject> objectsToRemove = new ArrayList<DatabaseObject>();
-	for (Iterator<Entry<DatabaseObject, ObjectDifferences>> iterator = differences.entrySet().iterator(); iterator.hasNext();) {
-	    Entry<DatabaseObject, ObjectDifferences> changedObject = iterator.next();
-	    List<String> differencesToRemove = new ArrayList<String>();
-	    for (Iterator<Difference> iterator2 = changedObject.getValue().getDifferences().iterator(); iterator2.hasNext();) {
-		Difference difference = iterator2.next();
-		if (difference.getReferenceValue().toString().equals("float") && difference.getComparedValue().toString().startsWith("DOUBLE(64)")) {
-		    log.info("Ignoring difference " + changedObject.getKey().toString() + " " + difference.toString());
-		    differencesToRemove.add(difference.getField());
-		}
-	    }
-	    for (Iterator<String> iterator2 = differencesToRemove.iterator(); iterator2.hasNext();) {
-		String differenceToRemove = iterator2.next();
-		changedObject.getValue().removeDifference(differenceToRemove);
-	    }
-	    if (!changedObject.getValue().hasDifferences())
-		objectsToRemove.add(changedObject.getKey());
-	}
-	for (Iterator<DatabaseObject> iterator = objectsToRemove.iterator(); iterator.hasNext();) {
-	    DatabaseObject objectToRemove = iterator.next();
-	    differences.remove(objectToRemove);
-	}
+        Map<DatabaseObject, ObjectDifferences> differences = diffResult.getChangedObjects();
+        for (Iterator<Entry<DatabaseObject, ObjectDifferences>> iterator = differences.entrySet().iterator(); iterator.hasNext(); ) {
+            Entry<DatabaseObject, ObjectDifferences> changedObject = iterator.next();
+            Difference difference = changedObject.getValue().getDifference("type");
+            if (difference != null && difference.getReferenceValue() != null && difference.getComparedValue() != null
+                    && difference.getReferenceValue().toString().equals("float") && difference.getComparedValue().toString().startsWith("DOUBLE(64)")) {
+                log.info("Ignoring difference " + changedObject.getKey().toString() + " " + difference.toString());
+                changedObject.getValue().removeDifference(difference.getField());
+            }
+        }
     }
 
 }

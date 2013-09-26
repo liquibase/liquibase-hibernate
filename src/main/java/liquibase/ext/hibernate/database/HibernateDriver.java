@@ -34,7 +34,7 @@ public class HibernateDriver implements Driver {
 	return false;
     }
 
-    @Override
+    //@Override only override for java 1.7
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
 	throw new SQLFeatureNotSupportedException();
     }

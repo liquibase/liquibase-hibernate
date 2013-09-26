@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.liquibase:liquibase-core:3.0.6-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/liquibase/liquibase-core/3.0.6-SNAPSHOT/liquibase-core-3.0.6-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/liquibase/liquibase-core/3.0.6-SNAPSHOT/liquibase-core-3.0.6-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/liquibase/liquibase-core/3.0.6-SNAPSHOT/liquibase-core-3.0.6-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

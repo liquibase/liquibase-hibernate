@@ -161,4 +161,8 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
 	return true;
     }
 
+    @Override
+    public boolean isCaseSensitive() {
+        return false;
+    }
 }

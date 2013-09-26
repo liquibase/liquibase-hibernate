@@ -226,25 +226,25 @@ public class HibernateConnection implements Connection {
 	return false;
     }
 
-    @Override
+    //@Override only in java 1.7
     public void abort(Executor arg0) throws SQLException {
     }
 
-    @Override
+    //@Override only in java 1.7
     public int getNetworkTimeout() throws SQLException {
 	return 0;
     }
 
-    @Override
+    //@Override only in java 1.7
     public String getSchema() throws SQLException {
 	return null;
     }
 
-    @Override
+    //@Override only in java 1.7
     public void setNetworkTimeout(Executor arg0, int arg1) throws SQLException {
     }
 
-    @Override
+    //@Override only in java 1.7
     public void setSchema(String arg0) throws SQLException {
     }
 }

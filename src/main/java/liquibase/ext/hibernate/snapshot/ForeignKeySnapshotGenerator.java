@@ -64,18 +64,15 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
 			fk.setDeferrable(false);
 			fk.setInitiallyDeferred(false);
 
-			Index index = new Index();
-			index.setName("IX_" + fk.getName());
-			index.setTable(fk.getForeignKeyTable());
-			index.setColumns(fk.getForeignKeyColumns());
-			fk.setBackingIndex(index);
-			table.getIndexes().add(index);
+//			Index index = new Index();
+//			index.setName("IX_" + fk.getName());
+//			index.setTable(fk.getForeignKeyTable());
+//			index.setColumns(fk.getForeignKeyColumns());
+//			fk.setBackingIndex(index);
+//			table.getIndexes().add(index);
 
 			if (currentTable.equals(table)) {
 			    table.getOutgoingForeignKeys().add(fk);
-			}
-			if (referencedTable.equals(table)) {
-			    table.getIncomingForeignKeys().add(fk);
 			}
 		    }
 		}

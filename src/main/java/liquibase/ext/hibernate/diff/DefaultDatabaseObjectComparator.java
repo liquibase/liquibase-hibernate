@@ -6,8 +6,10 @@ import java.util.Set;
 
 import liquibase.database.Database;
 import liquibase.diff.ObjectDifferences;
+import liquibase.diff.compare.CompareControl;
 import liquibase.diff.compare.DatabaseObjectComparator;
 import liquibase.diff.compare.DatabaseObjectComparatorChain;
+import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.DataType;
 import liquibase.structure.core.ForeignKey;
@@ -17,7 +19,16 @@ import liquibase.structure.core.UniqueConstraint;
 public final class DefaultDatabaseObjectComparator implements DatabaseObjectComparator {
 
     public int getPriority(Class<? extends DatabaseObject> objectType, Database database) {
-	return PRIORITY_DEFAULT + 1;
+        if (database instanceof HibernateDatabase) {
+	        return PRIORITY_DEFAULT + 1;
+        } else {
+            return PRIORITY_NONE;
+        }
+    }
+
+    @Override
+    public String[] hash(DatabaseObject databaseObject, Database accordingTo, DatabaseObjectComparatorChain chain) {
+        return chain.hash(databaseObject, accordingTo);
     }
 
     public boolean isSameObject(DatabaseObject databaseObject1, DatabaseObject databaseObject2, Database accordingTo, DatabaseObjectComparatorChain chain) {
@@ -30,16 +41,17 @@ public final class DefaultDatabaseObjectComparator implements DatabaseObjectComp
 
     }
 
-    public ObjectDifferences findDifferences(DatabaseObject databaseObject1, DatabaseObject databaseObject2, Database accordingTo, DatabaseObjectComparatorChain chain) {
+    @Override
+    public ObjectDifferences findDifferences(DatabaseObject databaseObject1, DatabaseObject databaseObject2, Database accordingTo, CompareControl compareControl, DatabaseObjectComparatorChain chain, Set<String> exclude) {
 
 	if (databaseObject1.getAttribute("hibernate", String.class) == null && databaseObject2.getAttribute("hibernate", String.class) == null)
-	    return chain.findDifferences(databaseObject1, databaseObject2, accordingTo);
+	    return chain.findDifferences(databaseObject1, databaseObject2, accordingTo, compareControl, exclude);
 
 	Set<String> attributes = new HashSet<String>();
 	attributes.addAll(databaseObject1.getAttributes());
 	attributes.addAll(databaseObject2.getAttributes());
 
-	ObjectDifferences differences = new ObjectDifferences();
+	ObjectDifferences differences = new ObjectDifferences(compareControl);
 
 	for (String attribute : attributes) {
 	    Object attribute1 = databaseObject1.getAttribute(attribute, Object.class);
@@ -75,7 +87,7 @@ public final class DefaultDatabaseObjectComparator implements DatabaseObjectComp
 		// Ignore case for object name and column names
 		compareFunction = new ToStringCompareFunction(accordingTo);
 	    } else {
-		compareFunction = new ObjectDifferences.StandardCompareFunction();
+		compareFunction = new ObjectDifferences.StandardCompareFunction(accordingTo);
 	    }
 	    differences.compare(attribute, databaseObject1, databaseObject2, compareFunction);
 
