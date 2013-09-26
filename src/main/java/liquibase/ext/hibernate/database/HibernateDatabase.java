@@ -5,6 +5,7 @@ import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.ejb.Ejb3Configuration;
@@ -57,6 +58,20 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
                 ejb3Configuration.configure(getConnection().getURL().substring("persistence:".length()), Collections.EMPTY_MAP);
                 configuration = ejb3Configuration.getHibernateConfiguration();
                 configuration.setProperty("hibernate.dialect", ejb3Configuration.getProperties().getProperty("hibernate.dialect"));
+
+                String namingStrategy = ejb3Configuration.getProperties().getProperty("hibernate.ejb.naming_strategy");
+                if (namingStrategy != null) {
+                    try {
+                        configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
+                    } catch (ClassNotFoundException e) {
+                        throw new IllegalStateException("Failed to instantiate naming strategy", e);
+                    } catch (InstantiationException e) {
+                        throw new IllegalStateException("Couldn't access naming strategy", e);
+                    } catch (IllegalAccessException e) {
+                        throw new IllegalStateException("Failed to find naming strategy", e);
+                    }
+                }
+
                 for (PostInsertEventListener postInsertEventListener : configuration.getEventListeners().getPostInsertEventListeners()) {
                     if (postInsertEventListener instanceof org.hibernate.envers.event.AuditEventListener) {
                         AuditConfiguration.getFor(configuration);
