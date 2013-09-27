@@ -18,13 +18,15 @@ import java.util.Collections;
 
 public class HibernateDatabase extends AbstractJdbcDatabase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HibernateDatabase.class);
+    private static final Logger LOG                   = LoggerFactory.getLogger(HibernateDatabase.class);
 
-    private Configuration configuration;
-    private Dialect dialect;
-    private boolean indexesForForeignKeys = false;
+    private Configuration       configuration;
 
-    private ConfigLocator locator;
+    private Dialect             dialect;
+
+    private boolean             indexesForForeignKeys = false;
+
+    private ConfigLocator       locator;
 
     public HibernateDatabase() {
     }
@@ -103,6 +105,10 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
                     }
                     break;
                 }
+            case CUSTOM: {
+                configuration = new CustomConfigurator(locator).getConfiguration();
+                break;
+            }
         }
         configuration.buildMappings();
         String dialectString = configuration.getProperty("hibernate.dialect");
