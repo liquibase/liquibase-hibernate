@@ -103,8 +103,8 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
                     } catch (ClassNotFoundException e) {
                         throw new IllegalStateException("Failed to find naming strategy", e);
                     }
-                    break;
                 }
+                break;
             case CUSTOM: {
                 configuration = new CustomConfigurator(locator).getConfiguration();
                 break;
