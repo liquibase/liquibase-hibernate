@@ -4,6 +4,6 @@ import org.hibernate.cfg.Configuration;
 
 public interface CustomConfigurationFactory {
 
-    Configuration getConfiguration();
+    Configuration getConfiguration(ConfigLocator locator);
 
 }

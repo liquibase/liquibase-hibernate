@@ -12,7 +12,7 @@ public class CustomConfigurator {
 
     public Configuration getConfiguration() {
         try {
-            return ((CustomConfigurationFactory) Class.forName(this.locator.getPath()).newInstance()).getConfiguration();
+            return ((CustomConfigurationFactory) Class.forName(this.locator.getPath()).newInstance()).getConfiguration(this.locator);
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
