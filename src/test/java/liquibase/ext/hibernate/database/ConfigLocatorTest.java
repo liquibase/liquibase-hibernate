@@ -12,7 +12,12 @@ import org.junit.Test;
  * Tests the {@link ConfigLocator} class.
  */
 public class ConfigLocatorTest {
-    private final String FILE_PATH = "/path/to/file.ext";
+
+    private static final String CUSTOMCONFIG_CLASS   = "org.liquibase.test.CustomConfigurationFactoryImpl";
+
+    private static final String CUSTOMCONFIG_TO_TEST = "customconfig:" + CUSTOMCONFIG_CLASS;
+
+    private final String        FILE_PATH            = "/path/to/file.ext";
 
     @Before
     public void setUp() throws Exception {
@@ -89,4 +94,17 @@ public class ConfigLocatorTest {
         assertTrue(locator.equals(new ConfigLocator("hibernate:" + FILE_PATH)));
         assertFalse(locator.equals(new ConfigLocator("spring:" + FILE_PATH)));
     }
+
+    @Test
+    public void testCanFindCustomConfigType() {
+        ConfigLocator configLocator = new ConfigLocator(CUSTOMCONFIG_TO_TEST);
+        assertEquals(ConfigType.CUSTOM, configLocator.getType());
+    }
+
+    @Test
+    public void testPathMustBeTheClassName() {
+        ConfigLocator configLocator = new ConfigLocator(CUSTOMCONFIG_TO_TEST);
+        assertEquals(CUSTOMCONFIG_CLASS, configLocator.getPath());
+    }
+
 }
