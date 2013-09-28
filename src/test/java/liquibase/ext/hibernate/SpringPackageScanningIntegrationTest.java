@@ -266,13 +266,6 @@ public class SpringPackageScanningIntegrationTest {
         Database database2 = new HsqlDatabase();
         database2.setConnection(new JdbcConnection(connection2));
 
-        SimpleNamingContextBuilder builder = SimpleNamingContextBuilder
-                .emptyActivatedContextBuilder();
-        SingleConnectionDataSource ds = new SingleConnectionDataSource(
-                connection, true);
-        builder.bind("java:/data", ds);
-        builder.activate();
-
         Configuration cfg = createSpringPackageScanningConfiguration();
         cfg.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:TESTDB2");
 
