@@ -88,6 +88,10 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
                     throw new DatabaseException(e1);
                 }
                 break;
+            case SPRING_PACKAGE_SCANNING: {
+                configuration = new SpringPackageScanningConfigurator(locator).createSpringConfiguration();
+                break;
+            }
             case HIBERNATE:
                 configuration = new Configuration();
                 configuration.configure(locator.getPath());

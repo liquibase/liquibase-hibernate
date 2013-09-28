@@ -1,7 +1,8 @@
 package liquibase.ext.hibernate.database;
 
 public enum ConfigType {
-    HIBERNATE("hibernate"), EJB3("persistence"), SPRING("spring"), CUSTOM("customconfig");
+    HIBERNATE("hibernate"), EJB3("persistence"), SPRING("spring"), CUSTOM(
+            "customconfig"), SPRING_PACKAGE_SCANNING("spring-package-scanning");
 
     private final String prefix;
 
