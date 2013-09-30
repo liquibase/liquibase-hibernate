@@ -4,6 +4,7 @@ import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 
+import org.hibernate.dialect.HSQLDialect;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,6 +55,13 @@ public class HibernateDatabaseTest {
     @Test
     public void testCustomConfigMustHaveItemClassMapping() throws DatabaseException {
         conn = new JdbcConnection(new HibernateConnection(CUSTOMCONFIG_TO_TEST));
+        db.setConnection(conn);
+        Assert.assertNotNull(db.getConfiguration().getClassMapping(Item.class.getName()));
+    }
+    
+    @Test
+    public void testSpringPackageScanningMustHaveItemClassMapping() throws DatabaseException {
+        conn = new JdbcConnection(new HibernateConnection("spring-package-scanning:org.liquibase.test?dialect="+HSQLDialect.class.getName()));
         db.setConnection(conn);
         Assert.assertNotNull(db.getConfiguration().getClassMapping(Item.class.getName()));
     }
