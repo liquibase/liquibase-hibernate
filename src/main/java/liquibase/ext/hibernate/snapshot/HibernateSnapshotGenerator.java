@@ -53,7 +53,6 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
     public final DatabaseObject snapshot(DatabaseObject example, DatabaseSnapshot snapshot, SnapshotGeneratorChain chain) throws DatabaseException, InvalidExampleException {
         if (defaultFor != null && defaultFor.isAssignableFrom(example.getClass())) {
             DatabaseObject result = snapshotObject(example, snapshot);
-            result.setAttribute("hibernate", "true");
             return result;
         }
         DatabaseObject chainResponse = chain.snapshot(example, snapshot);
