@@ -69,18 +69,12 @@ public class HibernateIntegrationTest {
         typesToInclude.add(Sequence.class);
         compareControl = new CompareControl(typesToInclude);
         compareControl.addSuppressedField(Table.class, "remarks");
-        compareControl.addSuppressedField(Table.class, "hibernate");
         compareControl.addSuppressedField(Column.class, "remarks");
         compareControl.addSuppressedField(Column.class, "certainDataType");
-        compareControl.addSuppressedField(Column.class, "hibernate");
         compareControl.addSuppressedField(Column.class, "autoIncrementInformation");
         compareControl.addSuppressedField(ForeignKey.class, "deleteRule");
         compareControl.addSuppressedField(ForeignKey.class, "updateRule");
-        compareControl.addSuppressedField(ForeignKey.class, "hibernate");
         compareControl.addSuppressedField(Index.class, "unique");
-        compareControl.addSuppressedField(Index.class, "hibernate");
-        compareControl.addSuppressedField(PrimaryKey.class, "hibernate");
-        compareControl.addSuppressedField(UniqueConstraint.class, "hibernate");
     }
 
     @After
