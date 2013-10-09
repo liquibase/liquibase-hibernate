@@ -39,9 +39,7 @@
 		<developer>
 			<id>nvoxland</id>
 			<name>Nathan Voxland</name>
-			<email>nathan@voxland.net</email>
-			<url>http://nathan.voxland.net</url>
-			<organizationUrl>http://nathan.voxland.net/</organizationUrl>
+			<email>nathan.voxland@liquibase.org</email>
 			<roles>
 				<role>architect</role>
 				<role>developer</role>
@@ -135,7 +133,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>3.0.6-SNAPSHOT</version>
+			<version>3.0.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
