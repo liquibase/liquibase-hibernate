@@ -7,6 +7,9 @@ import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Catalog;
 import liquibase.structure.core.Schema;
 
+/**
+ * Hibernate doesn't really support Schemas, so just return the passed example back as if it had all the info it needed.
+ */
 public class SchemaSnapshotGenerator extends HibernateSnapshotGenerator {
 
     public SchemaSnapshotGenerator() {

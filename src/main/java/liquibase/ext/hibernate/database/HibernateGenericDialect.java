@@ -5,6 +5,9 @@ import org.hibernate.dialect.Dialect;
 
 import java.sql.Types;
 
+/**
+ * Generic hibernate dialect used when an actual dialect cannot be determined.
+ */
 public class HibernateGenericDialect extends Dialect {
     public HibernateGenericDialect() throws DatabaseException {
         super();

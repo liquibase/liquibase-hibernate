@@ -3,118 +3,55 @@ package liquibase.ext.hibernate.database;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
+import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
+import liquibase.exception.UnexpectedLiquibaseException;
+import liquibase.ext.hibernate.database.connection.HibernateConnection;
+import liquibase.ext.hibernate.database.connection.HibernateDriver;
+import liquibase.logging.LogFactory;
+import liquibase.logging.Logger;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
-import org.hibernate.ejb.Ejb3Configuration;
-import org.hibernate.envers.configuration.AuditConfiguration;
-import org.hibernate.event.PostInsertEventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
+/**
+ * Base class for all Hibernate Databases. This extension interacts with Hibernate by creating standard liquibase.database.Database implementations that
+ * bridge what Liquibase expects and the Hibernate APIs.
+ */
+public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
-public class HibernateDatabase extends AbstractJdbcDatabase {
+    protected static final Logger LOG = LogFactory.getLogger("liquibase-hibernate");
 
-    private static final Logger LOG                   = LoggerFactory.getLogger(HibernateDatabase.class);
+    private Configuration configuration;
 
-    private Configuration       configuration;
+    private Dialect dialect;
 
-    private Dialect             dialect;
+    private boolean indexesForForeignKeys = false;
 
-    private boolean             indexesForForeignKeys = false;
+    @Override
+    public void setConnection(DatabaseConnection conn) {
+        super.setConnection(conn);
 
-    private ConfigLocator       locator;
+        try {
+            LOG.info("Reading hibernate configuration " + getConnection().getURL());
 
-    public HibernateDatabase() {
-    }
+            this.configuration = buildConfiguration(((HibernateConnection) ((JdbcConnection) conn).getUnderlyingConnection()));
 
-    public boolean requiresPassword() {
-        return false;
-    }
+            this.configuration.buildMappings();
+            this.dialect = configureDialect();
 
-    public boolean requiresUsername() {
-        return false;
-    }
-
-    public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
-        return ConfigType.forUrl(conn.getURL()) != null;
-    }
-
-    public String getDefaultDriver(String url) {
-        return HibernateDriver.class.getName();
-    }
-
-    public int getPriority() {
-        return PRIORITY_DEFAULT;
-    }
-
-    private void configure() throws DatabaseException {
-        LOG.info("Reading configuration " + getConnection().getURL());
-        locator = new ConfigLocator(getConnection().getURL());
-        String namingStrategy;
-        switch (locator.getType()) {
-            case EJB3:
-                Ejb3Configuration ejb3Configuration = new Ejb3Configuration();
-                ejb3Configuration.configure(getConnection().getURL().substring("persistence:".length()), Collections.EMPTY_MAP);
-                configuration = ejb3Configuration.getHibernateConfiguration();
-                configuration.setProperty("hibernate.dialect", ejb3Configuration.getProperties().getProperty("hibernate.dialect"));
-
-                namingStrategy = ejb3Configuration.getProperties().getProperty("hibernate.ejb.naming_strategy");
-                if (namingStrategy != null) {
-                    try {
-                        configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
-                    } catch (ClassNotFoundException e) {
-                        throw new IllegalStateException("Failed to instantiate naming strategy", e);
-                    } catch (InstantiationException e) {
-                        throw new IllegalStateException("Couldn't access naming strategy", e);
-                    } catch (IllegalAccessException e) {
-                        throw new IllegalStateException("Failed to find naming strategy", e);
-                    }
-                }
-
-                for (PostInsertEventListener postInsertEventListener : configuration.getEventListeners().getPostInsertEventListeners()) {
-                    if (postInsertEventListener instanceof org.hibernate.envers.event.AuditEventListener) {
-                        AuditConfiguration.getFor(configuration);
-                    }
-                }
-                break;
-            case SPRING:
-                try {
-                    configuration = new SpringConfigurator(locator).createSpringConfiguration();
-                } catch (Exception e1) {
-                    throw new DatabaseException(e1);
-                }
-                break;
-            case SPRING_PACKAGE_SCANNING: {
-                configuration = new SpringPackageScanningConfigurator(locator).createSpringConfiguration();
-                break;
-            }
-            case HIBERNATE:
-                configuration = new Configuration();
-                configuration.configure(locator.getPath());
-
-                namingStrategy = configuration.getProperty("hibernate.namingStrategy");
-                if (namingStrategy != null) {
-                    try {
-                        configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
-                    } catch (InstantiationException e) {
-                        throw new IllegalStateException("Failed to instantiate naming strategy", e);
-                    } catch (IllegalAccessException e) {
-                        throw new IllegalStateException("Couldn't access naming strategy", e);
-                    } catch (ClassNotFoundException e) {
-                        throw new IllegalStateException("Failed to find naming strategy", e);
-                    }
-                }
-                break;
-            case CUSTOM: {
-                configuration = new CustomConfigurator(locator).getConfiguration();
-                break;
-            }
+            afterSetup();
+        } catch (DatabaseException e) {
+            throw new UnexpectedLiquibaseException(e);
         }
-        configuration.buildMappings();
+
+    }
+
+    /**
+     * Return the dialect used by hibernate
+     */
+    protected Dialect configureDialect() throws DatabaseException {
+        Dialect dialect;
         String dialectString = configuration.getProperty("hibernate.dialect");
         if (dialectString != null)
             try {
@@ -127,18 +64,44 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
             LOG.info("Could not determine hibernate dialect, using HibernateGenericDialect");
             dialect = new HibernateGenericDialect();
         }
-        if (dialect instanceof MySQLDialect)
+
+        return dialect;
+    }
+
+    /**
+     * Perform any post-configuration setting logic.
+     */
+    protected void afterSetup() {
+        if (dialect instanceof MySQLDialect) {
             indexesForForeignKeys = true;
+        }
+    }
+
+    /**
+     * Concrete implementations use this method to create the hibernate Configuration object based on the passed URL
+     */
+
+    protected abstract Configuration buildConfiguration(HibernateConnection conn) throws DatabaseException;
+
+    public boolean requiresPassword() {
+        return false;
+    }
+
+    public boolean requiresUsername() {
+        return false;
+    }
+
+    public String getDefaultDriver(String url) {
+        return HibernateDriver.class.getName();
+    }
+
+    public int getPriority() {
+        return PRIORITY_DEFAULT;
     }
 
     @Override
     public boolean createsIndexesForForeignKeys() {
         return indexesForForeignKeys;
-    }
-
-    @Override
-    public String getShortName() {
-        return "hibernate";
     }
 
     @Override
@@ -156,20 +119,11 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
         return false;
     }
 
-    @Override
-    protected String getDefaultDatabaseProductName() {
-        return getDatabaseProductName();
-    }
-
     public Configuration getConfiguration() throws DatabaseException {
-        if (configuration == null)
-            configure();
         return configuration;
     }
 
     public Dialect getDialect() throws DatabaseException {
-        if (dialect == null)
-            configure();
         return dialect;
     }
 
@@ -195,12 +149,32 @@ public class HibernateDatabase extends AbstractJdbcDatabase {
 
     @Override
     public boolean isSafeToRunUpdate() throws DatabaseException {
-        // Do not prompt the user before running Liquibase
         return true;
     }
 
     @Override
     public boolean isCaseSensitive() {
+        return false;
+    }
+
+    @Override
+    public String getDefaultSchemaName() {
+        return null;
+    }
+
+    @Override
+    public String getDefaultCatalogName() {
+        return null;
+    }
+
+
+    @Override
+    public boolean supportsSchemas() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsCatalogs() {
         return false;
     }
 }

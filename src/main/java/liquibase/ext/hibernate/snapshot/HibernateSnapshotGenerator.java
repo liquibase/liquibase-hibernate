@@ -3,6 +3,8 @@ package liquibase.ext.hibernate.snapshot;
 import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
+import liquibase.logging.LogFactory;
+import liquibase.logging.Logger;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.snapshot.SnapshotGenerator;
@@ -12,6 +14,9 @@ import org.hibernate.cfg.Configuration;
 
 import java.util.Iterator;
 
+/**
+ * Base class for all Hibernate SnapshotGenerators
+ */
 public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
 
     private static final int PRIORITY_HIBERNATE_ADDITIONAL = 200;
@@ -19,6 +24,9 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
 
     private Class<? extends DatabaseObject> defaultFor = null;
     private Class<? extends DatabaseObject>[] addsTo = null;
+
+    protected static final Logger LOG = LogFactory.getLogger("liquibase-hibernate");
+
 
     protected HibernateSnapshotGenerator(Class<? extends DatabaseObject> defaultFor) {
         this.defaultFor = defaultFor;

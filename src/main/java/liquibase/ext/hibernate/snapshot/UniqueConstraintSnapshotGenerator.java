@@ -6,14 +6,10 @@ import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Table;
 import liquibase.structure.core.UniqueConstraint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 
 public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UniqueConstraintSnapshotGenerator.class);
 
     public UniqueConstraintSnapshotGenerator() {
         super(UniqueConstraint.class, new Class[]{Table.class});

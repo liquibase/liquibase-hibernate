@@ -1,19 +1,14 @@
 package liquibase.ext.hibernate.snapshot;
 
 import liquibase.exception.DatabaseException;
-import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Table;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(HibernateDatabase.class);
 
     public PrimaryKeySnapshotGenerator() {
         super(PrimaryKey.class, new Class[]{Table.class});

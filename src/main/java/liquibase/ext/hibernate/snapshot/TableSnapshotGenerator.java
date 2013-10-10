@@ -12,16 +12,13 @@ import liquibase.structure.core.Table;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.Mapping;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.mapping.PrimaryKey;
 
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TableSnapshotGenerator.class);
 
     private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*\\)?");
 
@@ -38,8 +35,10 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
         Mapping mapping = cfg.buildMapping();
 
         org.hibernate.mapping.Table hibernateTable = findHibernateTable(example, snapshot);
-        if (hibernateTable == null)
+        if (hibernateTable == null) {
             return null;
+        }
+
         Table table = new Table().setName(hibernateTable.getName());
         LOG.info("Found table " + table.getName());
 
@@ -74,6 +73,12 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             column.setNullable(hibernateColumn.isNullable());
             column.setCertainDataType(false);
 
+            PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
+            if (hibernatePrimaryKey != null) {
+                if (hibernatePrimaryKey.getColumns().size() == 1 && hibernatePrimaryKey.getColumn(0).getName().equals(hibernateColumn.getName())) {
+                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                }
+            }
             column.setRelation(table);
 
             table.getColumns().add(column);

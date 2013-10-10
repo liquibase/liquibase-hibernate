@@ -8,12 +8,12 @@
 		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 		<property name="annotatedClasses">
 			<list>
-				<value>com.example.auction.Watcher</value>
+				<value>com.example.pojo.auction.Watcher</value>
 			</list>
 		</property>
 		<property name="mappingLocations">
 			<list>
-				<value>classpath*:com/example/auction/**/*.hbm.xml</value>
+				<value>classpath*:com/example/pojo/auction/**/*.hbm.xml</value>
 			</list>
 		</property>
 		<property name="hibernateProperties">
