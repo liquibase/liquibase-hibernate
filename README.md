@@ -2,9 +2,19 @@
 
 This extension lets you use your Hibernate configuration as a comparison database for diff, diffChangeLog and generateChangeLog in Liquibase.
 
+## Download
+
 Download the extension from the [project releases tab](https://github.com/liquibase/liquibase-hibernate/releases)
 
+## Maven
+
+This extension is available in the maven repository under group org.liquibase.ext, artifacts liquibase-hibernate3 and liquibase-hibernate4
+
+## More Information
+
 For more information, see the [project wiki](https://github.com/liquibase/liquibase-hibernate/wiki/)
+
+## Issue Tracking
 
 Any issues can be logged in the [Github issue tracker](https://github.com/liquibase/liquibase-hibernate/issues)
 
