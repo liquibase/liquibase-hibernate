@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.liquibase.ext</groupId>
 	<artifactId>liquibase-hibernate3</artifactId>
-	<version>3.1-SNAPSHOT</version>
+	<version>3.0-SNAPSHOT</version>
 
 	<name>Liquibase Hibernate Integration</name>
 	<description>Liquibase extension for hibernate integration including generating changesets based on changed
@@ -31,6 +32,7 @@
 	<scm>
 		<connection>scm:git:git@github.com:liquibase/liquibase-hibernate.git</connection>
 		<url>https://github.com/liquibase/liquibase-hibernate</url>
+		<developerConnection>scm:git:git@github.com:liquibase/liquibase-hibernate.git</developerConnection>
 	</scm>
 
 	<developers>
@@ -242,12 +244,12 @@
         <repository>
             <id>sonatype-nexus-staging</id>
             <name>Nexus Release Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
         <snapshotRepository>
             <id>sonatype-nexus-snapshots</id>
             <name>Sonatype Nexus Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
