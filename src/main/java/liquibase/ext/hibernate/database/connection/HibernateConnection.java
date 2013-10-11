@@ -151,7 +151,7 @@ public class HibernateConnection implements Connection {
     }
 
     public String getCatalog() throws SQLException {
-        return null;
+        return "HIBERNATE";
     }
 
     public void setTransactionIsolation(int level) throws SQLException {
@@ -301,7 +301,7 @@ public class HibernateConnection implements Connection {
 
     //@Override only in java 1.7
     public String getSchema() throws SQLException {
-        return null;
+        return "HIBERNATE";
     }
 
     //@Override only in java 1.7

@@ -18,7 +18,7 @@ public class CatalogSnapshotGenerator extends HibernateSnapshotGenerator {
 
     @Override
     protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        return example;
+        return new Catalog("HIBERNATE");
     }
 
     @Override
