@@ -213,10 +213,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>2.2.1</version>
-					<configuration>
-						<mavenExecutorId>forked-path</mavenExecutorId>
-					</configuration>
+                    <version>2.2.2</version>
+                    <configuration>
+                        <stagingRepository>/tmp/maven-snapshot</stagingRepository>
+                        <mavenExecutorId>forked-path</mavenExecutorId>
+                        <pushChanges>false</pushChanges>
+                    </configuration>
 				</plugin>
 
 
