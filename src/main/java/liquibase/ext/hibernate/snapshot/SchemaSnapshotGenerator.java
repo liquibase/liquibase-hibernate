@@ -18,7 +18,7 @@ public class SchemaSnapshotGenerator extends HibernateSnapshotGenerator {
 
     @Override
     protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        return new Schema("HIBERNATE", "HIBERNATE");
+        return new Schema(snapshot.getDatabase().getDefaultCatalogName(), snapshot.getDatabase().getDefaultSchemaName());
     }
 
     @Override
