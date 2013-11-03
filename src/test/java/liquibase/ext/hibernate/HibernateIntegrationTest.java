@@ -208,14 +208,15 @@ public class HibernateIntegrationTest {
         log.info(stringWriter.toString());
         liquibase.update(null);
 
-        Connection connection2 = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB2", "SA", "");
+        long currentTimeMillis = System.currentTimeMillis();
+        Connection connection2 = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis, "SA", "");
         Database database2 = new HsqlDatabase();
         database2.setConnection(new JdbcConnection(connection2));
 
         Configuration cfg = new Configuration();
         cfg.configure(HIBERNATE_CONFIG_FILE);
-        cfg.getProperties().remove("hibernate.connection.datasource");
-        cfg.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:TESTDB2");
+        cfg.getProperties().remove(Environment.DATASOURCE);
+        cfg.setProperty(Environment.URL, "jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis);
 
         SchemaUpdate update = new SchemaUpdate(cfg);
         update.execute(true, true);

@@ -234,12 +234,13 @@ public class SpringPackageScanningIntegrationTest {
         log.info(stringWriter.toString());
         liquibase.update(null);
 
-        Connection connection2 = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB2", "SA", "");
+        long currentTimeMillis = System.currentTimeMillis();
+        Connection connection2 = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis, "SA", "");
         Database database2 = new HsqlDatabase();
         database2.setConnection(new JdbcConnection(connection2));
 
         Configuration cfg = createSpringPackageScanningConfiguration();
-        cfg.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:TESTDB2");
+        cfg.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis);
 
         SchemaUpdate update = new SchemaUpdate(cfg);
         update.execute(true, true);
