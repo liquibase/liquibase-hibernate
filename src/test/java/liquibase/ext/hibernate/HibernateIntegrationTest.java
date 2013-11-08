@@ -20,6 +20,7 @@ import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.junit.After;
@@ -34,6 +35,7 @@ import java.sql.DriverManager;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -141,13 +143,13 @@ public class HibernateIntegrationTest {
     @Test
     public void hibernateSchemaExport() throws Exception {
 
-        SimpleNamingContextBuilder builder = SimpleNamingContextBuilder.emptyActivatedContextBuilder();
         SingleConnectionDataSource ds = new SingleConnectionDataSource(connection, true);
-        builder.bind("java:/data", ds);
-        builder.activate();
 
         Configuration cfg = new Configuration();
         cfg.configure(HIBERNATE_CONFIG_FILE);
+        Properties properties = new Properties();
+        properties.put(Environment.DATASOURCE, ds);
+        cfg.addProperties(properties);
 
         SchemaExport export = new SchemaExport(cfg);
         export.execute(true, true, false, false);
@@ -206,14 +208,15 @@ public class HibernateIntegrationTest {
         log.info(stringWriter.toString());
         liquibase.update(null);
 
-        Connection connection2 = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB2", "SA", "");
+        long currentTimeMillis = System.currentTimeMillis();
+        Connection connection2 = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis, "SA", "");
         Database database2 = new HsqlDatabase();
         database2.setConnection(new JdbcConnection(connection2));
 
         Configuration cfg = new Configuration();
         cfg.configure(HIBERNATE_CONFIG_FILE);
-        cfg.getProperties().remove("hibernate.connection.datasource");
-        cfg.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:TESTDB2");
+        cfg.getProperties().remove(Environment.DATASOURCE);
+        cfg.setProperty(Environment.URL, "jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis);
 
         SchemaUpdate update = new SchemaUpdate(cfg);
         update.execute(true, true);
