@@ -61,8 +61,8 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                 if (!matcher.group(2).isEmpty())
                     dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
             } else {
-                dataType.setDecimalDigits(Integer.parseInt(matcher.group(2)));
-                dataType.setRadix(Integer.parseInt(matcher.group(3)));
+                dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
+                dataType.setDecimalDigits(Integer.parseInt(matcher.group(3)));
             }
 
             dataType.setDataTypeId(hibernateColumn.getSqlTypeCode());
