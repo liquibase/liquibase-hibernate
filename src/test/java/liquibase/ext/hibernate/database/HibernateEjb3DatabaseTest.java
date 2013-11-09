@@ -91,7 +91,8 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("watcher")),
                 hasProperty("name", is("user")),
                 hasProperty("name", is("auction_info")),
-                hasProperty("name", is("auction_item"))));
+                hasProperty("name", is("auction_item")),
+                hasProperty("name", is("item"))));
 
     }
 }
