@@ -48,6 +48,19 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 LOG.info("Found unique constraint " + uniqueConstraint.toString());
                 table.getUniqueConstraints().add(uniqueConstraint);
             }
+            Iterator columnIterator = hibernateTable.getColumnIterator();
+            while (columnIterator.hasNext()) {
+                org.hibernate.mapping.Column column = (org.hibernate.mapping.Column) columnIterator.next();
+                if(column.isUnique()) {
+                    UniqueConstraint uniqueConstraint = new UniqueConstraint();
+                    uniqueConstraint.setTable(table);
+                    String name = "UC_" + table.getName().toUpperCase() + column.getName().toUpperCase() + "_COL";
+                    uniqueConstraint.addColumn(0, column.getName());
+                    uniqueConstraint.setName(name);
+                    LOG.info("Found unique constraint " + uniqueConstraint.toString());
+                    table.getUniqueConstraints().add(uniqueConstraint);
+                }
+            }
         }
     }
 
