@@ -1,5 +1,6 @@
 package com.example.ejb3.auction;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,6 +14,7 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.SEQUENCE,generator="ITEM_SEQ")
     @SequenceGenerator(name="ITEM_SEQ",sequenceName="ITEM_SEQ")
     private long id;
+    @Column(unique = true)
     private String name;
     
     public long getId() {
