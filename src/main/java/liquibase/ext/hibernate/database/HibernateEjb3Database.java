@@ -8,7 +8,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.envers.configuration.AuditConfiguration;
-import org.hibernate.event.spi.PostInsertEventListener;
+import org.hibernate.event.PostInsertEventListener;
 
 /**
  * Database implementation for "ejb3" hibernate configurations.
@@ -44,12 +44,11 @@ public class HibernateEjb3Database extends HibernateDatabase {
             }
         }
 
-//I don't see how this is supported in hibernate 4
-//        for (PostInsertEventListener postInsertEventListener : configuration.getEventListeners().getPostInsertEventListeners()) {
-//            if (postInsertEventListener instanceof org.hibernate.envers.event.AuditEventListener) {
-//                AuditConfiguration.getFor(configuration);
-//            }
-//        }
+        for (PostInsertEventListener postInsertEventListener : configuration.getEventListeners().getPostInsertEventListeners()) {
+            if (postInsertEventListener instanceof org.hibernate.envers.event.AuditEventListener) {
+                AuditConfiguration.getFor(configuration);
+            }
+        }
 
         return configuration;
     }
