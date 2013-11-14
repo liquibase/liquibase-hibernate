@@ -9,6 +9,7 @@ import liquibase.structure.core.Column;
 import liquibase.structure.core.DataType;
 import liquibase.structure.core.Schema;
 import liquibase.structure.core.Table;
+import liquibase.util.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.Mapping;
@@ -20,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
-    private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*\\)?");
+    private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
 
     public TableSnapshotGenerator() {
         super(Table.class, new Class[]{Schema.class});
@@ -52,21 +53,13 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             // TODO autoincrement
 
             String hibernateType = hibernateColumn.getSqlType(dialect, mapping);
-            LOG.info("Found column " + column.getName() + " " + hibernateType);
-            Matcher matcher = pattern.matcher(hibernateColumn.getSqlType(dialect, mapping));
-            if (!matcher.matches())
-                throw new DatabaseException("Unable to find column data type for column " + column.getName());
-            DataType dataType = new DataType(matcher.group(1));
-            if (matcher.group(3).isEmpty()) {
-                if (!matcher.group(2).isEmpty())
-                    dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
-            } else {
-                dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
-                dataType.setDecimalDigits(Integer.parseInt(matcher.group(3)));
+            DataType dataType = toDataType(hibernateType, hibernateColumn.getSqlTypeCode());
+            if (dataType == null) {
+                throw new DatabaseException("Unable to find column data type for column " + hibernateColumn.getName());
             }
 
-            dataType.setDataTypeId(hibernateColumn.getSqlTypeCode());
             column.setType(dataType);
+            LOG.info("Found column " + column.getName() + " " + column.getType().toString());
 
             column.setRemarks(hibernateColumn.getComment());
             column.setDefaultValue(hibernateColumn.getDefaultValue());
@@ -86,6 +79,31 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
         }
 
         return table;
+    }
+
+    protected DataType toDataType(String hibernateType, int sqlTypeCode) throws DatabaseException {
+        Matcher matcher = pattern.matcher(hibernateType);
+        if (!matcher.matches()) {
+            return null;
+        }
+        DataType dataType = new DataType(matcher.group(1));
+        if (matcher.group(3).isEmpty()) {
+            if (!matcher.group(2).isEmpty())
+                dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
+        } else {
+            dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
+            dataType.setDecimalDigits(Integer.parseInt(matcher.group(3)));
+        }
+
+        String extra = StringUtils.trimToNull(matcher.group(4));
+        if (extra != null) {
+            if (extra.equalsIgnoreCase("char")) {
+                dataType.setColumnSizeUnit(DataType.ColumnSizeUnit.CHAR);
+            }
+        }
+
+        dataType.setDataTypeId(sqlTypeCode);
+        return dataType;
     }
 
     @Override
