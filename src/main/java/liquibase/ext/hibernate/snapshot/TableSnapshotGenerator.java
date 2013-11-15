@@ -81,7 +81,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
         return table;
     }
 
-    protected DataType toDataType(String hibernateType, int sqlTypeCode) throws DatabaseException {
+    protected DataType toDataType(String hibernateType, Integer sqlTypeCode) throws DatabaseException {
         Matcher matcher = pattern.matcher(hibernateType);
         if (!matcher.matches()) {
             return null;
