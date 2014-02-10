@@ -27,7 +27,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     private Dialect dialect;
 
     private boolean indexesForForeignKeys = false;
-    
+
     public HibernateDatabase() {
         setDefaultCatalogName("HIBERNATE");
         setDefaultSchemaName("HIBERNATE");
@@ -97,7 +97,10 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     }
 
     public String getDefaultDriver(String url) {
-        return HibernateDriver.class.getName();
+        if (url.startsWith("hibernate")) {
+            return HibernateDriver.class.getName();
+        }
+        return null;
     }
 
     public int getPriority() {
