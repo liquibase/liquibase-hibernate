@@ -121,7 +121,7 @@ public class HibernateConnectionMetadata implements DatabaseMetaData {
     }
 
     public String getSQLKeywords() throws SQLException {
-        return null;
+        return ""; // do not return null here due to liquibase.database.jvm.JdbcConnection:30 to avoid NPE's there
     }
 
     public String getNumericFunctions() throws SQLException {
