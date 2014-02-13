@@ -1,13 +1,7 @@
 package com.example.ejb3.auction;
 
+import javax.persistence.*;
 import java.util.Date;
-
-import javax.annotation.Generated;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 @Entity
 public class AuctionInfo {
@@ -31,8 +25,25 @@ public class AuctionInfo {
         return id;
     }
 
+
     public Float getMaxAmount() {
         return maxAmount;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setEnds(Date ends) {
+        this.ends = ends;
+    }
+
+    public void setMaxAmount(Float maxAmount) {
+        this.maxAmount = maxAmount;
     }
 
     public AuctionInfo(long id, String description, Date ends, Float maxAmount) {

@@ -1,6 +1,5 @@
 package liquibase.ext.hibernate.database;
 
-import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;

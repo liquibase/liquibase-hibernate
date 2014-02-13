@@ -19,33 +19,29 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
-
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.ejb.Ejb3Configuration;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 import org.springframework.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+import javax.persistence.spi.PersistenceUnitInfo;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.persistence.spi.PersistenceUnitInfo;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -190,12 +186,9 @@ public class SpringPackageScanningIntegrationTest {
             ((SmartPersistenceUnitInfo) persistenceUnitInfo).setPersistenceProviderPackageName(jpaVendorAdapter.getPersistenceProviderRootPackage());
         }
 
-        Ejb3Configuration configured = new Ejb3Configuration().configure(
-                persistenceUnitInfo, jpaVendorAdapter.getJpaPropertyMap());
-
-        Configuration configuration = configured.getHibernateConfiguration();
-        configuration.buildMappings();
-        return configuration;
+        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) new MyHibernatePersistenceProvider().getEntityManagerFactoryBuilderOrNull(persistenceUnitInfo.getPersistenceUnitName(), jpaVendorAdapter.getJpaPropertyMap(), null);
+        ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
+        return builder.buildHibernateConfiguration(serviceRegistry);
     }
 
     /**
@@ -368,4 +361,11 @@ public class SpringPackageScanningIntegrationTest {
         }
     }
 
+    private static class MyHibernatePersistenceProvider extends HibernatePersistenceProvider {
+
+        @Override
+        public EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties, ClassLoader providedClassLoader) {
+            return super.getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, providedClassLoader);
+        }
+    }
 }

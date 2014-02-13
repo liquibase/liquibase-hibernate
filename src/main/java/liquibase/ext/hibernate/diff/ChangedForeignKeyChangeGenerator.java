@@ -7,10 +7,7 @@ import liquibase.diff.output.DiffOutputControl;
 import liquibase.diff.output.changelog.ChangeGeneratorChain;
 import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.structure.DatabaseObject;
-import liquibase.structure.core.Column;
 import liquibase.structure.core.ForeignKey;
-
-import java.util.List;
 
 /**
  * Hibernate doesn't know about all the variations that occur with foreign keys but just whether the FK exists or not.

@@ -1,6 +1,5 @@
 package liquibase.ext.hibernate.snapshot;
 
-import junit.framework.Assert;
 import liquibase.exception.DatabaseException;
 import liquibase.structure.core.DataType;
 import org.junit.Test;
