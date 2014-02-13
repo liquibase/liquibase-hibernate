@@ -2,6 +2,7 @@ package liquibase.ext.hibernate.snapshot;
 
 import java.util.Iterator;
 
+import liquibase.snapshot.SnapshotGenerator;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.IdentifierGeneratorAggregator;
