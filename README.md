@@ -20,6 +20,8 @@ Any issues can be logged in the [Github issue tracker](https://github.com/liquib
 
 ## Hibernate 3 vs. Hibernate 4
 
-The master branch is Hibernate 4 compatible. For Hibernate 3 support, use the hibernate3 branch.
+The master branch is Hibernate 4.3+ compatible.
+For Hibernate 3 support, use the hibernate3 release and/or branch.
+For hibernate 4.0-4.2 support, use the hibernate4.2 release and/or branch.
 
 Ideally changes should go into the hibernate3 branch and then be merged into master in order to support both Hibernate 3 and 4.
