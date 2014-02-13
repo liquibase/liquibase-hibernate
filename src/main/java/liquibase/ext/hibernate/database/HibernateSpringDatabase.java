@@ -3,11 +3,9 @@ package liquibase.ext.hibernate.database;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
+import org.hibernate.annotations.common.util.ReflectHelper;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.jpa.HibernatePersistenceProvider;
-import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
-import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
-import org.hibernate.service.ServiceRegistry;
+import org.hibernate.ejb.Ejb3Configuration;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -192,7 +190,7 @@ public class HibernateSpringDatabase extends HibernateDatabase {
 
     private <T> Class<? extends T> findClass(String className, Class<T> superClass) {
         try {
-            Class<?> newClass = Class.forName(className);
+            Class<?> newClass = ReflectHelper.classForName(className);
             if (superClass.isAssignableFrom(newClass)) {
                 return newClass.asSubclass(superClass);
             } else {
@@ -233,10 +231,11 @@ public class HibernateSpringDatabase extends HibernateDatabase {
             ((SmartPersistenceUnitInfo) persistenceUnitInfo).setPersistenceProviderPackageName(jpaVendorAdapter.getPersistenceProviderRootPackage());
         }
 
-        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) new MyHibernatePersistenceProvider().getEntityManagerFactoryBuilderOrNull(persistenceUnitInfo.getPersistenceUnitName(), jpaVendorAdapter.getJpaPropertyMap(), null);
-        ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
-        return builder.buildHibernateConfiguration(serviceRegistry);
+        Ejb3Configuration configured = new Ejb3Configuration().configure(persistenceUnitInfo, jpaVendorAdapter.getJpaPropertyMap());
 
+        Configuration configuration = configured.getHibernateConfiguration();
+        configuration.buildMappings();
+        return configuration;
     }
 
     @Override
@@ -249,11 +248,4 @@ public class HibernateSpringDatabase extends HibernateDatabase {
         return "Hibernate Spring";
     }
 
-    private static class MyHibernatePersistenceProvider extends HibernatePersistenceProvider {
-
-        @Override
-        public EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties, ClassLoader providedClassLoader) {
-            return super.getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, providedClassLoader);
-        }
-    }
 }

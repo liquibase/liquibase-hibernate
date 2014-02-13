@@ -2,6 +2,7 @@ package liquibase.ext.hibernate.diff;
 
 import liquibase.change.Change;
 import liquibase.database.Database;
+import liquibase.diff.ObjectDifferences;
 import liquibase.diff.output.DiffOutputControl;
 import liquibase.diff.output.changelog.ChangeGeneratorChain;
 import liquibase.ext.hibernate.database.HibernateDatabase;
