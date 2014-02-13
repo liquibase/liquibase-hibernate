@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.liquibase.ext</groupId>
-	<artifactId>liquibase-hibernate4</artifactId>
+	<artifactId>liquibase-hibernate4.2</artifactId>
 	<version>3.3-SNAPSHOT</version>
 
 	<name>Liquibase Hibernate Integration</name>
