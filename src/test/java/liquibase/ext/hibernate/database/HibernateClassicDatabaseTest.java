@@ -10,6 +10,7 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.integration.commandline.CommandLineUtils;
+import liquibase.integration.commandline.Main;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
@@ -44,6 +45,17 @@ public class HibernateClassicDatabaseTest {
     @After
     public void tearDown() throws Exception {
         db.close();
+    }
+
+    @Test
+    public void runMain() throws Exception {
+        Main.main(new String[]{
+                "--url=hibernate:classic:com/example/pojo/Hibernate.cfg.xml",
+                "--referenceUrl=jdbc:mysql://192.168.134.129/liquibase", "--referenceUsername=liquibase",
+                "--referencePassword=liquibase",
+                "--logLevel=debug",
+                "diffChangeLog"
+        });
     }
 
     @Test

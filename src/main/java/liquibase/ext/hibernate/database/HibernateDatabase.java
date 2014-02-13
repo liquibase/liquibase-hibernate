@@ -146,16 +146,6 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     }
 
     @Override
-    public void checkDatabaseChangeLogLockTable() throws DatabaseException {
-        // Nothing to do
-    }
-
-    @Override
-    public void checkDatabaseChangeLogTable(boolean updateExistingNullChecksums, DatabaseChangeLog databaseChangeLog, String... contexts) throws DatabaseException {
-        // Nothing to do
-    }
-
-    @Override
     public boolean isSafeToRunUpdate() throws DatabaseException {
         return true;
     }

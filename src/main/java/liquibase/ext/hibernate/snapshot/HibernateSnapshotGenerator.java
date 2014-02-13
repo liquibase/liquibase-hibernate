@@ -37,6 +37,12 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
         this.addsTo = addsTo;
     }
 
+    @Override
+    public Class<? extends SnapshotGenerator>[] replaces() {
+        return null;
+    }
+
+
     public final int getPriority(Class<? extends DatabaseObject> objectType, Database database) {
         if (database instanceof HibernateDatabase) {
             if (defaultFor != null && defaultFor.isAssignableFrom(objectType)) {

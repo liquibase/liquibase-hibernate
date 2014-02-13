@@ -100,7 +100,7 @@ public class SpringPackageScanningIntegrationTest {
     @Test
     public void runGeneratedChangeLog() throws Exception {
 
-        Liquibase liquibase = new Liquibase(null, new ClassLoaderResourceAccessor(), database);
+        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
 
         Database hibernateDatabase = new HibernateSpringDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
@@ -121,9 +121,9 @@ public class SpringPackageScanningIntegrationTest {
 
         liquibase = new Liquibase(outFile.toString(), new FileSystemResourceAccessor(), database);
         StringWriter stringWriter = new StringWriter();
-        liquibase.update(null, stringWriter);
+        liquibase.update((String) null, stringWriter);
         log.info(stringWriter.toString());
-        liquibase.update(null);
+        liquibase.update((String) null);
 
         diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
 
@@ -162,7 +162,7 @@ public class SpringPackageScanningIntegrationTest {
         hibernateDatabase.setDefaultCatalogName("TESTDB");
         hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:"+ PACKAGES+ "?dialect=" + HSQLDialect.class.getName())));
 
-        Liquibase liquibase = new Liquibase(null, new ClassLoaderResourceAccessor(), database);
+        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
 
         ignoreDatabaseChangeLogTable(diffResult);
@@ -208,7 +208,7 @@ public class SpringPackageScanningIntegrationTest {
     @Test
     public void hibernateSchemaUpdate() throws Exception {
 
-        Liquibase liquibase = new Liquibase(null, new ClassLoaderResourceAccessor(), database);
+        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
 
         Database hibernateDatabase = new HibernateSpringDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
@@ -230,9 +230,9 @@ public class SpringPackageScanningIntegrationTest {
 
         liquibase = new Liquibase(outFile.toString(), new FileSystemResourceAccessor(), database);
         StringWriter stringWriter = new StringWriter();
-        liquibase.update(null, stringWriter);
+        liquibase.update((String) null, stringWriter);
         log.info(stringWriter.toString());
-        liquibase.update(null);
+        liquibase.update((String) null);
 
         long currentTimeMillis = System.currentTimeMillis();
         Connection connection2 = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis, "SA", "");

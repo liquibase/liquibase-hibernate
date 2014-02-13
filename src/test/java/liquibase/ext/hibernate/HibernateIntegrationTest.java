@@ -96,7 +96,7 @@ public class HibernateIntegrationTest {
     @Test
     public void runGeneratedChangeLog() throws Exception {
 
-        Liquibase liquibase = new Liquibase(null, new ClassLoaderResourceAccessor(), database);
+        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
 
         Database hibernateDatabase = new HibernateClassicDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
@@ -117,9 +117,9 @@ public class HibernateIntegrationTest {
 
         liquibase = new Liquibase(outFile.toString(), new FileSystemResourceAccessor(), database);
         StringWriter stringWriter = new StringWriter();
-        liquibase.update(null, stringWriter);
+        liquibase.update((String) null, stringWriter);
         log.info(stringWriter.toString());
-        liquibase.update(null);
+        liquibase.update((String) null);
 
         diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
 
@@ -159,7 +159,7 @@ public class HibernateIntegrationTest {
         hibernateDatabase.setDefaultCatalogName("TESTDB");
         hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:classic:" + HIBERNATE_CONFIG_FILE)));
 
-        Liquibase liquibase = new Liquibase(null, new ClassLoaderResourceAccessor(), database);
+        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
 
         ignoreDatabaseChangeLogTable(diffResult);
@@ -183,7 +183,7 @@ public class HibernateIntegrationTest {
     @Test
     public void hibernateSchemaUpdate() throws Exception {
 
-        Liquibase liquibase = new Liquibase(null, new ClassLoaderResourceAccessor(), database);
+        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
 
         Database hibernateDatabase = new HibernateClassicDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
@@ -204,9 +204,9 @@ public class HibernateIntegrationTest {
 
         liquibase = new Liquibase(outFile.toString(), new FileSystemResourceAccessor(), database);
         StringWriter stringWriter = new StringWriter();
-        liquibase.update(null, stringWriter);
+        liquibase.update((String) null, stringWriter);
         log.info(stringWriter.toString());
-        liquibase.update(null);
+        liquibase.update((String) null);
 
         long currentTimeMillis = System.currentTimeMillis();
         Connection connection2 = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis, "SA", "");
