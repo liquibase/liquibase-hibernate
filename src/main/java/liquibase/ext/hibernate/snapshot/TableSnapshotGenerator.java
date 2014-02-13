@@ -5,19 +5,16 @@ import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
-import liquibase.structure.core.Column;
-import liquibase.structure.core.DataType;
-import liquibase.structure.core.Schema;
-import liquibase.structure.core.Table;
+import liquibase.structure.core.*;
 import liquibase.util.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.Mapping;
-import org.hibernate.mapping.PrimaryKey;
 import org.hibernate.mapping.SimpleValue;
 import org.hibernate.mapping.Value;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,6 +40,8 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
         }
 
         Table table = new Table().setName(hibernateTable.getName());
+        PrimaryKey primaryKey = null;
+        int pkColumnPosition = 0;
         LOG.info("Found table " + table.getName());
 
         table.setSchema(example.getSchema());
@@ -67,9 +66,23 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             column.setNullable(hibernateColumn.isNullable());
             column.setCertainDataType(false);
 
-            PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
+            org.hibernate.mapping.PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
             if (hibernatePrimaryKey != null) {
-                if (hibernatePrimaryKey.getColumns().size() == 1 && hibernatePrimaryKey.getColumn(0).getName().equals(hibernateColumn.getName())) {
+                boolean isPrimaryKeyColumn = false;
+                for (org.hibernate.mapping.Column pkColumn : (List<org.hibernate.mapping.Column>) hibernatePrimaryKey.getColumns()) {
+                    if (pkColumn.getName().equals(hibernateColumn.getName())) {
+                        isPrimaryKeyColumn = true;
+                        break;
+                    }
+                }
+
+                if (isPrimaryKeyColumn) {
+                    if (primaryKey == null) {
+                        primaryKey = new PrimaryKey();
+                        primaryKey.setName(table.getPrimaryKey().getName());
+                    }
+                    primaryKey.addColumnName(pkColumnPosition++, column.getName());
+
                     Value value = hibernateColumn.getValue();
                     if (value instanceof SimpleValue && ((SimpleValue) value).getIdentifierGeneratorStrategy().equals("identity")) {
                         column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
@@ -78,6 +91,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             }
             column.setRelation(table);
 
+            table.setPrimaryKey(primaryKey);
             table.getColumns().add(column);
 
         }
