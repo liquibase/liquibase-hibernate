@@ -8,7 +8,11 @@ Download the extension from the [project releases tab](https://github.com/liquib
 
 ## Maven
 
-This extension is available in the maven repository under group org.liquibase.ext, artifacts liquibase-hibernate3 and liquibase-hibernate4
+This extension is available in the maven repository under group __org.liquibase.ext__, artifacts:
+
+* __liquibase-hibernate4__ Hibernate 4.3+ support
+* __liquibase-hibernate4.2__ Hibernate 4.0-4.2 support
+* __liquibase-hibernate3__ Hibernate 3.x support
 
 ## More Information
 
