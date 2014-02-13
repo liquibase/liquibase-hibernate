@@ -14,6 +14,8 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.Mapping;
 import org.hibernate.mapping.PrimaryKey;
+import org.hibernate.mapping.SimpleValue;
+import org.hibernate.mapping.Value;
 
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -50,7 +52,6 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
             Column column = new Column();
             column.setName(hibernateColumn.getName());
-            // TODO autoincrement
 
             String hibernateType = hibernateColumn.getSqlType(dialect, mapping);
             DataType dataType = toDataType(hibernateType, hibernateColumn.getSqlTypeCode());
@@ -69,7 +70,10 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
             if (hibernatePrimaryKey != null) {
                 if (hibernatePrimaryKey.getColumns().size() == 1 && hibernatePrimaryKey.getColumn(0).getName().equals(hibernateColumn.getName())) {
-                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                    Value value = hibernateColumn.getValue();
+                    if (value instanceof SimpleValue && ((SimpleValue) value).getIdentifierGeneratorStrategy().equals("identity")) {
+                        column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                    }
                 }
             }
             column.setRelation(table);
