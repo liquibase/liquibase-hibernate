@@ -79,12 +79,14 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                 if (isPrimaryKeyColumn) {
                     if (primaryKey == null) {
                         primaryKey = new PrimaryKey();
-                        primaryKey.setName(table.getPrimaryKey().getName());
+                        primaryKey.setName(hibernateTable.getPrimaryKey().getName());
                     }
                     primaryKey.addColumnName(pkColumnPosition++, column.getName());
 
                     Value value = hibernateColumn.getValue();
-                    if (value instanceof SimpleValue && ((SimpleValue) value).getIdentifierGeneratorStrategy().equals("identity")) {
+                    // Need to handle "native" since it can either be an identity, sequence or hilo
+                    if (value instanceof SimpleValue && (((SimpleValue) value).getIdentifierGeneratorStrategy().equals("identity") ||
+                            ((SimpleValue) value).getIdentifierGeneratorStrategy().equals("native"))) {
                         column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                     }
                 }
