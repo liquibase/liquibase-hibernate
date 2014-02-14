@@ -42,7 +42,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
         ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
 
         Configuration configuration = builder.buildHibernateConfiguration(serviceRegistry);
-        configureNamingStrategy(connection);
+        configureNamingStrategy(configuration, connection);
         return configuration;
     }
 

@@ -76,9 +76,10 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     /**
      * Configures the naming strategy use by the connection
      *
+     * @param configuration the {@link Configuration}
      * @param connection the {@link HibernateConnection}
      */
-    protected void configureNamingStrategy(HibernateConnection connection) {
+    protected void configureNamingStrategy(Configuration configuration, HibernateConnection connection) {
         String namingStrategy = connection.getProperties().getProperty("hibernate.namingStrategy");
         if (namingStrategy == null) {
             namingStrategy = connection.getProperties().getProperty("hibernate.ejb.naming_strategy");

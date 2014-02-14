@@ -48,7 +48,7 @@ public class HibernateClassicDatabase extends HibernateDatabase {
     protected Configuration buildConfigurationfromFile(HibernateConnection connection) {
         Configuration configuration = new Configuration();
         configuration.configure(connection.getPath());
-        configureNamingStrategy(connection);
+        configureNamingStrategy(configuration, connection);
         return configuration;
     }
 
