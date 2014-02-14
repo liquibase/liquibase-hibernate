@@ -44,7 +44,6 @@ public class HibernateEjb3DatabaseTest {
 
         assertThat(bidTable.getColumns(), containsInAnyOrder(
                 hasProperty("name", is("id")),
-                hasProperty("name", is("buyNow")),
                 hasProperty("name", is("item_id")),
                 hasProperty("name", is("amount")),
                 hasProperty("name", is("datetime")),
@@ -53,7 +52,6 @@ public class HibernateEjb3DatabaseTest {
         ));
 
         assertTrue(bidTable.getColumn("id").isAutoIncrement());
-        assertFalse(bidTable.getColumn("buyNow").isAutoIncrement());
         assertFalse(bidTable.getColumn("datetime").isNullable());
         assertTrue(auctionItemTable.getColumn("ends").isNullable());
 
