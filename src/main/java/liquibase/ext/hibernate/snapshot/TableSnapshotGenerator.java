@@ -10,8 +10,7 @@ import liquibase.util.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.Mapping;
-import org.hibernate.mapping.SimpleValue;
-import org.hibernate.mapping.Value;
+import org.hibernate.id.IdentityGenerator;
 
 import java.util.Iterator;
 import java.util.List;
@@ -83,10 +82,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                     }
                     primaryKey.addColumnName(pkColumnPosition++, column.getName());
 
-                    Value value = hibernateColumn.getValue();
-                    // Need to handle "native" since it can either be an identity, sequence or hilo
-                    if (value instanceof SimpleValue && (((SimpleValue) value).getIdentifierGeneratorStrategy().equals("identity") ||
-                            ((SimpleValue) value).getIdentifierGeneratorStrategy().equals("native"))) {
+                    if (dialect.getNativeIdentifierGeneratorClass().equals(IdentityGenerator.class)) {
                         column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                     }
                 }
