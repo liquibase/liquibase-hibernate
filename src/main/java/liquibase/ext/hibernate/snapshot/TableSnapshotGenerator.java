@@ -1,5 +1,7 @@
 package liquibase.ext.hibernate.snapshot;
 
+import liquibase.datatype.DataTypeFactory;
+import liquibase.datatype.LiquibaseDataType;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
@@ -7,11 +9,13 @@ import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
 import liquibase.util.StringUtils;
+
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.Mapping;
 import org.hibernate.id.IdentityGenerator;
 
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -81,10 +85,18 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                         primaryKey.setName(hibernateTable.getPrimaryKey().getName());
                     }
                     primaryKey.addColumnName(pkColumnPosition++, column.getName());
+					
+                    LiquibaseDataType liquibaseDataType = DataTypeFactory
+							.getInstance().from(column.getType());
+					// only columns types supporting auto increment -
+					// DataTypeFactory
+					if (isAutoIncrement(liquibaseDataType)) {
 
-                    if (dialect.getNativeIdentifierGeneratorClass().equals(IdentityGenerator.class)) {
-                        column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                    }
+						if (dialect.getNativeIdentifierGeneratorClass().equals(
+								IdentityGenerator.class)) {
+							column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+						}
+					}
                 }
             }
             column.setRelation(table);
@@ -146,5 +158,32 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             }
         }
     }
+
+	/**
+	 * has <code>dataType</code> auto increment property ?
+	 * 
+	 * @param dataType
+	 * @return
+	 * 
+	 * @author justcoon
+	 * 
+	 * @see DecimalType#isAutoIncrement()
+	 * @see BigIntType#isAutoIncrement()
+	 */
+    //FIXME remove if will be accepted  https://github.com/liquibase/liquibase/pull/247
+	private boolean isAutoIncrement(LiquibaseDataType dataType) {
+		boolean retVal = false;
+		String methodName = "isAutoIncrement";
+		Method[] methods = dataType.getClass().getMethods();
+		for (Method method : methods) {
+			if (method.getName().equals(methodName)
+					&& method.getParameterTypes().length == 0) {
+				retVal = true;
+				break;
+			}
+		}
+
+		return retVal;
+	}
 
 }
