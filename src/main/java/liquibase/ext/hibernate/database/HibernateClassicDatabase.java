@@ -48,23 +48,7 @@ public class HibernateClassicDatabase extends HibernateDatabase {
     protected Configuration buildConfigurationfromFile(HibernateConnection connection) {
         Configuration configuration = new Configuration();
         configuration.configure(connection.getPath());
-
-        String namingStrategy = connection.getProperties().getProperty("hibernate.namingStrategy");
-        if (namingStrategy == null) {
-            namingStrategy = connection.getProperties().getProperty("hibernate.ejb.naming_strategy");
-        }
-        if (namingStrategy != null) {
-            try {
-                configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
-            } catch (InstantiationException e) {
-                throw new IllegalStateException("Failed to instantiate naming strategy", e);
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException("Couldn't access naming strategy", e);
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException("Failed to find naming strategy", e);
-            }
-        }
-
+        configureNamingStrategy(configuration, connection);
         return configuration;
     }
 

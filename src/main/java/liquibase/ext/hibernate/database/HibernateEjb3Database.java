@@ -5,6 +5,7 @@ import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.customfactory.CustomEjb3ConfigurationFactory;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
@@ -40,7 +41,9 @@ public class HibernateEjb3Database extends HibernateDatabase {
         EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(connection.getPath(), null, null);
         ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
 
-        return builder.buildHibernateConfiguration(serviceRegistry);
+        Configuration configuration = builder.buildHibernateConfiguration(serviceRegistry);
+        configureNamingStrategy(configuration, connection);
+        return configuration;
     }
 
     /**
