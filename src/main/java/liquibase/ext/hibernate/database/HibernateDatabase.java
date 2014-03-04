@@ -166,7 +166,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     @Override
     protected String getConnectionSchemaName() {
-        return null;
+        return getDefaultSchemaName();
     }
 
     @Override
