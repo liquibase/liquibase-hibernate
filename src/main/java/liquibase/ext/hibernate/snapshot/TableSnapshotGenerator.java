@@ -2,8 +2,9 @@ package liquibase.ext.hibernate.snapshot;
 
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
-import liquibase.ext.hibernate.snapshot.extension.ExtensibleSnapshotGenerator;
+import liquibase.ext.hibernate.snapshot.extension.ExtendedSnapshotGenerator;
 import liquibase.ext.hibernate.snapshot.extension.MultipleHiLoPerTableSnapshotGenerator;
+import liquibase.ext.hibernate.snapshot.extension.TableGeneratorSnapshotGenerator;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
@@ -28,12 +29,13 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
     private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
 
-    private List<ExtensibleSnapshotGenerator<IdentifierGenerator, Table>> tableIdGenerators =
-            new ArrayList<ExtensibleSnapshotGenerator<IdentifierGenerator, Table>>();
+    private List<ExtendedSnapshotGenerator<IdentifierGenerator, Table>> tableIdGenerators =
+            new ArrayList<ExtendedSnapshotGenerator<IdentifierGenerator, Table>>();
 
     public TableSnapshotGenerator() {
         super(Table.class, new Class[]{Schema.class});
         tableIdGenerators.add(new MultipleHiLoPerTableSnapshotGenerator());
+        tableIdGenerators.add(new TableGeneratorSnapshotGenerator());
     }
 
     @Override
@@ -171,7 +173,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                             null,
                             (RootClass) persistentClass
                     );
-                    for (ExtensibleSnapshotGenerator<IdentifierGenerator, Table> tableIdGenerator : tableIdGenerators) {
+                    for (ExtendedSnapshotGenerator<IdentifierGenerator, Table> tableIdGenerator : tableIdGenerators) {
                         if (tableIdGenerator.supports(ig)) {
                             Table idTable = tableIdGenerator.snapshot(ig);
                             idTable.setSchema(schema);

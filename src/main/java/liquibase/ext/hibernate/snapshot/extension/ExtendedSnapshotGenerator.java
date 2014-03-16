@@ -1,6 +1,6 @@
 package liquibase.ext.hibernate.snapshot.extension;
 
-public interface ExtensibleSnapshotGenerator<T, U> {
+public interface ExtendedSnapshotGenerator<T, U> {
 
     U snapshot(T object);
 

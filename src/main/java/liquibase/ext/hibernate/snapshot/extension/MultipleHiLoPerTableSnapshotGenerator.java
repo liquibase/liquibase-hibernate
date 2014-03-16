@@ -9,7 +9,7 @@ import org.hibernate.id.MultipleHiLoPerTableGenerator;
 
 import java.lang.reflect.Field;
 
-public class MultipleHiLoPerTableSnapshotGenerator implements ExtensibleSnapshotGenerator<IdentifierGenerator, Table> {
+public class MultipleHiLoPerTableSnapshotGenerator implements ExtendedSnapshotGenerator<IdentifierGenerator, Table> {
 
     private static final String TABLE_NAME = "tableName";
     private static final String PK_COLUMN_NAME = "pkColumnName";

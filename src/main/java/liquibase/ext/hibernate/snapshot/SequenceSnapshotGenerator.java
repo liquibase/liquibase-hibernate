@@ -10,6 +10,7 @@ import liquibase.structure.core.Sequence;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.SequenceGenerator;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.RootClass;
 
@@ -53,17 +54,24 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
                             null,
                             (RootClass) persistentClass
                     );
-                    if(ig instanceof SequenceGenerator) {
+                    if (ig instanceof SequenceGenerator) {
                         SequenceGenerator sequenceGenerator = (SequenceGenerator) ig;
-                        Sequence sequence = new Sequence();
-                        sequence.setName(sequenceGenerator.getSequenceName());
-                        sequence.setSchema(schema);
-                        schema.addDatabaseObject(sequence);
+                        createSequence(sequenceGenerator.getSequenceName(), schema);
+                    } else if (ig instanceof SequenceStyleGenerator) {
+                        SequenceStyleGenerator sequenceGenerator = (SequenceStyleGenerator) ig;
+                        createSequence((String) sequenceGenerator.generatorKey(), schema);
                     }
                 }
                 
             }
         }
+    }
+
+    private void createSequence(String sequenceName, Schema schema) {
+        Sequence sequence = new Sequence();
+        sequence.setName(sequenceName);
+        sequence.setSchema(schema);
+        schema.addDatabaseObject(sequence);
     }
 
 }
