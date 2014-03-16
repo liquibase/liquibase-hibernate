@@ -2,6 +2,8 @@ package liquibase.ext.hibernate.snapshot;
 
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
+import liquibase.ext.hibernate.snapshot.extension.ExtensibleSnapshotGenerator;
+import liquibase.ext.hibernate.snapshot.extension.MultipleHiLoPerTableSnapshotGenerator;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
@@ -10,9 +12,13 @@ import liquibase.util.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.Mapping;
+import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.IdentityGenerator;
+import org.hibernate.mapping.PersistentClass;
+import org.hibernate.mapping.RootClass;
 import org.hibernate.mapping.SimpleValue;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -22,8 +28,12 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
     private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
 
+    private List<ExtensibleSnapshotGenerator<IdentifierGenerator, Table>> tableIdGenerators =
+            new ArrayList<ExtensibleSnapshotGenerator<IdentifierGenerator, Table>>();
+
     public TableSnapshotGenerator() {
         super(Table.class, new Class[]{Schema.class});
+        tableIdGenerators.add(new MultipleHiLoPerTableSnapshotGenerator());
     }
 
     @Override
@@ -36,7 +46,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
         org.hibernate.mapping.Table hibernateTable = findHibernateTable(example, snapshot);
         if (hibernateTable == null) {
-            return null;
+            return example;
         }
 
         Table table = new Table().setName(hibernateTable.getName());
@@ -138,15 +148,36 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
             Configuration cfg = database.getConfiguration();
 
-            Iterator<org.hibernate.mapping.Table> tableMappings = cfg.getTableMappings();
-            while (tableMappings.hasNext()) {
-                org.hibernate.mapping.Table hibernateTable = (org.hibernate.mapping.Table) tableMappings.next();
+            Iterator<PersistentClass> classMappings = cfg.getClassMappings();
+            while (classMappings.hasNext()) {
+                PersistentClass persistentClass = (PersistentClass) classMappings
+                        .next();
+                org.hibernate.mapping.Table hibernateTable = persistentClass.getTable();
                 if (hibernateTable.isPhysicalTable()) {
                     Table table = new Table().setName(hibernateTable.getName());
                     table.setSchema(schema);
                     LOG.info("Found table " + table.getName());
                     schema.addDatabaseObject(table);
+
+                    if (!persistentClass.isInherited()) {
+                        IdentifierGenerator ig = persistentClass.getIdentifier().createIdentifierGenerator(
+                                cfg.getIdentifierGeneratorFactory(),
+                                database.getDialect(),
+                                null,
+                                null,
+                                (RootClass) persistentClass
+                        );
+                        for (ExtensibleSnapshotGenerator<IdentifierGenerator, Table> tableIdGenerator : tableIdGenerators) {
+                            if (tableIdGenerator.supports(ig)) {
+                                Table idTable = tableIdGenerator.snapshot(ig);
+                                idTable.setSchema(schema);
+                                schema.addDatabaseObject(idTable);
+                                break;
+                            }
+                        }
+                    }
                 }
+
             }
         }
     }

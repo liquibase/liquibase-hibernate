@@ -27,6 +27,9 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
         if (foundObject instanceof Table) {
             Table table = (Table) foundObject;
             org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+            if (hibernateTable == null) {
+                return;
+            }
             org.hibernate.mapping.PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
             if (hibernatePrimaryKey != null) {
                 PrimaryKey pk = new PrimaryKey();
