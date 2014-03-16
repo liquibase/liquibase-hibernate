@@ -148,36 +148,38 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
             Configuration cfg = database.getConfiguration();
 
-            Iterator<PersistentClass> classMappings = cfg.getClassMappings();
-            while (classMappings.hasNext()) {
-                PersistentClass persistentClass = (PersistentClass) classMappings
-                        .next();
-                org.hibernate.mapping.Table hibernateTable = persistentClass.getTable();
+            Iterator<org.hibernate.mapping.Table> tableMappings = cfg.getTableMappings();
+            while (tableMappings.hasNext()) {
+                org.hibernate.mapping.Table hibernateTable = (org.hibernate.mapping.Table) tableMappings.next();
                 if (hibernateTable.isPhysicalTable()) {
                     Table table = new Table().setName(hibernateTable.getName());
                     table.setSchema(schema);
                     LOG.info("Found table " + table.getName());
                     schema.addDatabaseObject(table);
+                }
+            }
 
-                    if (!persistentClass.isInherited()) {
-                        IdentifierGenerator ig = persistentClass.getIdentifier().createIdentifierGenerator(
-                                cfg.getIdentifierGeneratorFactory(),
-                                database.getDialect(),
-                                null,
-                                null,
-                                (RootClass) persistentClass
-                        );
-                        for (ExtensibleSnapshotGenerator<IdentifierGenerator, Table> tableIdGenerator : tableIdGenerators) {
-                            if (tableIdGenerator.supports(ig)) {
-                                Table idTable = tableIdGenerator.snapshot(ig);
-                                idTable.setSchema(schema);
-                                schema.addDatabaseObject(idTable);
-                                break;
-                            }
+            Iterator<PersistentClass> classMappings = cfg.getClassMappings();
+            while (classMappings.hasNext()) {
+                PersistentClass persistentClass = (PersistentClass) classMappings
+                        .next();
+                if (!persistentClass.isInherited()) {
+                    IdentifierGenerator ig = persistentClass.getIdentifier().createIdentifierGenerator(
+                            cfg.getIdentifierGeneratorFactory(),
+                            database.getDialect(),
+                            null,
+                            null,
+                            (RootClass) persistentClass
+                    );
+                    for (ExtensibleSnapshotGenerator<IdentifierGenerator, Table> tableIdGenerator : tableIdGenerators) {
+                        if (tableIdGenerator.supports(ig)) {
+                            Table idTable = tableIdGenerator.snapshot(ig);
+                            idTable.setSchema(schema);
+                            schema.addDatabaseObject(idTable);
+                            break;
                         }
                     }
                 }
-
             }
         }
     }
