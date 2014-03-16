@@ -36,7 +36,8 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("User")),
                 hasProperty("name", is("AuctionInfo")),
                 hasProperty("name", is("AuctionItem")),
-                hasProperty("name", is("Item"))));
+                hasProperty("name", is("Item")),
+                hasProperty("name", is("WatcherSeqTable"))));
 
 
         Table bidTable = (Table) snapshot.get(new Table().setName("bid").setSchema(new Schema()));
@@ -86,7 +87,8 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("user")),
                 hasProperty("name", is("auction_info")),
                 hasProperty("name", is("auction_item")),
-                hasProperty("name", is("item"))));
+                hasProperty("name", is("item")),
+                hasProperty("name", is("WatcherSeqTable"))));
 
     }
 }
