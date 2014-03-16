@@ -29,6 +29,9 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         if (foundObject instanceof Table) {
             Table table = (Table) foundObject;
             org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+            if (hibernateTable == null) {
+                return;
+            }
             Iterator uniqueIterator = hibernateTable.getUniqueKeyIterator();
             while (uniqueIterator.hasNext()) {
                 org.hibernate.mapping.UniqueKey hibernateUnique = (org.hibernate.mapping.UniqueKey) uniqueIterator.next();
