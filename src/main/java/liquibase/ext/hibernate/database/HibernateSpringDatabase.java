@@ -229,8 +229,12 @@ public class HibernateSpringDatabase extends HibernateDatabase {
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         jpaVendorAdapter.setDatabasePlatform(dialectName);
 
+        String enhancedId = connection.getProperties().getProperty("enhancedId", "false");
+        LOG.info("Found enhancedId "+enhancedId);
+
         Map<String, Object> jpaPropertyMap = jpaVendorAdapter.getJpaPropertyMap();
         jpaPropertyMap.put("hibernate.archive.autodetection", "false");
+        jpaPropertyMap.put("hibernate.id.new_generator_mappings", enhancedId);
 
         if (persistenceUnitInfo instanceof SmartPersistenceUnitInfo) {
             ((SmartPersistenceUnitInfo) persistenceUnitInfo).setPersistenceProviderPackageName(jpaVendorAdapter.getPersistenceProviderRootPackage());
