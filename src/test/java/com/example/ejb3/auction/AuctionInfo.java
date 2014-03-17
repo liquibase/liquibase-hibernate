@@ -1,11 +1,13 @@
 package com.example.ejb3.auction;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.util.Date;
 
 @Entity
 public class AuctionInfo {
-    private long id;
+    private String id;
     private String description;
     private Date ends;
     private Float maxAmount;
@@ -20,8 +22,7 @@ public class AuctionInfo {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    public long getId() {
+    public String getId() {
         return id;
     }
 
@@ -30,7 +31,7 @@ public class AuctionInfo {
         return maxAmount;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -46,7 +47,7 @@ public class AuctionInfo {
         this.maxAmount = maxAmount;
     }
 
-    public AuctionInfo(long id, String description, Date ends, Float maxAmount) {
+    public AuctionInfo(String id, String description, Date ends, Float maxAmount) {
         this.id = id;
         this.description = description;
         this.ends = ends;
