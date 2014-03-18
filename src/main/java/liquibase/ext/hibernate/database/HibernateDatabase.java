@@ -27,10 +27,11 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     private Dialect dialect;
 
     private boolean indexesForForeignKeys = false;
+    public static final String DEFAULT_SCHEMA = "HIBERNATE";
 
     public HibernateDatabase() {
-        setDefaultCatalogName("HIBERNATE");
-        setDefaultSchemaName("HIBERNATE");
+        setDefaultCatalogName(DEFAULT_SCHEMA);
+        setDefaultSchemaName(DEFAULT_SCHEMA);
     }
 
     @Override
@@ -161,12 +162,22 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     @Override
     protected String getConnectionCatalogName() throws DatabaseException {
-        return null;
+        return getDefaultCatalogName();
     }
 
     @Override
     protected String getConnectionSchemaName() {
         return getDefaultSchemaName();
+    }
+
+    @Override
+    public String getDefaultSchemaName() {
+        return DEFAULT_SCHEMA;
+    }
+
+    @Override
+    public String getDefaultCatalogName() {
+        return DEFAULT_SCHEMA;
     }
 
     @Override

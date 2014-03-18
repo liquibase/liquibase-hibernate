@@ -47,8 +47,8 @@ public class HibernateClassicDatabaseTest {
     public void runMain() throws Exception {
         Main.main(new String[]{
                 "--url=hibernate:classic:com/example/pojo/Hibernate.cfg.xml",
-                "--referenceUrl=jdbc:mysql://10.10.100.100/liquibase", "--referenceUsername=liquibase",
-                "--referencePassword=liquibase",
+                "--referenceUrl=jdbc:mysql://10.10.100.100/lbcat", "--referenceUsername=lbuser",
+                "--referencePassword=lbuser",
                 "--logLevel=debug",
                 "diffChangeLog"
         });
