@@ -22,8 +22,10 @@ import liquibase.structure.core.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.HSQLDialect;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
@@ -197,13 +199,6 @@ public class SpringPackageScanningIntegrationTest {
                 .obtainDefaultPersistenceUnitInfo();
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         jpaVendorAdapter.setDatabasePlatform(HSQLDialect.class.getName());
-
-        Map<String, Object> jpaPropertyMap = jpaVendorAdapter.getJpaPropertyMap();
-        jpaPropertyMap.put("hibernate.archive.autodetection", "false");
-
-        if (persistenceUnitInfo instanceof SmartPersistenceUnitInfo) {
-            ((SmartPersistenceUnitInfo) persistenceUnitInfo).setPersistenceProviderPackageName(jpaVendorAdapter.getPersistenceProviderRootPackage());
-        }
 
         Map<String, Object> jpaPropertyMap = jpaVendorAdapter.getJpaPropertyMap();
         jpaPropertyMap.put("hibernate.archive.autodetection", "false");
