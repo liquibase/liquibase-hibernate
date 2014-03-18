@@ -41,6 +41,7 @@ public class HibernateEjb3DatabaseTest {
 
 
         Table bidTable = (Table) snapshot.get(new Table().setName("bid").setSchema(new Schema()));
+        Table auctionInfoTable = (Table) snapshot.get(new Table().setName("auctioninfo").setSchema(new Schema()));
         Table auctionItemTable = (Table) snapshot.get(new Table().setName("auctionitem").setSchema(new Schema()));
 
         assertThat(bidTable.getColumns(), containsInAnyOrder(
@@ -53,6 +54,7 @@ public class HibernateEjb3DatabaseTest {
         ));
 
         assertTrue(bidTable.getColumn("id").isAutoIncrement());
+        assertFalse(auctionInfoTable.getColumn("id").isAutoIncrement());
         assertFalse(bidTable.getColumn("datetime").isNullable());
         assertTrue(auctionItemTable.getColumn("ends").isNullable());
 

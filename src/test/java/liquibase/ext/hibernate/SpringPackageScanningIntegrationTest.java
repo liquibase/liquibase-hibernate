@@ -197,7 +197,11 @@ public class SpringPackageScanningIntegrationTest {
                 .obtainDefaultPersistenceUnitInfo();
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         jpaVendorAdapter.setDatabasePlatform(HSQLDialect.class.getName());
-        if (jpaVendorAdapter != null && persistenceUnitInfo instanceof SmartPersistenceUnitInfo) {
+
+        Map<String, Object> jpaPropertyMap = jpaVendorAdapter.getJpaPropertyMap();
+        jpaPropertyMap.put("hibernate.archive.autodetection", "false");
+
+        if (persistenceUnitInfo instanceof SmartPersistenceUnitInfo) {
             ((SmartPersistenceUnitInfo) persistenceUnitInfo).setPersistenceProviderPackageName(jpaVendorAdapter.getPersistenceProviderRootPackage());
         }
 
@@ -401,4 +405,11 @@ public class SpringPackageScanningIntegrationTest {
         }
     }
 
+    private static class MyHibernatePersistenceProvider extends HibernatePersistenceProvider {
+
+        @Override
+        public EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties, ClassLoader providedClassLoader) {
+            return super.getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, providedClassLoader);
+        }
+    }
 }

@@ -10,11 +10,13 @@ import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
 import liquibase.util.StringUtils;
+
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.Mapping;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.IdentityGenerator;
+import org.hibernate.mapping.SimpleValue;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.RootClass;
 import org.hibernate.mapping.SimpleValue;
@@ -185,5 +187,24 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             }
         }
     }
+
+	/**
+	 * has <code>dataType</code> auto increment property ?
+	 */
+    //FIXME remove if will be accepted  https://github.com/liquibase/liquibase/pull/247
+	private boolean isAutoIncrement(LiquibaseDataType dataType) {
+		boolean retVal = false;
+		String methodName = "isAutoIncrement";
+		Method[] methods = dataType.getClass().getMethods();
+		for (Method method : methods) {
+			if (method.getName().equals(methodName)
+					&& method.getParameterTypes().length == 0) {
+				retVal = true;
+				break;
+			}
+		}
+
+		return retVal;
+	}
 
 }
