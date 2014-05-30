@@ -79,7 +79,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                 if (isPrimaryKeyColumn) {
                     if (primaryKey == null) {
                         primaryKey = new PrimaryKey();
-                        primaryKey.setName(table.getPrimaryKey().getName());
+                        primaryKey.setName(hibernatePrimaryKey.getName());
                     }
                     primaryKey.addColumnName(pkColumnPosition++, column.getName());
 
