@@ -173,7 +173,7 @@ public class SpringPackageScanningIntegrationTest {
         hibernateDatabase.setDefaultCatalogName("TESTDB");
         hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect="
                 + HSQLDialect.class.getName()
-                + "&enhancedId=" + (enhancedId ? "true" : "false"))));
+                + "&hibernate.enhanced_id=" + (enhancedId ? "true" : "false"))));
 
         Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
@@ -246,7 +246,7 @@ public class SpringPackageScanningIntegrationTest {
         hibernateDatabase.setDefaultCatalogName("TESTDB");
         hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect="
                 + HSQLDialect.class.getName()
-                + "&enhancedId=" + (enhancedId ? "true" : "false"))));
+                + "&hibernate.enhanced_id=" + (enhancedId ? "true" : "false"))));
 
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
 
