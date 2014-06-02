@@ -10,35 +10,26 @@ import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.envers.configuration.AuditConfiguration;
 import org.hibernate.event.PostInsertEventListener;
 
-import java.util.Map;
-
 /**
  * Database implementation for "ejb3" hibernate configurations.
  * This supports passing an persistence unit name or a {@link liquibase.ext.hibernate.customfactory.CustomEjb3ConfigurationFactory} implementation
  */
 public class HibernateEjb3Database extends HibernateDatabase {
-
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
         return conn.getURL().startsWith("hibernate:ejb3:");
     }
 
     @Override
     protected Configuration buildConfiguration(HibernateConnection connection) throws DatabaseException {
-
+        Ejb3Configuration ejb3Configuration;
         if (isCustomFactoryClass(connection.getPath())) {
-            return buildConfigurationFromFactory(connection);
+            ejb3Configuration = buildConfigurationFromFactory(connection);
         } else {
-            return buildConfigurationfromFile(connection);
+            ejb3Configuration = buildConfigurationFromFile(connection);
         }
-    }
-    /**
-     * Build a Configuration object assuming the connection path is a hibernate XML configuration file.
-     */
-    protected Configuration buildConfigurationfromFile(HibernateConnection connection) {
 
-        MyHibernatePersistenceProvider persistenceProvider = new MyHibernatePersistenceProvider();
-        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(connection.getPath(), null, null);
-        ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
+        Configuration configuration = ejb3Configuration.getHibernateConfiguration();
+        configuration.setProperty("hibernate.dialect", ejb3Configuration.getProperties().getProperty("hibernate.dialect"));
 
         String namingStrategy = ejb3Configuration.getProperties().getProperty("hibernate.ejb.naming_strategy");
         if (namingStrategy != null) {
@@ -63,9 +54,9 @@ public class HibernateEjb3Database extends HibernateDatabase {
     }
 
     /**
-     * Build a Configuration object assuming the connection path is a {@link CustomEjb3ConfigurationFactory} class name
+     * Create an Ejb3Configuration assuming the passed URL contains a {@link CustomEjb3ConfigurationFactory} class name
      */
-    protected Configuration buildConfigurationFromFactory(HibernateConnection connection) throws DatabaseException {
+    protected Ejb3Configuration buildConfigurationFromFactory(HibernateConnection connection) throws DatabaseException {
         try {
             return ((CustomEjb3ConfigurationFactory) Class.forName(connection.getPath()).newInstance()).getConfiguration(this, connection);
         } catch (InstantiationException e) {
@@ -75,6 +66,16 @@ public class HibernateEjb3Database extends HibernateDatabase {
         } catch (ClassNotFoundException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    /**
+     * Create an Ejb3Configuration assuming the passed URL contains a persistence unit name
+     */
+    protected Ejb3Configuration buildConfigurationFromFile(HibernateConnection connection) {
+        Ejb3Configuration ejb3Configuration = new Ejb3Configuration();
+        ejb3Configuration.configure(connection.getPath(), connection.getProperties());
+
+        return ejb3Configuration;
     }
 
 
@@ -104,10 +105,4 @@ public class HibernateEjb3Database extends HibernateDatabase {
         return "Hibernate EJB3";
     }
 
-    private static class MyHibernatePersistenceProvider extends HibernatePersistenceProvider {
-        @Override
-        protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties, ClassLoader providedClassLoader) {
-            return super.getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, providedClassLoader);
-        }
-    }
 }

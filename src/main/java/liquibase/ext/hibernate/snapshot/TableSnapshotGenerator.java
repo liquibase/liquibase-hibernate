@@ -13,7 +13,7 @@ import liquibase.structure.core.*;
 import liquibase.util.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.spi.Mapping;
+import org.hibernate.engine.Mapping;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.IdentityGenerator;
 import org.hibernate.mapping.PersistentClass;
