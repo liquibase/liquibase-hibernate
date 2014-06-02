@@ -99,8 +99,8 @@ public class HibernateIntegrationTest {
         Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
 
         Database hibernateDatabase = new HibernateClassicDatabase();
-        hibernateDatabase.setDefaultSchemaName("PUBLIC");
-        hibernateDatabase.setDefaultCatalogName("TESTDB");
+//        hibernateDatabase.setDefaultSchemaName("PUBLIC");
+//        hibernateDatabase.setDefaultCatalogName("TESTDB");
         hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:classic:" + HIBERNATE_CONFIG_FILE)));
 
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
@@ -245,8 +245,11 @@ public class HibernateIntegrationTest {
     private String toChangeLog(DiffResult diffResult) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out, true, "UTF-8");
+        DiffOutputControl diffOutputControl = new DiffOutputControl();
+        diffOutputControl.setIncludeCatalog(false);
+        diffOutputControl.setIncludeSchema(false);
         DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diffResult,
-                new DiffOutputControl());
+                diffOutputControl);
         diffToChangeLog.print(printStream);
         printStream.close();
         return out.toString("UTF-8");

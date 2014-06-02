@@ -5,7 +5,9 @@ import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import org.hibernate.annotations.common.util.ReflectHelper;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.ejb.Ejb3Configuration;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.Bootstrap;
+import org.hibernate.service.ServiceRegistry;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -227,11 +229,22 @@ public class HibernateSpringDatabase extends HibernateDatabase {
         PersistenceUnitInfo persistenceUnitInfo = internalPersistenceUnitManager.obtainDefaultPersistenceUnitInfo();
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         jpaVendorAdapter.setDatabasePlatform(dialectName);
-        if (jpaVendorAdapter != null && persistenceUnitInfo instanceof SmartPersistenceUnitInfo) {
+
+        String enhancedId = connection.getProperties().getProperty("hibernate.enhanced_id", "false");
+        LOG.info("Found hibernate.enhanced_id" + enhancedId);
+
+        Map<String, Object> jpaPropertyMap = jpaVendorAdapter.getJpaPropertyMap();
+        jpaPropertyMap.put("hibernate.archive.autodetection", "false");
+        jpaPropertyMap.put("hibernate.id.new_generator_mappings", enhancedId);
+
+        if (persistenceUnitInfo instanceof SmartPersistenceUnitInfo) {
             ((SmartPersistenceUnitInfo) persistenceUnitInfo).setPersistenceProviderPackageName(jpaVendorAdapter.getPersistenceProviderRootPackage());
         }
 
-        Ejb3Configuration configured = new Ejb3Configuration().configure(persistenceUnitInfo, jpaVendorAdapter.getJpaPropertyMap());
+        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo,
+                jpaPropertyMap);
+        ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
+        return builder.buildHibernateConfiguration(serviceRegistry);
 
         Configuration configuration = configured.getHibernateConfiguration();
         configuration.buildMappings();

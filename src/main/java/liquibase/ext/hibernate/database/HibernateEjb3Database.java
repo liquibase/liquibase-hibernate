@@ -6,9 +6,10 @@ import liquibase.ext.hibernate.customfactory.CustomEjb3ConfigurationFactory;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.NamingStrategy;
-import org.hibernate.ejb.Ejb3Configuration;
-import org.hibernate.envers.configuration.AuditConfiguration;
-import org.hibernate.event.spi.PostInsertEventListener;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
+import org.hibernate.service.ServiceRegistry;
 
 /**
  * Database implementation for "ejb3" hibernate configurations.
@@ -31,26 +32,8 @@ public class HibernateEjb3Database extends HibernateDatabase {
         Configuration configuration = ejb3Configuration.getHibernateConfiguration();
         configuration.setProperty("hibernate.dialect", ejb3Configuration.getProperties().getProperty("hibernate.dialect"));
 
-        String namingStrategy = ejb3Configuration.getProperties().getProperty("hibernate.ejb.naming_strategy");
-        if (namingStrategy != null) {
-            try {
-                configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException("Failed to instantiate naming strategy", e);
-            } catch (InstantiationException e) {
-                throw new IllegalStateException("Couldn't access naming strategy", e);
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException("Failed to find naming strategy", e);
-            }
-        }
-
-//I don't see how this is supported in hibernate 4
-//        for (PostInsertEventListener postInsertEventListener : configuration.getEventListeners().getPostInsertEventListeners()) {
-//            if (postInsertEventListener instanceof org.hibernate.envers.event.AuditEventListener) {
-//                AuditConfiguration.getFor(configuration);
-//            }
-//        }
-
+        Configuration configuration = builder.buildHibernateConfiguration(serviceRegistry);
+        configureNamingStrategy(configuration, connection);
         return configuration;
     }
 

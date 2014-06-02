@@ -40,15 +40,16 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("User")),
                 hasProperty("name", is("AuctionInfo")),
                 hasProperty("name", is("AuctionItem")),
-                hasProperty("name", is("Item"))));
+                hasProperty("name", is("Item")),
+                hasProperty("name", is("WatcherSeqTable"))));
 
 
         Table bidTable = (Table) snapshot.get(new Table().setName("bid").setSchema(new Schema()));
+        Table auctionInfoTable = (Table) snapshot.get(new Table().setName("auctioninfo").setSchema(new Schema()));
         Table auctionItemTable = (Table) snapshot.get(new Table().setName("auctionitem").setSchema(new Schema()));
 
         assertThat(bidTable.getColumns(), containsInAnyOrder(
                 hasProperty("name", is("id")),
-                hasProperty("name", is("buyNow")),
                 hasProperty("name", is("item_id")),
                 hasProperty("name", is("amount")),
                 hasProperty("name", is("datetime")),
@@ -57,7 +58,7 @@ public class HibernateEjb3DatabaseTest {
         ));
 
         assertTrue(bidTable.getColumn("id").isAutoIncrement());
-        assertFalse(bidTable.getColumn("buyNow").isAutoIncrement());
+        assertFalse(auctionInfoTable.getColumn("id").isAutoIncrement());
         assertFalse(bidTable.getColumn("datetime").isNullable());
         assertTrue(auctionItemTable.getColumn("ends").isNullable());
 
@@ -92,7 +93,8 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("user")),
                 hasProperty("name", is("auction_info")),
                 hasProperty("name", is("auction_item")),
-                hasProperty("name", is("item"))));
+                hasProperty("name", is("item")),
+                hasProperty("name", is("WatcherSeqTable"))));
 
     }
 }
