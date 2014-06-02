@@ -22,13 +22,9 @@ import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.AllOf.allOf;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class HibernateClassicDatabaseTest {
 
@@ -51,8 +47,8 @@ public class HibernateClassicDatabaseTest {
     public void runMain() throws Exception {
         Main.main(new String[]{
                 "--url=hibernate:classic:com/example/pojo/Hibernate.cfg.xml",
-                "--referenceUrl=jdbc:mysql://192.168.134.129/liquibase", "--referenceUsername=liquibase",
-                "--referencePassword=liquibase",
+                "--referenceUrl=jdbc:mysql://10.10.100.100/lbcat", "--referenceUsername=lbuser",
+                "--referencePassword=lbuser",
                 "--logLevel=debug",
                 "diffChangeLog"
         });

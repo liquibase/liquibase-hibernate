@@ -1,7 +1,11 @@
 package liquibase.ext.hibernate.snapshot;
 
+import liquibase.datatype.LiquibaseDataType;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
+import liquibase.ext.hibernate.snapshot.extension.ExtendedSnapshotGenerator;
+import liquibase.ext.hibernate.snapshot.extension.MultipleHiLoPerTableSnapshotGenerator;
+import liquibase.ext.hibernate.snapshot.extension.TableGeneratorSnapshotGenerator;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
@@ -9,10 +13,15 @@ import liquibase.structure.core.*;
 import liquibase.util.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.engine.Mapping;
+import org.hibernate.engine.spi.Mapping;
+import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.id.IdentityGenerator;
+import org.hibernate.mapping.PersistentClass;
+import org.hibernate.mapping.RootClass;
 import org.hibernate.mapping.SimpleValue;
-import org.hibernate.mapping.Value;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -22,8 +31,13 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
     private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
 
+    private List<ExtendedSnapshotGenerator<IdentifierGenerator, Table>> tableIdGenerators =
+            new ArrayList<ExtendedSnapshotGenerator<IdentifierGenerator, Table>>();
+
     public TableSnapshotGenerator() {
         super(Table.class, new Class[]{Schema.class});
+        tableIdGenerators.add(new MultipleHiLoPerTableSnapshotGenerator());
+        tableIdGenerators.add(new TableGeneratorSnapshotGenerator());
     }
 
     @Override
@@ -36,7 +50,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
         org.hibernate.mapping.Table hibernateTable = findHibernateTable(example, snapshot);
         if (hibernateTable == null) {
-            return null;
+            return example;
         }
 
         Table table = new Table().setName(hibernateTable.getName());
@@ -83,8 +97,10 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                     }
                     primaryKey.addColumnName(pkColumnPosition++, column.getName());
 
-                    Value value = hibernateColumn.getValue();
-                    if (value instanceof SimpleValue && ((SimpleValue) value).getIdentifierGeneratorStrategy().equals("identity")) {
+                    String identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue() ?
+                            ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
+                    if (("native".equals(identifierGeneratorStrategy) || "identity".equals(identifierGeneratorStrategy)) &&
+                            dialect.getNativeIdentifierGeneratorClass().equals(IdentityGenerator.class)) {
                         column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                     }
                 }
@@ -146,7 +162,49 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                     schema.addDatabaseObject(table);
                 }
             }
+
+            Iterator<PersistentClass> classMappings = cfg.getClassMappings();
+            while (classMappings.hasNext()) {
+                PersistentClass persistentClass = (PersistentClass) classMappings
+                        .next();
+                if (!persistentClass.isInherited()) {
+                    IdentifierGenerator ig = persistentClass.getIdentifier().createIdentifierGenerator(
+                            cfg.getIdentifierGeneratorFactory(),
+                            database.getDialect(),
+                            null,
+                            null,
+                            (RootClass) persistentClass
+                    );
+                    for (ExtendedSnapshotGenerator<IdentifierGenerator, Table> tableIdGenerator : tableIdGenerators) {
+                        if (tableIdGenerator.supports(ig)) {
+                            Table idTable = tableIdGenerator.snapshot(ig);
+                            idTable.setSchema(schema);
+                            schema.addDatabaseObject(idTable);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
+
+	/**
+	 * has <code>dataType</code> auto increment property ?
+	 */
+    //FIXME remove if will be accepted  https://github.com/liquibase/liquibase/pull/247
+	private boolean isAutoIncrement(LiquibaseDataType dataType) {
+		boolean retVal = false;
+		String methodName = "isAutoIncrement";
+		Method[] methods = dataType.getClass().getMethods();
+		for (Method method : methods) {
+			if (method.getName().equals(methodName)
+					&& method.getParameterTypes().length == 0) {
+				retVal = true;
+				break;
+			}
+		}
+
+		return retVal;
+	}
 
 }

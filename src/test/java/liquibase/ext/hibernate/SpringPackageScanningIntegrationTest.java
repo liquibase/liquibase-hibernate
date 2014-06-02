@@ -19,33 +19,30 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
-
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.ejb.Ejb3Configuration;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.Bootstrap;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
+import org.hibernate.service.ServiceRegistry;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 import org.springframework.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+import javax.persistence.spi.PersistenceUnitInfo;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.persistence.spi.PersistenceUnitInfo;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -94,7 +91,7 @@ public class SpringPackageScanningIntegrationTest {
     /**
      * Generates a changelog from the Hibernate mapping, creates the database
      * according to the changelog, compares, the database with the mapping.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -141,15 +138,29 @@ public class SpringPackageScanningIntegrationTest {
     /**
      * Creates a database using Hibernate SchemaExport and compare the database
      * with the Hibernate mapping
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void hibernateSchemaExport() throws Exception {
+        hibernateSchemaExport(false);
+    }
+
+    /**
+     * Same as {@link #hibernateSchemaExport} using enhanced id generator.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void hibernateSchemaExportEnhanced() throws Exception {
+        hibernateSchemaExport(true);
+    }
+
+    private void hibernateSchemaExport(boolean enhancedId) throws Exception {
 
         SingleConnectionDataSource ds = new SingleConnectionDataSource(connection, true);
 
-        Configuration cfg = createSpringPackageScanningConfiguration();
+        Configuration cfg = createSpringPackageScanningConfiguration(enhancedId);
         Properties properties = new Properties();
         properties.put(Environment.DATASOURCE, ds);
         cfg.addProperties(properties);
@@ -160,7 +171,9 @@ public class SpringPackageScanningIntegrationTest {
         Database hibernateDatabase = new HibernateSpringDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
         hibernateDatabase.setDefaultCatalogName("TESTDB");
-        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:"+ PACKAGES+ "?dialect=" + HSQLDialect.class.getName())));
+        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect="
+                + HSQLDialect.class.getName()
+                + "&hibernate.enhanced_id=" + (enhancedId ? "true" : "false"))));
 
         Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
@@ -176,7 +189,7 @@ public class SpringPackageScanningIntegrationTest {
 
     }
 
-    private Configuration createSpringPackageScanningConfiguration() {
+    private Configuration createSpringPackageScanningConfiguration(boolean enhancedId) {
         DefaultPersistenceUnitManager internalPersistenceUnitManager = new DefaultPersistenceUnitManager();
 
         internalPersistenceUnitManager.setPackagesToScan(PACKAGES);
@@ -186,35 +199,55 @@ public class SpringPackageScanningIntegrationTest {
                 .obtainDefaultPersistenceUnitInfo();
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         jpaVendorAdapter.setDatabasePlatform(HSQLDialect.class.getName());
-        if (jpaVendorAdapter != null && persistenceUnitInfo instanceof SmartPersistenceUnitInfo) {
+
+        Map<String, Object> jpaPropertyMap = jpaVendorAdapter.getJpaPropertyMap();
+        jpaPropertyMap.put("hibernate.archive.autodetection", "false");
+        jpaPropertyMap.put("hibernate.id.new_generator_mappings", enhancedId ? "true" : "false");
+
+        if (persistenceUnitInfo instanceof SmartPersistenceUnitInfo) {
             ((SmartPersistenceUnitInfo) persistenceUnitInfo).setPersistenceProviderPackageName(jpaVendorAdapter.getPersistenceProviderRootPackage());
         }
 
-        Ejb3Configuration configured = new Ejb3Configuration().configure(
-                persistenceUnitInfo, jpaVendorAdapter.getJpaPropertyMap());
-
-        Configuration configuration = configured.getHibernateConfiguration();
-        configuration.buildMappings();
-        return configuration;
+        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo,
+                jpaPropertyMap, null);
+        ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
+        return builder.buildHibernateConfiguration(serviceRegistry);
     }
 
     /**
      * Generates the changelog from Hibernate mapping, creates 2 databases,
      * updates 1 of the databases with HibernateSchemaUpdate. Compare the 2
      * databases.
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void hibernateSchemaUpdate() throws Exception {
+        hibernateSchemaUpdate(false);
+    }
+
+        Liquibase liquibase = new Liquibase(null, new ClassLoaderResourceAccessor(), database);
+
+    /**
+     * Same as #hibernateSchemaUpdate using enhanced id generator.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void hibernateSchemaUpdateEnhanced() throws Exception {
+        hibernateSchemaUpdate(true);
+    }
+
+    private void hibernateSchemaUpdate(boolean enhancedId) throws Exception {
 
         Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
 
         Database hibernateDatabase = new HibernateSpringDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
         hibernateDatabase.setDefaultCatalogName("TESTDB");
-        hibernateDatabase.setConnection(new JdbcConnection(
-                new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect=" + HSQLDialect.class.getName())));
+        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect="
+                + HSQLDialect.class.getName()
+                + "&hibernate.enhanced_id=" + (enhancedId ? "true" : "false"))));
 
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
 
@@ -239,14 +272,14 @@ public class SpringPackageScanningIntegrationTest {
         Database database2 = new HsqlDatabase();
         database2.setConnection(new JdbcConnection(connection2));
 
-        Configuration cfg = createSpringPackageScanningConfiguration();
+        Configuration cfg = createSpringPackageScanningConfiguration(enhancedId);
         cfg.setProperty("hibernate.connection.url", "jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis);
 
         SchemaUpdate update = new SchemaUpdate(cfg);
         update.execute(true, true);
 
         diffResult = liquibase.diff(database, database2, compareControl);
-        
+
         ignoreDatabaseChangeLogTable(diffResult);
         ignoreConversionFromFloatToDouble64(diffResult);
 
@@ -344,7 +377,7 @@ public class SpringPackageScanningIntegrationTest {
     /**
      * Columns created as float are seen as DOUBLE(64) in database metadata.
      * HsqlDB bug?
-     * 
+     *
      * @param diffResult
      * @throws Exception
      */
@@ -368,4 +401,11 @@ public class SpringPackageScanningIntegrationTest {
         }
     }
 
+    private static class MyHibernatePersistenceProvider extends HibernatePersistenceProvider {
+
+        @Override
+        public EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties, ClassLoader providedClassLoader) {
+            return super.getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, providedClassLoader);
+        }
+    }
 }

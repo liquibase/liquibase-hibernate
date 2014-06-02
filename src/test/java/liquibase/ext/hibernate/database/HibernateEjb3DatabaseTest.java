@@ -11,13 +11,9 @@ import liquibase.structure.core.Table;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.AllOf.allOf;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class HibernateEjb3DatabaseTest {
 
@@ -40,15 +36,16 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("User")),
                 hasProperty("name", is("AuctionInfo")),
                 hasProperty("name", is("AuctionItem")),
-                hasProperty("name", is("Item"))));
+                hasProperty("name", is("Item")),
+                hasProperty("name", is("WatcherSeqTable"))));
 
 
         Table bidTable = (Table) snapshot.get(new Table().setName("bid").setSchema(new Schema()));
+        Table auctionInfoTable = (Table) snapshot.get(new Table().setName("auctioninfo").setSchema(new Schema()));
         Table auctionItemTable = (Table) snapshot.get(new Table().setName("auctionitem").setSchema(new Schema()));
 
         assertThat(bidTable.getColumns(), containsInAnyOrder(
                 hasProperty("name", is("id")),
-                hasProperty("name", is("buyNow")),
                 hasProperty("name", is("item_id")),
                 hasProperty("name", is("amount")),
                 hasProperty("name", is("datetime")),
@@ -57,7 +54,7 @@ public class HibernateEjb3DatabaseTest {
         ));
 
         assertTrue(bidTable.getColumn("id").isAutoIncrement());
-        assertFalse(bidTable.getColumn("buyNow").isAutoIncrement());
+        assertFalse(auctionInfoTable.getColumn("id").isAutoIncrement());
         assertFalse(bidTable.getColumn("datetime").isNullable());
         assertTrue(auctionItemTable.getColumn("ends").isNullable());
 
@@ -92,7 +89,8 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("user")),
                 hasProperty("name", is("auction_info")),
                 hasProperty("name", is("auction_item")),
-                hasProperty("name", is("item"))));
+                hasProperty("name", is("item")),
+                hasProperty("name", is("WatcherSeqTable"))));
 
     }
 }

@@ -1,13 +1,7 @@
 package com.example.ejb3.auction;
 
+import javax.persistence.*;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.ManyToOne;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -57,6 +51,7 @@ public class Bid extends Persistent {
         return bidder.getUserName() + " $" + amount;
     }
 
+    @Transient
     public boolean isBuyNow() {
         return false;
     }

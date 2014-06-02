@@ -1,6 +1,5 @@
 package liquibase.ext.hibernate.database;
 
-import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
@@ -11,6 +10,7 @@ import liquibase.ext.hibernate.database.connection.HibernateDriver;
 import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
 
@@ -27,10 +27,11 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     private Dialect dialect;
 
     private boolean indexesForForeignKeys = false;
+    public static final String DEFAULT_SCHEMA = "HIBERNATE";
 
     public HibernateDatabase() {
-        setDefaultCatalogName("HIBERNATE");
-        setDefaultSchemaName("HIBERNATE");
+        setDefaultCatalogName(DEFAULT_SCHEMA);
+        setDefaultSchemaName(DEFAULT_SCHEMA);
     }
 
     @Override
@@ -71,6 +72,30 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         }
 
         return dialect;
+    }
+
+    /**
+     * Configures the naming strategy use by the connection
+     *
+     * @param configuration the {@link Configuration}
+     * @param connection the {@link HibernateConnection}
+     */
+    protected void configureNamingStrategy(Configuration configuration, HibernateConnection connection) {
+        String namingStrategy = connection.getProperties().getProperty("hibernate.namingStrategy");
+        if (namingStrategy == null) {
+            namingStrategy = connection.getProperties().getProperty("hibernate.ejb.naming_strategy");
+        }
+        if (namingStrategy != null) {
+            try {
+                configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
+            } catch (InstantiationException e) {
+                throw new IllegalStateException("Failed to instantiate naming strategy", e);
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException("Couldn't access naming strategy", e);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException("Failed to find naming strategy", e);
+            }
+        }
     }
 
     /**
@@ -137,12 +162,22 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     @Override
     protected String getConnectionCatalogName() throws DatabaseException {
-        return null;
+        return getDefaultCatalogName();
     }
 
     @Override
     protected String getConnectionSchemaName() {
-        return null;
+        return getDefaultSchemaName();
+    }
+
+    @Override
+    public String getDefaultSchemaName() {
+        return DEFAULT_SCHEMA;
+    }
+
+    @Override
+    public String getDefaultCatalogName() {
+        return DEFAULT_SCHEMA;
     }
 
     @Override

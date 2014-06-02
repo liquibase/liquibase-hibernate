@@ -31,6 +31,9 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         if (foundObject instanceof Table) {
             Table table = (Table) foundObject;
             org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+            if (hibernateTable == null) {
+                return;
+            }
             Iterator indexIterator = hibernateTable.getIndexIterator();
             while (indexIterator.hasNext()) {
                 org.hibernate.mapping.Index hibernateIndex = (org.hibernate.mapping.Index) indexIterator.next();

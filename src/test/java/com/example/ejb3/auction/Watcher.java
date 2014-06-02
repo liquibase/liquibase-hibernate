@@ -1,13 +1,13 @@
 package com.example.ejb3.auction;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 public class Watcher {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.TABLE,generator="WATCHER_SEQ")
+    @TableGenerator(name="WATCHER_SEQ",table="WatcherSeqTable")
     private Integer id;
 
     @SuppressWarnings("unused")

@@ -27,17 +27,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -99,8 +94,8 @@ public class HibernateIntegrationTest {
         Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
 
         Database hibernateDatabase = new HibernateClassicDatabase();
-        hibernateDatabase.setDefaultSchemaName("PUBLIC");
-        hibernateDatabase.setDefaultCatalogName("TESTDB");
+//        hibernateDatabase.setDefaultSchemaName("PUBLIC");
+//        hibernateDatabase.setDefaultCatalogName("TESTDB");
         hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:classic:" + HIBERNATE_CONFIG_FILE)));
 
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
@@ -245,8 +240,11 @@ public class HibernateIntegrationTest {
     private String toChangeLog(DiffResult diffResult) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out, true, "UTF-8");
+        DiffOutputControl diffOutputControl = new DiffOutputControl();
+        diffOutputControl.setIncludeCatalog(false);
+        diffOutputControl.setIncludeSchema(false);
         DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diffResult,
-                new DiffOutputControl());
+                diffOutputControl);
         diffToChangeLog.print(printStream);
         printStream.close();
         return out.toString("UTF-8");

@@ -87,7 +87,7 @@
         <dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>3.6.10.Final</version>
+			<version>4.2.4.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
@@ -97,12 +97,12 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
-			<version>3.6.10.Final</version>
+			<version>4.2.4.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-envers</artifactId>
-			<version>3.6.10.Final</version>
+			<version>4.2.4.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -143,7 +143,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>3.1.1</version>
+			<version>3.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
