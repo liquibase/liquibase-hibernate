@@ -37,6 +37,9 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("AuctionInfo")),
                 hasProperty("name", is("AuctionItem")),
                 hasProperty("name", is("Item")),
+                hasProperty("name", is("AuditedItem")),
+                hasProperty("name", is("AuditedItem_AUD")),
+                hasProperty("name", is("REVINFO")),
                 hasProperty("name", is("WatcherSeqTable"))));
 
 
@@ -90,6 +93,9 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("auction_info")),
                 hasProperty("name", is("auction_item")),
                 hasProperty("name", is("item")),
+                hasProperty("name", is("audited_item")),
+                hasProperty("name", is("audited_item_aud")),
+                hasProperty("name", is("revinfo")),
                 hasProperty("name", is("WatcherSeqTable"))));
 
     }
