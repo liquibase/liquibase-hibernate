@@ -1,6 +1,8 @@
 package liquibase.ext.hibernate.snapshot;
 
+import liquibase.datatype.DataTypeFactory;
 import liquibase.datatype.LiquibaseDataType;
+import liquibase.datatype.core.UnknownType;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.ext.hibernate.snapshot.extension.ExtendedSnapshotGenerator;
@@ -8,11 +10,14 @@ import liquibase.ext.hibernate.snapshot.extension.MultipleHiLoPerTableSnapshotGe
 import liquibase.ext.hibernate.snapshot.extension.TableGeneratorSnapshotGenerator;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
+import liquibase.statement.DatabaseFunction;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
+import liquibase.util.SqlUtil;
 import liquibase.util.StringUtils;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.PostgreSQL81Dialect;
 import org.hibernate.engine.spi.Mapping;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.IdentityGenerator;
@@ -76,7 +81,20 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             LOG.info("Found column " + column.getName() + " " + column.getType().toString());
 
             column.setRemarks(hibernateColumn.getComment());
-            column.setDefaultValue(hibernateColumn.getDefaultValue());
+            if (hibernateColumn.getValue() instanceof SimpleValue) {
+                DataType parseType;
+                if (DataTypeFactory.getInstance().from(dataType, database) instanceof UnknownType) {
+                    parseType = new DataType(((SimpleValue)hibernateColumn.getValue()).getTypeName());
+                } else {
+                    parseType = dataType;
+                }
+                column.setDefaultValue(SqlUtil.parseValue(
+                        snapshot.getDatabase(),
+                        hibernateColumn.getDefaultValue(),
+                        parseType));
+            } else {
+                column.setDefaultValue(hibernateColumn.getDefaultValue());
+            }
             column.setNullable(hibernateColumn.isNullable());
             column.setCertainDataType(false);
 
@@ -99,9 +117,14 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
                     String identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue() ?
                             ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
-                    if (("native".equals(identifierGeneratorStrategy) || "identity".equals(identifierGeneratorStrategy)) &&
-                            dialect.getNativeIdentifierGeneratorClass().equals(IdentityGenerator.class)) {
-                        column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                    if (("native".equals(identifierGeneratorStrategy) || "identity".equals(identifierGeneratorStrategy))) {
+                        if (PostgreSQL81Dialect.class.isAssignableFrom(dialect.getClass())) {
+                            column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                            String sequenceName = (table.getName() + "_" + column.getName() + "_seq").toLowerCase();
+                            column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+                        } else if (dialect.getNativeIdentifierGeneratorClass().equals(IdentityGenerator.class)) {
+                            column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                        }
                     }
                 }
             }
