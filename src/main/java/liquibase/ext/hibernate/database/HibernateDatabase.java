@@ -44,6 +44,8 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
             this.configuration = buildConfiguration(((HibernateConnection) ((JdbcConnection) conn).getUnderlyingConnection()));
 
             this.configuration.buildMappings();
+            this.configuration.getEventListeners().initializeListeners(configuration);
+
             this.dialect = configureDialect();
 
             afterSetup();
