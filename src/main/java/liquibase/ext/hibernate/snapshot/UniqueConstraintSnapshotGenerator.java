@@ -44,7 +44,6 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 int i = 0;
                 while (columnIterator.hasNext()) {
                     org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
-                    name += "_" + hibernateColumn.getName().toUpperCase();
                     uniqueConstraint.addColumn(i, new Column(hibernateColumn.getName()).setRelation(table));
                     i++;
                 }
