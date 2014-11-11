@@ -9,21 +9,21 @@ import java.sql.Types;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertNull;
 
-public class TableSnapshotGeneratorTest {
+public class ColumnSnapshotGeneratorTest {
 
     @Test
     public void toDataType() throws DatabaseException {
-        TableSnapshotGenerator tableSnapshotGenerator = new TableSnapshotGenerator();
-        DataType varchar = tableSnapshotGenerator.toDataType("varchar(255)", Types.VARCHAR);
+        ColumnSnapshotGenerator columnSnapshotGenerator = new ColumnSnapshotGenerator();
+        DataType varchar = columnSnapshotGenerator.toDataType("varchar(255)", Types.VARCHAR);
         assertEquals("varchar", varchar.getTypeName());
         assertEquals(255, varchar.getColumnSize().intValue());
         assertEquals(Types.VARCHAR, varchar.getDataTypeId().intValue());
         assertNull(varchar.getColumnSizeUnit());
 
-        DataType intType = tableSnapshotGenerator.toDataType("integer", Types.INTEGER);
+        DataType intType = columnSnapshotGenerator.toDataType("integer", Types.INTEGER);
         assertEquals("integer", intType.getTypeName());
 
-        DataType varcharChar = tableSnapshotGenerator.toDataType("varchar2(30 char)", Types.INTEGER);
+        DataType varcharChar = columnSnapshotGenerator.toDataType("varchar2(30 char)", Types.INTEGER);
         assertEquals("varchar2", varcharChar.getTypeName());
         assertEquals(30, varcharChar.getColumnSize().intValue());
         assertEquals(DataType.ColumnSizeUnit.CHAR, varcharChar.getColumnSizeUnit());
