@@ -3,10 +3,19 @@ package liquibase.ext.hibernate.snapshot;
 import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
+import liquibase.statement.DatabaseFunction;
 import liquibase.structure.DatabaseObject;
+import liquibase.structure.core.Column;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Table;
+
+import org.hibernate.dialect.PostgreSQL81Dialect;
+import org.hibernate.id.IdentityGenerator;
+import org.hibernate.mapping.SimpleValue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
 
@@ -36,14 +45,15 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
                 pk.setName(hibernatePrimaryKey.getName());
                 pk.setTable(table);
                 for (Object hibernateColumn : hibernatePrimaryKey.getColumns()) {
-                    pk.getColumnNamesAsList().add(((org.hibernate.mapping.Column) hibernateColumn).getName());
+                    pk.getColumns().add(new Column(((org.hibernate.mapping.Column) hibernateColumn).getName()).setRelation(table));
                 }
+
                 LOG.info("Found primary key " + pk.getName());
                 table.setPrimaryKey(pk);
                 Index index = new Index();
                 index.setName("IX_" + pk.getName());
                 index.setTable(table);
-                index.setColumns(pk.getColumnNames());
+                index.setColumns(pk.getColumns());
                 index.setUnique(true);
                 pk.setBackingIndex(index);
                 table.getIndexes().add(index);

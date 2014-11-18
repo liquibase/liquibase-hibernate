@@ -43,16 +43,16 @@ public class HibernateClassicDatabaseTest {
         db.close();
     }
 
-    @Test
-    public void runMain() throws Exception {
-        Main.main(new String[]{
-                "--url=hibernate:classic:com/example/pojo/Hibernate.cfg.xml",
-                "--referenceUrl=jdbc:mysql://10.10.100.100/lbcat", "--referenceUsername=lbuser",
-                "--referencePassword=lbuser",
-                "--logLevel=debug",
-                "diffChangeLog"
-        });
-    }
+//    @Test
+//    public void runMain() throws Exception {
+//        Main.main(new String[]{
+//                "--url=hibernate:classic:com/example/pojo/Hibernate.cfg.xml",
+//                "--referenceUrl=jdbc:mysql://vagrant/lbcat", "--referenceUsername=lbuser",
+//                "--referencePassword=lbuser",
+//                "--logLevel=debug",
+//                "diffChangeLog"
+//        });
+//    }
 
     @Test
     public void testHibernateUrlSimple() throws DatabaseException {
@@ -73,7 +73,7 @@ public class HibernateClassicDatabaseTest {
     @Test
     public void simpleHibernateUrl() throws Exception {
         String url = "hibernate:classic:com/example/pojo/Hibernate.cfg.xml";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -112,13 +112,13 @@ public class HibernateClassicDatabaseTest {
 
         assertThat(bidTable.getOutgoingForeignKeys(), containsInAnyOrder(
                 allOf(
-                        hasProperty("primaryKeyColumns", is("id")),
-                        hasProperty("foreignKeyColumns", is("item")),
+                        hasProperty("primaryKeyColumns", hasToString("[AuctionItem.id]")),
+                        hasProperty("foreignKeyColumns", hasToString("[Bid.item]")),
                         hasProperty("primaryKeyTable", hasProperty("name", is("AuctionItem")))
                 ),
                 allOf(
-                        hasProperty("primaryKeyColumns", is("id")),
-                        hasProperty("foreignKeyColumns", is("bidder")),
+                        hasProperty("primaryKeyColumns", hasToString("[AuctionUser.id]")),
+                        hasProperty("foreignKeyColumns", hasToString("[Bid.bidder]")),
                         hasProperty("primaryKeyTable", hasProperty("name", is("AuctionUser")))
                 )
         ));
@@ -127,7 +127,7 @@ public class HibernateClassicDatabaseTest {
     @Test
     public void hibernateUrlWithNamingStrategy() throws Exception {
         String url = "hibernate:classic:com/example/pojo/Hibernate.cfg.xml?hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
 
         assertNotNull(database);
 

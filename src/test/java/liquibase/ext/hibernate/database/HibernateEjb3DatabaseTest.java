@@ -20,7 +20,7 @@ public class HibernateEjb3DatabaseTest {
     @Test
     public void simpleEjb3Url() throws Exception {
         String url = "hibernate:ejb3:auction";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -37,6 +37,9 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("AuctionInfo")),
                 hasProperty("name", is("AuctionItem")),
                 hasProperty("name", is("Item")),
+                hasProperty("name", is("AuditedItem")),
+                hasProperty("name", is("AuditedItem_AUD")),
+                hasProperty("name", is("REVINFO")),
                 hasProperty("name", is("WatcherSeqTable"))));
 
 
@@ -62,13 +65,13 @@ public class HibernateEjb3DatabaseTest {
 
         assertThat(bidTable.getOutgoingForeignKeys(), containsInAnyOrder(
                 allOf(
-                        hasProperty("primaryKeyColumns", is("id")),
-                        hasProperty("foreignKeyColumns", is("item_id")),
+                        hasProperty("primaryKeyColumns", hasToString("[AuctionItem.id]")),
+                        hasProperty("foreignKeyColumns", hasToString("[Bid.item_id]")),
                         hasProperty("primaryKeyTable", hasProperty("name", is("AuctionItem")))
                 ),
                 allOf(
-                        hasProperty("primaryKeyColumns", is("id")),
-                        hasProperty("foreignKeyColumns", is("bidder_id")),
+                        hasProperty("primaryKeyColumns", hasToString("[User.id]")),
+                        hasProperty("foreignKeyColumns", hasToString("[Bid.bidder_id]")),
                         hasProperty("primaryKeyTable", hasProperty("name", is("User")))
                 )
         ));
@@ -77,7 +80,7 @@ public class HibernateEjb3DatabaseTest {
     @Test
     public void ejb3UrlWithNamingStrategy() throws Exception {
         String url = "hibernate:ejb3:auction?hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -90,6 +93,9 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("auction_info")),
                 hasProperty("name", is("auction_item")),
                 hasProperty("name", is("item")),
+                hasProperty("name", is("audited_item")),
+                hasProperty("name", is("audited_item_aud")),
+                hasProperty("name", is("revinfo")),
                 hasProperty("name", is("WatcherSeqTable"))));
 
     }

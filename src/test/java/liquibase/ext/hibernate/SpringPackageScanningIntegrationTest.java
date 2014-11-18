@@ -22,6 +22,7 @@ import liquibase.structure.core.*;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.HSQLDialect;
+import org.hibernate.envers.configuration.spi.AuditConfiguration;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
@@ -211,7 +212,10 @@ public class SpringPackageScanningIntegrationTest {
         EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo,
                 jpaPropertyMap, null);
         ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
-        return builder.buildHibernateConfiguration(serviceRegistry);
+        Configuration configuration = builder.buildHibernateConfiguration(serviceRegistry);
+        configuration.buildMappings();
+        AuditConfiguration.getFor(configuration);
+        return configuration;
     }
 
     /**
@@ -302,7 +306,7 @@ public class SpringPackageScanningIntegrationTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out, true, "UTF-8");
         DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diffResult,
-                new DiffOutputControl());
+                new DiffOutputControl().setIncludeCatalog(false).setIncludeSchema(false));
         diffToChangeLog.print(printStream);
         printStream.close();
         return out.toString("UTF-8");

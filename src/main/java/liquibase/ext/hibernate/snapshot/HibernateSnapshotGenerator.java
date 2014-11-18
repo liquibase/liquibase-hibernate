@@ -96,7 +96,7 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
         Iterator<org.hibernate.mapping.Table> tableMappings = cfg.getTableMappings();
         while (tableMappings.hasNext()) {
             org.hibernate.mapping.Table hibernateTable = (org.hibernate.mapping.Table) tableMappings.next();
-            if (hibernateTable.getName().equals(example.getName()))
+            if (hibernateTable.getName().equalsIgnoreCase(example.getName()))
                 return hibernateTable;
         }
         return null;
