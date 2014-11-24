@@ -225,6 +225,26 @@
 
 
 				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.5</version>
+					<extensions>true</extensions>
+					<executions>
+						<execution>
+							<id>default-deploy</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>deploy</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<serverId>sonatype-nexus-staging</serverId>
+						<nexusUrl>https://oss.sonatype.org/service/local/staging/deploy/maven2/</nexusUrl>
+					</configuration>
+				</plugin>
+
+				<plugin>
 					<artifactId>maven-deploy-plugin</artifactId>
 					<configuration>
 						<skip>false</skip>
