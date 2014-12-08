@@ -29,7 +29,7 @@
 	</issueManagement>
 
 	<scm>
-        <connection>scm:git:http://github.com/liquibase/liquibase-hibernate.git</connection>
+        <connection>scm:git:git@github.com:liquibase/liquibase-hibernate.git</connection>
 		<url>https://github.com/liquibase/liquibase-hibernate</url>
 	</scm>
 
@@ -143,7 +143,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>3.3.1-SNAPSHOT</version>
+			<version>3.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
