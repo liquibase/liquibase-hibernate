@@ -307,7 +307,7 @@ public class SpringPackageScanningIntegrationTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out, true, "UTF-8");
         DiffToChangeLog diffToChangeLog = new DiffToChangeLog(diffResult,
-                new DiffOutputControl());
+                new DiffOutputControl().setIncludeCatalog(false).setIncludeSchema(false));
         diffToChangeLog.print(printStream);
         printStream.close();
         return out.toString("UTF-8");

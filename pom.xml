@@ -29,7 +29,7 @@
 	</issueManagement>
 
 	<scm>
-        <connection>scm:git:http://github.com/liquibase/liquibase-hibernate.git</connection>
+        <connection>scm:git:git@github.com:liquibase/liquibase-hibernate.git</connection>
 		<url>https://github.com/liquibase/liquibase-hibernate</url>
 	</scm>
 
@@ -143,7 +143,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>3.2.0</version>
+			<version>3.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
@@ -223,6 +223,26 @@
                     </configuration>
 				</plugin>
 
+
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.5</version>
+					<extensions>true</extensions>
+					<executions>
+						<execution>
+							<id>default-deploy</id>
+							<phase>deploy</phase>
+							<goals>
+								<goal>deploy</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<serverId>sonatype-nexus-staging</serverId>
+						<nexusUrl>https://oss.sonatype.org/service/local/staging/deploy/maven2/</nexusUrl>
+					</configuration>
+				</plugin>
 
 				<plugin>
 					<artifactId>maven-deploy-plugin</artifactId>

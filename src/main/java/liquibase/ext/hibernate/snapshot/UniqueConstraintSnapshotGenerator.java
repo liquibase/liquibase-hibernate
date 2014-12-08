@@ -4,6 +4,8 @@ import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
+import liquibase.structure.core.Column;
+import liquibase.structure.core.Index;
 import liquibase.structure.core.Table;
 import liquibase.structure.core.UniqueConstraint;
 
@@ -37,17 +39,18 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 org.hibernate.mapping.UniqueKey hibernateUnique = (org.hibernate.mapping.UniqueKey) uniqueIterator.next();
 
                 UniqueConstraint uniqueConstraint = new UniqueConstraint();
-                String name = "UC_" + table.getName().toUpperCase();
                 uniqueConstraint.setTable(table);
                 Iterator columnIterator = hibernateUnique.getColumnIterator();
                 int i = 0;
                 while (columnIterator.hasNext()) {
                     org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
-                    name += "_" + hibernateColumn.getName().toUpperCase();
-                    uniqueConstraint.addColumn(i, hibernateColumn.getName());
+                    uniqueConstraint.addColumn(i, new Column(hibernateColumn.getName()).setRelation(table));
                     i++;
                 }
-                uniqueConstraint.setName(name);
+
+                Index index = getBackingIndex(uniqueConstraint, hibernateTable, snapshot);
+                uniqueConstraint.setBackingIndex(index);
+
                 LOG.info("Found unique constraint " + uniqueConstraint.toString());
                 table.getUniqueConstraints().add(uniqueConstraint);
             }
@@ -58,13 +61,29 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                     UniqueConstraint uniqueConstraint = new UniqueConstraint();
                     uniqueConstraint.setTable(table);
                     String name = "UC_" + table.getName().toUpperCase() + column.getName().toUpperCase() + "_COL";
-                    uniqueConstraint.addColumn(0, column.getName());
+                    if (name.length() > 64) {
+                        name = name.substring(0, 63);
+                    }
+                    uniqueConstraint.addColumn(0, new Column(column.getName()).setRelation(table));
                     uniqueConstraint.setName(name);
                     LOG.info("Found unique constraint " + uniqueConstraint.toString());
                     table.getUniqueConstraints().add(uniqueConstraint);
+
+                    Index index = getBackingIndex(uniqueConstraint, hibernateTable, snapshot);
+                    uniqueConstraint.setBackingIndex(index);
+
                 }
             }
         }
+    }
+
+    protected Index getBackingIndex(UniqueConstraint uniqueConstraint, org.hibernate.mapping.Table hibernateTable, DatabaseSnapshot snapshot) {
+        Index index = new Index();
+        index.setTable(uniqueConstraint.getTable());
+        index.setColumns(uniqueConstraint.getColumns());
+        index.setUnique(true);
+
+        return index;
     }
 
 }

@@ -65,7 +65,7 @@ public class HibernateSpringDatabaseTest {
     @Test
     public void simpleSpringUrl() throws Exception {
         String url = "hibernate:spring:spring.ctx.xml?bean=sessionFactory";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -77,7 +77,7 @@ public class HibernateSpringDatabaseTest {
     @Test
     public void simpleSpringScanningUrl() throws Exception {
         String url = "hibernate:spring:com.example.ejb3.auction?dialect=" + HSQLDialect.class.getName();
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
 
         assertNotNull(database);
 

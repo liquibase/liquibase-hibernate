@@ -11,6 +11,7 @@
     <class>com.example.ejb3.auction.User</class>
     <class>com.example.ejb3.auction.Watcher</class>
     <class>com.example.ejb3.auction.Item</class>
+    <class>com.example.ejb3.auction.AuditedItem</class>
     <properties>
       <property name="hibernate.archive.autodetection" value="false"/>
       <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver"/>
