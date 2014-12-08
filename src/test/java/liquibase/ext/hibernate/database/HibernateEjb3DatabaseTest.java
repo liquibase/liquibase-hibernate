@@ -11,9 +11,7 @@ import liquibase.structure.core.Table;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -42,8 +40,6 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("AuctionItem")),
                 hasProperty("name", is("Item")),
                 hasProperty("name", is("AuditedItem")),
-                hasProperty("name", is("AuditedItem_AUD")),
-                hasProperty("name", is("REVINFO")),
                 hasProperty("name", is("WatcherSeqTable"))));
 
 
@@ -57,6 +53,7 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("amount")),
                 hasProperty("name", is("datetime")),
                 hasProperty("name", is("bidder_id")),
+                hasProperty("name", is("buyNow")),
                 hasProperty("name", is("DTYPE"))
         ));
 
@@ -98,8 +95,6 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("auction_item")),
                 hasProperty("name", is("item")),
                 hasProperty("name", is("audited_item")),
-                hasProperty("name", is("audited_item_aud")),
-                hasProperty("name", is("revinfo")),
                 hasProperty("name", is("WatcherSeqTable"))));
 
     }

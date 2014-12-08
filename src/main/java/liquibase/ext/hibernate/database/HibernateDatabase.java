@@ -1,6 +1,5 @@
 package liquibase.ext.hibernate.database;
 
-import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
@@ -14,7 +13,6 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
-import org.hibernate.envers.configuration.spi.AuditConfiguration;
 
 /**
  * Base class for all Hibernate Databases. This extension interacts with Hibernate by creating standard liquibase.database.Database implementations that
@@ -47,7 +45,6 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
             configureNamingStrategy(this.configuration, ((HibernateConnection) ((JdbcConnection) conn).getUnderlyingConnection()));
 
             this.configuration.buildMappings();
-            AuditConfiguration.getFor(configuration);
             this.dialect = configureDialect();
 
             afterSetup();
