@@ -43,6 +43,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
             LOG.info("Reading hibernate configuration " + getConnection().getURL());
 
             this.configuration = buildConfiguration(((HibernateConnection) ((JdbcConnection) conn).getUnderlyingConnection()));
+            configureNamingStrategy(this.configuration, ((HibernateConnection) ((JdbcConnection) conn).getUnderlyingConnection()));
 
             this.configuration.buildMappings();
             AuditConfiguration.getFor(configuration);
