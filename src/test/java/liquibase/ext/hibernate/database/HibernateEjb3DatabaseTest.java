@@ -22,7 +22,7 @@ public class HibernateEjb3DatabaseTest {
     @Test
     public void simpleEjb3Url() throws Exception {
         String url = "hibernate:ejb3:auction";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -81,7 +81,7 @@ public class HibernateEjb3DatabaseTest {
     @Test
     public void ejb3UrlWithNamingStrategy() throws Exception {
         String url = "hibernate:ejb3:auction?hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 

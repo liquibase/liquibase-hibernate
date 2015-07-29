@@ -75,7 +75,7 @@ public class HibernateClassicDatabaseTest {
     @Test
     public void simpleHibernateUrl() throws Exception {
         String url = "hibernate:classic:com/example/pojo/Hibernate.cfg.xml";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -129,7 +129,7 @@ public class HibernateClassicDatabaseTest {
     @Test
     public void hibernateUrlWithNamingStrategy() throws Exception {
         String url = "hibernate:classic:com/example/pojo/Hibernate.cfg.xml?hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 
