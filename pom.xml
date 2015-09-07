@@ -24,9 +24,10 @@
 		</license>
 	</licenses>
 
-	<issueManagement>
-		<url>https://github.com/liquibase/liquibase-hibernate/issues</url>
-	</issueManagement>
+	<repository>
+	    <id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+	</repository>
 
    <scm>
         <connection>scm:git:git@github.com:liquibase/liquibase-hibernate.git</connection>
@@ -71,6 +72,11 @@
     </properties>
 
 	<dependencies>
+	<dependency>
+	    <groupId>com.github.malaguna</groupId>
+	    <artifactId>liquibase-hibernate</artifactId>
+	    <version>3.6</version>
+	</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -256,19 +262,6 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
-    <distributionManagement>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Sonatype Production Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sontatype Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 
 	<profiles>
 		<profile>
