@@ -24,13 +24,6 @@
 		</license>
 	</licenses>
 	
-	<repositories>
-	<repository>
-	    <id>jitpack.io</id>
-	    <url>https://jitpack.io</url>
-	</repository>
-	</repositories>
-
    <scm>
         <connection>scm:git:git@github.com:liquibase/liquibase-hibernate.git</connection>
         <url>scm:git:https://github.com/liquibase/liquibase-hibernate.git</url>
@@ -74,11 +67,6 @@
     </properties>
 
 	<dependencies>
-	<dependency>
-	    <groupId>com.github.malaguna</groupId>
-	    <artifactId>liquibase-hibernate</artifactId>
-	    <version>liquibase-hibernate4-3.6</version>
-	</dependency> 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
