@@ -23,11 +23,13 @@
 			<name>Apache License, Version 2.0</name>
 		</license>
 	</licenses>
-
+	
+	<repositories>
 	<repository>
 	    <id>jitpack.io</id>
 	    <url>https://jitpack.io</url>
 	</repository>
+	</repositories>
 
    <scm>
         <connection>scm:git:git@github.com:liquibase/liquibase-hibernate.git</connection>
@@ -75,8 +77,8 @@
 	<dependency>
 	    <groupId>com.github.malaguna</groupId>
 	    <artifactId>liquibase-hibernate</artifactId>
-	    <version>3.6</version>
-	</dependency>
+	    <version>liquibase-hibernate4-3.6</version>
+	</dependency> 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
