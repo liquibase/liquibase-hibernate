@@ -45,6 +45,15 @@
 			</roles>
 			<timezone>-6</timezone>
 		</developer>
+        <developer>
+            <id>randomeizer</id>
+            <name>David Peterson</name>
+            <email>david.peterson@servicerocket.com</email>
+            <url>http://www.servicerocket.com/</url>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
 		<developer>
 			<id>fxbonnet</id>
 			<name>Francois-Xavier Bonnet</name>
@@ -58,6 +67,7 @@
 	</developers>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<hibernate.version>4.3.11.Final</hibernate.version>
 	</properties>
 
