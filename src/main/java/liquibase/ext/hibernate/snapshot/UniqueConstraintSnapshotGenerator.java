@@ -39,6 +39,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 org.hibernate.mapping.UniqueKey hibernateUnique = (org.hibernate.mapping.UniqueKey) uniqueIterator.next();
 
                 UniqueConstraint uniqueConstraint = new UniqueConstraint();
+                uniqueConstraint.setName(hibernateUnique.getName());
                 uniqueConstraint.setTable(table);
                 Iterator columnIterator = hibernateUnique.getColumnIterator();
                 int i = 0;
