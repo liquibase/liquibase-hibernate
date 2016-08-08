@@ -24,6 +24,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.ejb.Ejb3Configuration;
+import org.hibernate.envers.configuration.AuditConfiguration;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.junit.After;
@@ -216,6 +217,7 @@ public class SpringPackageScanningIntegrationTest {
 
         Configuration configuration = configured.getHibernateConfiguration();
         configuration.buildMappings();
+        AuditConfiguration.getFor(configuration);
         return configuration;
     }
 
