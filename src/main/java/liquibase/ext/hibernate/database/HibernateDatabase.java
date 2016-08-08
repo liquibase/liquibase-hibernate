@@ -11,6 +11,7 @@ import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.NamingStrategy;
+import org.hibernate.cfg.naming.NamingStrategyDelegator;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.envers.configuration.spi.AuditConfiguration;
@@ -88,9 +89,14 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         if (namingStrategy == null) {
             namingStrategy = connection.getProperties().getProperty("hibernate.ejb.naming_strategy");
         }
-        if (namingStrategy != null) {
+        String namingStrategyDelegator = connection.getProperties().getProperty("hibernate.ejb.naming_strategy_delegator");
+        if (namingStrategy != null || namingStrategyDelegator != null) {
             try {
-                configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
+                if (namingStrategyDelegator != null) {
+                    configuration.setNamingStrategyDelegator((NamingStrategyDelegator) Class.forName(namingStrategyDelegator).newInstance());
+                }else{
+                    configuration.setNamingStrategy((NamingStrategy) Class.forName(namingStrategy).newInstance());
+                }
             } catch (InstantiationException e) {
                 throw new IllegalStateException("Failed to instantiate naming strategy", e);
             } catch (IllegalAccessException e) {
