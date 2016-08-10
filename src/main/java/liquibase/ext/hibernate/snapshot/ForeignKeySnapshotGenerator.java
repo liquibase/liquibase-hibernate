@@ -72,7 +72,7 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
 //			fk.setBackingIndex(index);
 //			table.getIndexes().add(index);
 
-                        if (DatabaseObjectComparatorFactory.getInstance().isSameObject(currentTable, table, database)) {
+                        if (DatabaseObjectComparatorFactory.getInstance().isSameObject(currentTable, table, null, database)) {
                             table.getOutgoingForeignKeys().add(fk);
                             table.getSchema().addDatabaseObject(fk);
                         }
