@@ -34,6 +34,11 @@ public class HibernateConnection implements Connection {
         if (queryIndex >= 0) {
             // Convert the query string into properties
             properties.putAll(readProperties(path.substring(queryIndex + 1)));
+
+            if (properties.containsKey("dialect") && !properties.containsKey("hibernate.dialect")) {
+                properties.put("hibernate.dialect", properties.getProperty("dialect"));
+            }
+
             // Remove the query string
             path = path.substring(0, queryIndex);
         }

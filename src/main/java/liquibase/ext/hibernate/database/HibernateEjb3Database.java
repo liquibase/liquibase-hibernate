@@ -38,7 +38,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
     protected Configuration buildConfigurationfromFile(HibernateConnection connection) {
 
         MyHibernatePersistenceProvider persistenceProvider = new MyHibernatePersistenceProvider();
-        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(connection.getPath(), null, null);
+        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(connection.getPath(), connection.getProperties(), null);
         ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
 
         Configuration configuration = builder.buildHibernateConfiguration(serviceRegistry);
