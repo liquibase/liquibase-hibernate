@@ -17,7 +17,7 @@ public class JPAPersistenceDatabaseTest {
     @Test
     public void persistenceXML() throws Exception {
         String url = "jpa:persistence:META-INF/persistence.xml";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 
