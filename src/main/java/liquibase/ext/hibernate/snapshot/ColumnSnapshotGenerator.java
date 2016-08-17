@@ -104,7 +104,14 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
             if (hibernateColumn.getName().equalsIgnoreCase(column.getName())) {
 
+                String defaultValue = null;
                 String hibernateType = hibernateColumn.getSqlType(dialect, mapping);
+                Matcher defaultValueMatcher = Pattern.compile("(?i) DEFAULT\\s+(.*)").matcher(hibernateType);
+                if (defaultValueMatcher.find()) {
+                    defaultValue = defaultValueMatcher.group(1);
+                    hibernateType = hibernateType.replace(defaultValueMatcher.group(0), "");
+                }
+
                 DataType dataType = toDataType(hibernateType, hibernateColumn.getSqlTypeCode());
                 if (dataType == null) {
                     throw new DatabaseException("Unable to find column data type for column " + hibernateColumn.getName());
@@ -121,9 +128,14 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                     } else {
                         parseType = dataType;
                     }
+
+                    if (defaultValue == null) {
+                        defaultValue = hibernateColumn.getDefaultValue();
+                    }
+
                     column.setDefaultValue(SqlUtil.parseValue(
                             snapshot.getDatabase(),
-                            hibernateColumn.getDefaultValue(),
+                            defaultValue,
                             parseType));
                 } else {
                     column.setDefaultValue(hibernateColumn.getDefaultValue());
