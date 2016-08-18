@@ -22,9 +22,10 @@ For more information, see the [project wiki](https://github.com/liquibase/liquib
 
 Any issues can be logged in the [Github issue tracker](https://github.com/liquibase/liquibase-hibernate/issues)
 
-## Hibernate 3 vs. Hibernate 4
+## Hibernate 3 vs. Hibernate 4 vs. Hibernate 5
 
-The master branch is Hibernate 4.3+ compatible.
+The master branch is Hibernate 5+ compatible.
+The hibernate4 branch is Hibernate 4.3+ compatible.
 For Hibernate 3 support, use the hibernate3 release and/or branch.
 For hibernate 4.0-4.2 support, use the hibernate4.2 release and/or branch.
 
