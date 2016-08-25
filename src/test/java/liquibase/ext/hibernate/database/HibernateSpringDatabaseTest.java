@@ -36,22 +36,22 @@ public class HibernateSpringDatabaseTest {
         db.close();
     }
 
-    @Test
-    public void testSpringUrlSimple() throws DatabaseException {
-        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:spring.ctx.xml?bean=sessionFactory"));
-        db.setConnection(conn);
-        assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
-        assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
-    }
-
-
-    @Test
-    public void testSpringPackageScanningMustHaveItemClassMapping() throws DatabaseException {
-        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:com.example.ejb3.auction?dialect=" + HSQLDialect.class.getName()));
-        db.setConnection(conn);
-        assertNotNull(db.getConfiguration().getClassMapping(Bid.class.getName()));
-        assertNotNull(db.getConfiguration().getClassMapping(BuyNow.class.getName()));
-    }
+//    @Test
+//    public void testSpringUrlSimple() throws DatabaseException {
+//        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:spring.ctx.xml?bean=sessionFactory"));
+//        db.setConnection(conn);
+//        assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
+//        assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
+//    }
+//
+//
+//    @Test
+//    public void testSpringPackageScanningMustHaveItemClassMapping() throws DatabaseException {
+//        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:com.example.ejb3.auction?dialect=" + HSQLDialect.class.getName()));
+//        db.setConnection(conn);
+//        assertNotNull(db.getConfiguration().getClassMapping(Bid.class.getName()));
+//        assertNotNull(db.getConfiguration().getClassMapping(BuyNow.class.getName()));
+//    }
 
     @Test
     public void simpleSpringUrl() throws Exception {

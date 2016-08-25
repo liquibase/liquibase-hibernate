@@ -3,20 +3,12 @@ package liquibase.ext.hibernate.snapshot;
 import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
-import liquibase.statement.DatabaseFunction;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Table;
-
-import org.hibernate.dialect.PostgreSQL81Dialect;
-import org.hibernate.id.IdentityGenerator;
-import org.hibernate.mapping.SimpleValue;
 import org.hibernate.sql.Alias;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
 

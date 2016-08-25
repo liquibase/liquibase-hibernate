@@ -8,7 +8,11 @@ import liquibase.structure.core.Column;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.Table;
 import liquibase.structure.core.UniqueConstraint;
+import org.hibernate.HibernateException;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
 public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerator {
@@ -75,6 +79,32 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
 
                 }
             }
+
+            Iterator<UniqueConstraint> ucIter = table.getUniqueConstraints().iterator();
+            while (ucIter.hasNext()) {
+                UniqueConstraint uc = ucIter.next();
+                if (uc.getName() == null || uc.getName().isEmpty()) {
+                    String name =  table.getName() + uc.getColumnNames();
+                    name = "UCIDX" + hashedName(name);
+                    uc.setName(name);
+                }
+            }
+        }
+    }
+
+    private String hashedName(String s) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.reset();
+            md.update(s.getBytes());
+            byte[] digest = md.digest();
+            BigInteger bigInt = new BigInteger(1, digest);
+            // By converting to base 35 (full alphanumeric), we guarantee
+            // that the length of the name will always be smaller than the 30
+            // character identifier restriction enforced by a few dialects.
+            return bigInt.toString(35);
+        } catch (NoSuchAlgorithmException e) {
+            throw new HibernateException("Unable to generate a hashed name!", e);
         }
     }
 

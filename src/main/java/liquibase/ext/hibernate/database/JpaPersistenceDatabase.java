@@ -1,15 +1,19 @@
 package liquibase.ext.hibernate.database;
 
 import liquibase.database.DatabaseConnection;
+import liquibase.database.OfflineConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.ext.hibernate.database.connection.HibernateDriver;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.service.ServiceRegistry;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 import java.util.Collections;
 
@@ -17,7 +21,7 @@ import java.util.Collections;
  * Database implementation for JPA configurations.
  * This supports passing a JPA persistence XML file reference.
  */
-public class JpaPersistenceDatabase extends HibernateDatabase {
+public class JpaPersistenceDatabase extends HibernateEjb3Database {
 
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
         return conn.getURL().startsWith("jpa:persistence:");
@@ -32,31 +36,6 @@ public class JpaPersistenceDatabase extends HibernateDatabase {
     }
 
     @Override
-    protected Configuration buildConfiguration(HibernateConnection connection) throws DatabaseException {
-        return buildConfigurationFromXml(connection);
-    }
-
-    /**
-     * Build a Configuration object assuming the connection path is a persistence XML configuration file.
-     */
-
-    protected Configuration buildConfigurationFromXml(HibernateConnection connection) {
-        DefaultPersistenceUnitManager internalPersistenceUnitManager = new DefaultPersistenceUnitManager();
-
-        internalPersistenceUnitManager.setPersistenceXmlLocation(connection.getPath());
-        internalPersistenceUnitManager.setDefaultPersistenceUnitRootLocation(null);
-
-        internalPersistenceUnitManager.preparePersistenceUnitInfos();
-        PersistenceUnitInfo persistenceUnitInfo = internalPersistenceUnitManager.obtainDefaultPersistenceUnitInfo();
-
-        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo,
-                Collections.emptyMap(), null);
-        ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
-        return builder.buildHibernateConfiguration(serviceRegistry);
-    }
-
-
-    @Override
     public String getShortName() {
         return "jpaPersistence";
     }
@@ -64,6 +43,20 @@ public class JpaPersistenceDatabase extends HibernateDatabase {
     @Override
     protected String getDefaultDatabaseProductName() {
         return "JPA Persistence";
+    }
+
+    @Override
+    protected EntityManagerFactory createEntityManagerFactory() {
+        DefaultPersistenceUnitManager internalPersistenceUnitManager = new DefaultPersistenceUnitManager();
+
+        internalPersistenceUnitManager.setPersistenceXmlLocation(getHibernateConnection().getPath());
+        internalPersistenceUnitManager.setDefaultPersistenceUnitRootLocation(null);
+
+        internalPersistenceUnitManager.preparePersistenceUnitInfos();
+        PersistenceUnitInfo persistenceUnitInfo = internalPersistenceUnitManager.obtainDefaultPersistenceUnitInfo();
+
+        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, Collections.emptyMap(), (ClassLoaderService) null);
+        return builder.build();
     }
 
 }

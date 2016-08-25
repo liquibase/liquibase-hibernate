@@ -2,81 +2,35 @@ package liquibase.ext.hibernate.database;
 
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
-import liquibase.ext.hibernate.customfactory.CustomEjb3ConfigurationFactory;
+import liquibase.ext.hibernate.customfactory.CustomMetadataFactory;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.NamingStrategy;
+import liquibase.logging.LogFactory;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
-import org.hibernate.service.ServiceRegistry;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.metamodel.ManagedType;
+import javax.persistence.spi.PersistenceUnitTransactionType;
+import java.lang.reflect.Field;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Database implementation for "ejb3" hibernate configurations.
- * This supports passing an persistence unit name or a {@link liquibase.ext.hibernate.customfactory.CustomEjb3ConfigurationFactory} implementation
+ * Database implementation for "ejb3" hibernate configurations. This supports
+ * passing an persistence unit name or a
+ * {@link CustomMetadataFactory}
+ * implementation
  */
 public class HibernateEjb3Database extends HibernateDatabase {
 
-    public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
-        return conn.getURL().startsWith("hibernate:ejb3:");
-    }
-
-    @Override
-    protected Configuration buildConfiguration(HibernateConnection connection) throws DatabaseException {
-
-        if (isCustomFactoryClass(connection.getPath())) {
-            return buildConfigurationFromFactory(connection);
-        } else {
-            return buildConfigurationfromFile(connection);
-        }
-    }
-    /**
-     * Build a Configuration object assuming the connection path is a hibernate XML configuration file.
-     */
-    protected Configuration buildConfigurationfromFile(HibernateConnection connection) {
-
-        MyHibernatePersistenceProvider persistenceProvider = new MyHibernatePersistenceProvider();
-        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(connection.getPath(), connection.getProperties(), null);
-        ServiceRegistry serviceRegistry = builder.buildServiceRegistry();
-
-        Configuration configuration = builder.buildHibernateConfiguration(serviceRegistry);
-        configureNamingStrategy(configuration, connection);
-        return configuration;
-    }
-
-    /**
-     * Build a Configuration object assuming the connection path is a {@link CustomEjb3ConfigurationFactory} class name
-     */
-    protected Configuration buildConfigurationFromFactory(HibernateConnection connection) throws DatabaseException {
-        try {
-            return ((CustomEjb3ConfigurationFactory) Class.forName(connection.getPath()).newInstance()).getConfiguration(this, connection);
-        } catch (InstantiationException e) {
-            throw new DatabaseException(e);
-        } catch (IllegalAccessException e) {
-            throw new DatabaseException(e);
-        } catch (ClassNotFoundException e) {
-            throw new DatabaseException(e);
-        }
-    }
-
-
-    /**
-     * Return true if the given path is a {@link CustomEjb3ConfigurationFactory}
-     */
-    protected boolean isCustomFactoryClass(String path) {
-        if (path.contains("/")) {
-            return false;
-        }
-
-        try {
-            Class<?> clazz = Class.forName(path);
-            return CustomEjb3ConfigurationFactory.class.isAssignableFrom(clazz);
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
+    protected EntityManagerFactory entityManagerFactory;
 
     @Override
     public String getShortName() {
@@ -88,10 +42,100 @@ public class HibernateEjb3Database extends HibernateDatabase {
         return "Hibernate EJB3";
     }
 
+
+    @Override
+    public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
+        return conn.getURL().startsWith("hibernate:ejb3:");
+    }
+
+    protected Metadata generateMetadata() throws DatabaseException {
+        this.entityManagerFactory = createEntityManagerFactory();
+
+        return super.generateMetadata();
+    }
+
+    protected EntityManagerFactory createEntityManagerFactory() {
+        MyHibernatePersistenceProvider persistenceProvider = new MyHibernatePersistenceProvider();
+
+        final EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(getHibernateConnection().getPath(), null, null);
+        return builder.build();
+    }
+
+    @Override
+    public String getProperty(String name) {
+        String property = (String) entityManagerFactory.getProperties().get(name);
+        if (property == null) {
+            return super.getProperty(name);
+        } else {
+            return property;
+        }
+
+    }
+
+    @Override
+    protected String findDialectName() {
+        String dialectName = super.findDialectName();
+        if (dialectName != null) {
+            return dialectName;
+        }
+
+        return (String) entityManagerFactory.getProperties().get(AvailableSettings.DIALECT);
+    }
+
+    @Override
+    protected void addToSources(MetadataSources sources) throws DatabaseException {
+        Iterator<ManagedType<?>> it = entityManagerFactory.getMetamodel().getManagedTypes().iterator();
+        while (it.hasNext()) {
+            Class<?> javaType = it.next().getJavaType();
+            if (javaType == null) {
+                continue;
+            }
+            sources.addAnnotatedClass(javaType);
+        }
+
+        Package[] packages = Package.getPackages();
+        for (Package p : packages) {
+            sources.addPackage(p);
+        }
+    }
+
     private static class MyHibernatePersistenceProvider extends HibernatePersistenceProvider {
+
+        private void setField(final Object obj, String fieldName, final Object value) throws Exception {
+            final Field declaredField;
+
+            declaredField = obj.getClass().getDeclaredField(fieldName);
+            AccessController.doPrivileged(new PrivilegedAction() {
+                @Override
+                public Object run() {
+                    boolean wasAccessible = declaredField.isAccessible();
+                    try {
+                        declaredField.setAccessible(true);
+                        declaredField.set(obj, value);
+                        return null;
+                    } catch (Exception ex) {
+                        throw new IllegalStateException("Cannot invoke method get", ex);
+                    } finally {
+                        declaredField.setAccessible(wasAccessible);
+                    }
+                }
+            });
+        }
+
         @Override
         protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilderOrNull(String persistenceUnitName, Map properties, ClassLoader providedClassLoader) {
             return super.getEntityManagerFactoryBuilderOrNull(persistenceUnitName, properties, providedClassLoader);
+        }
+
+        @Override
+        protected EntityManagerFactoryBuilder getEntityManagerFactoryBuilder(PersistenceUnitDescriptor persistenceUnitDescriptor, Map integration, ClassLoader providedClassLoader) {
+            try {
+                setField(persistenceUnitDescriptor, "jtaDataSource", null);
+                setField(persistenceUnitDescriptor, "transactionType", PersistenceUnitTransactionType.RESOURCE_LOCAL);
+            } catch (Exception ex) {
+                LogFactory.getInstance().getLog().severe(null, ex);
+            }
+            return super.getEntityManagerFactoryBuilder(persistenceUnitDescriptor, integration, providedClassLoader);
         }
     }
 }

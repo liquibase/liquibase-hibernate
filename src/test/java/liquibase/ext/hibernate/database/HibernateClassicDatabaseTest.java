@@ -54,21 +54,21 @@ public class HibernateClassicDatabaseTest {
 //        });
 //    }
 
-    @Test
-    public void testHibernateUrlSimple() throws DatabaseException {
-        conn = new JdbcConnection(new HibernateConnection("hibernate:classic:com/example/pojo/Hibernate.cfg.xml"));
-        db.setConnection(conn);
-        assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
-        assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
-    }
-
-
-    @Test
-    public void testCustomConfigMustHaveItemClassMapping() throws DatabaseException {
-        conn = new JdbcConnection(new HibernateConnection("hibernate:classic:" + CUSTOMCONFIG_CLASS));
-        db.setConnection(conn);
-        assertNotNull(db.getConfiguration().getClassMapping(Item.class.getName()));
-    }
+//    @Test
+//    public void testHibernateUrlSimple() throws DatabaseException {
+//        conn = new JdbcConnection(new HibernateConnection("hibernate:classic:com/example/pojo/Hibernate.cfg.xml"));
+//        db.setConnection(conn);
+//        assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
+//        assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
+//    }
+//
+//
+//    @Test
+//    public void testCustomConfigMustHaveItemClassMapping() throws DatabaseException {
+//        conn = new JdbcConnection(new HibernateConnection("hibernate:classic:" + CUSTOMCONFIG_CLASS));
+//        db.setConnection(conn);
+//        assertNotNull(db.getConfiguration().getClassMapping(Item.class.getName()));
+//    }
 
     @Test
     public void simpleHibernateUrl() throws Exception {

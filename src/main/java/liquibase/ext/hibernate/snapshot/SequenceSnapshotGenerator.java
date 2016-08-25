@@ -7,6 +7,7 @@ import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Schema;
 import liquibase.structure.core.Sequence;
+import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.SequenceGenerator;
@@ -40,15 +41,15 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
 
             Schema schema = (Schema) foundObject;
             HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
-            Configuration cfg = database.getConfiguration();
+            MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
+            Iterator<PersistentClass> classMappings = metadata.getEntityBindings().iterator();
             
-            Iterator<PersistentClass> classMappings = cfg.getClassMappings();
             while (classMappings.hasNext()) {
                 PersistentClass persistentClass = (PersistentClass) classMappings
                         .next();
                 if ( !persistentClass.isInherited() ) {
                     IdentifierGenerator ig = persistentClass.getIdentifier().createIdentifierGenerator(
-                            cfg.getIdentifierGeneratorFactory(),
+                            metadata.getIdentifierGeneratorFactory(),
                             database.getDialect(),
                             null,
                             null,

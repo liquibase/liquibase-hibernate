@@ -10,8 +10,10 @@ import liquibase.snapshot.InvalidExampleException;
 import liquibase.snapshot.SnapshotGenerator;
 import liquibase.snapshot.SnapshotGeneratorChain;
 import liquibase.structure.DatabaseObject;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.boot.spi.MetadataImplementor;
+import org.hibernate.mapping.Table;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -42,7 +44,7 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
         return null;
     }
 
-
+    @Override
     public final int getPriority(Class<? extends DatabaseObject> objectType, Database database) {
         if (database instanceof HibernateDatabase) {
             if (defaultFor != null && defaultFor.isAssignableFrom(objectType)) {
@@ -60,10 +62,12 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
 
     }
 
+    @Override
     public final Class<? extends DatabaseObject>[] addsTo() {
         return addsTo;
     }
 
+    @Override
     public final DatabaseObject snapshot(DatabaseObject example, DatabaseSnapshot snapshot, SnapshotGeneratorChain chain) throws DatabaseException, InvalidExampleException {
         if (defaultFor != null && defaultFor.isAssignableFrom(example.getClass())) {
             DatabaseObject result = snapshotObject(example, snapshot);
@@ -92,12 +96,16 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
 
     protected org.hibernate.mapping.Table findHibernateTable(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException {
         HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
-        Configuration cfg = database.getConfiguration();
-        Iterator<org.hibernate.mapping.Table> tableMappings = cfg.getTableMappings();
+        MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
+
+        Collection<Table> tmapp = metadata.collectTableMappings();
+        Iterator<Table> tableMappings = tmapp.iterator();
+
         while (tableMappings.hasNext()) {
-            org.hibernate.mapping.Table hibernateTable = (org.hibernate.mapping.Table) tableMappings.next();
-            if (hibernateTable.getName().equalsIgnoreCase(example.getName()))
+            org.hibernate.mapping.Table hibernateTable = tableMappings.next();
+            if (hibernateTable.getName().equalsIgnoreCase(example.getName())) {
                 return hibernateTable;
+            }
         }
         return null;
     }

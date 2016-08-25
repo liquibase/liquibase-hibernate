@@ -1,71 +1,72 @@
 package liquibase.ext.hibernate.database;
 
 import liquibase.database.DatabaseConnection;
+import liquibase.database.OfflineConnection;
 import liquibase.exception.DatabaseException;
-import liquibase.ext.hibernate.customfactory.CustomClassicConfigurationFactory;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataBuilder;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.SessionFactoryBuilder;
+import org.hibernate.boot.registry.BootstrapServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.NamingStrategy;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
+import org.hibernate.service.ServiceRegistry;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Properties;
 
 /**
  * Database implementation for "classic" hibernate configurations.
- * This supports passing a hibernate xml configuration file or a {@link CustomClassicConfigurationFactory} implementation
  */
 public class HibernateClassicDatabase extends HibernateDatabase {
+
+    protected Configuration configuration;
 
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
         return conn.getURL().startsWith("hibernate:classic:");
     }
 
     @Override
-    protected Configuration buildConfiguration(HibernateConnection connection) throws DatabaseException {
+    protected String findDialectName() {
+        String dialectName = super.findDialectName();
 
-        if (isCustomFactoryClass(connection.getPath())) {
-            return buildConfigurationFromFactory(connection);
-        } else {
-            return buildConfigurationfromFile(connection);
+        if (dialectName == null) {
+            dialectName = configuration.getProperty(AvailableSettings.DIALECT);
         }
+        return dialectName;
     }
 
-    /**
-     * Build a Configuration object assuming the connection path is a {@link CustomClassicConfigurationFactory} class name
-     */
-    protected Configuration buildConfigurationFromFactory(HibernateConnection connection) throws DatabaseException {
-        try {
-            return ((CustomClassicConfigurationFactory) Class.forName(connection.getPath()).newInstance()).getConfiguration(this, connection);
-        } catch (InstantiationException e) {
-            throw new DatabaseException(e);
-        } catch (IllegalAccessException e) {
-            throw new DatabaseException(e);
-        } catch (ClassNotFoundException e) {
-            throw new DatabaseException(e);
-        }
+
+    protected Metadata generateMetadata() throws DatabaseException {
+        this.configuration = new Configuration();
+        this.configuration.configure(getHibernateConnection().getPath());
+
+        return super.generateMetadata();
     }
 
-    /**
-     * Build a Configuration object assuming the connection path is a hibernate XML configuration file.
-     */
-    protected Configuration buildConfigurationfromFile(HibernateConnection connection) {
-        Configuration configuration = new Configuration();
-        configuration.configure(connection.getPath());
-        configureNamingStrategy(configuration, connection);
-        return configuration;
-    }
+    @Override
+    protected void addToSources(MetadataSources sources) throws DatabaseException {
+        Configuration config = new Configuration(sources);
+        config.configure(getHibernateConnection().getPath());
 
-    /**
-     * Returns true if the given path is a factory class
-     */
-    protected boolean isCustomFactoryClass(String path) {
-        if (path.contains("/")) {
-            return false;
-        }
+        config.setProperty("hibernate.temp.use_jdbc_metadata_defaults", "false");
 
-        try {
-            Class<?> clazz = Class.forName(path);
-            return CustomClassicConfigurationFactory.class.isAssignableFrom(clazz);
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
+
+        ServiceRegistry standardRegistry = configuration.getStandardServiceRegistryBuilder()
+                .applySettings(config.getProperties())
+                .addService(ConnectionProvider.class, new NoOpConnectionProvider())
+                .addService(MultiTenantConnectionProvider.class, new NoOpConnectionProvider())
+                .build();
+
+        config.buildSessionFactory(standardRegistry);
     }
 
     @Override
@@ -77,7 +78,6 @@ public class HibernateClassicDatabase extends HibernateDatabase {
     protected String getDefaultDatabaseProductName() {
         return "Hibernate Classic";
     }
-
 
 
 }

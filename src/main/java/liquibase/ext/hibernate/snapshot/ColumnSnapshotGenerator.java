@@ -14,10 +14,12 @@ import liquibase.structure.core.PrimaryKey;
 import liquibase.structure.core.Table;
 import liquibase.util.SqlUtil;
 import liquibase.util.StringUtils;
+import org.hibernate.boot.Metadata;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQL81Dialect;
 import org.hibernate.engine.spi.Mapping;
+import org.hibernate.id.ExportableColumn;
 import org.hibernate.id.IdentityGenerator;
 import org.hibernate.mapping.*;
 
@@ -93,11 +95,8 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             return;
         }
 
-        Configuration cfg = database.getConfiguration();
-
         Dialect dialect = database.getDialect();
-        Mapping mapping = cfg.buildMapping();
-
+        Metadata metadata = database.getMetadata();
 
         Iterator columnIterator = hibernateTable.getColumnIterator();
         while (columnIterator.hasNext()) {
@@ -105,7 +104,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             if (hibernateColumn.getName().equalsIgnoreCase(column.getName())) {
 
                 String defaultValue = null;
-                String hibernateType = hibernateColumn.getSqlType(dialect, mapping);
+                String hibernateType = hibernateColumn.getSqlType(dialect, metadata);
                 Matcher defaultValueMatcher = Pattern.compile("(?i) DEFAULT\\s+(.*)").matcher(hibernateType);
                 if (defaultValueMatcher.find()) {
                     defaultValue = defaultValueMatcher.group(1);
@@ -154,8 +153,15 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                     }
 
                     if (isPrimaryKeyColumn) {
-                        String identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue() ?
-                                ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
+                        String identifierGeneratorStrategy;
+
+                        if (hibernateColumn instanceof ExportableColumn) {
+                            //nothing
+                        } else {
+
+                            identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue()
+                                    ? ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
+
                         if (("native".equalsIgnoreCase(identifierGeneratorStrategy) || "identity".equalsIgnoreCase(identifierGeneratorStrategy))) {
                             if (PostgreSQL81Dialect.class.isAssignableFrom(dialect.getClass())) {
                                 column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
@@ -163,6 +169,11 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                                 column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
                             } else if (dialect.getNativeIdentifierGeneratorClass().equals(IdentityGenerator.class)) {
                                 column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                            }
+                            } else if ("org.hibernate.id.enhanced.SequenceStyleGenerator".equals(identifierGeneratorStrategy)) {
+                                Properties prop = ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorProperties();
+                                if (prop.get("sequence_name") == null)
+                                   column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                             }
                         }
                     }
@@ -179,8 +190,9 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         }
         DataType dataType = new DataType(matcher.group(1));
         if (matcher.group(3).isEmpty()) {
-            if (!matcher.group(2).isEmpty())
+            if (!matcher.group(2).isEmpty()) {
                 dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
+            }
         } else {
             dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
             dataType.setDecimalDigits(Integer.parseInt(matcher.group(3)));
