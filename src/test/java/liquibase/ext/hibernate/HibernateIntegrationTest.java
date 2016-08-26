@@ -2,7 +2,8 @@ package liquibase.ext.hibernate;
 
 import liquibase.Liquibase;
 import liquibase.database.Database;
-import liquibase.database.core.HsqlDatabase;
+import liquibase.database.ObjectQuotingStrategy;
+import liquibase.database.core.H2Database;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.diff.DiffResult;
 import liquibase.diff.Difference;
@@ -46,9 +47,9 @@ public class HibernateIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        Class.forName("org.hsqldb.jdbc.JDBCDriver");
-        connection = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB" + System.currentTimeMillis(), "SA", "");
-        database = new HsqlDatabase();
+        Class.forName("org.h2.Driver");
+        connection = DriverManager.getConnection("jdbc:h2:mem:TESTDB" + System.currentTimeMillis(), "SA", "");
+        database = new H2Database();
         database.setConnection(new JdbcConnection(connection));
 
 //        Class.forName("com.mysql.jdbc.Driver");
@@ -135,98 +136,100 @@ public class HibernateIntegrationTest {
      *
      * @throws Exception
      */
-//    @Test
-//    public void hibernateSchemaExport() throws Exception {
-//
-//        SingleConnectionDataSource ds = new SingleConnectionDataSource(connection, true);
-//
-//        Configuration cfg = new Configuration();
-//        cfg.configure(HIBERNATE_CONFIG_FILE);
-//        Properties properties = new Properties();
-//        properties.put(Environment.DATASOURCE, ds);
-//        cfg.addProperties(properties);
-//
-//        SchemaExport export = new SchemaExport(cfg);
-//        export.execute(true, true, false, false);
-//
-//        Database hibernateDatabase = new HibernateClassicDatabase();
-//        hibernateDatabase.setDefaultSchemaName("PUBLIC");
-//        hibernateDatabase.setDefaultCatalogName("TESTDB");
-//        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:classic:" + HIBERNATE_CONFIG_FILE)));
-//
-//        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
-//        DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
-//
-//        ignoreDatabaseChangeLogTable(diffResult);
-//        ignoreConversionFromFloatToDouble64(diffResult);
-//
-//        String differences = toString(diffResult);
-//
-//        assertEquals(differences, 0, diffResult.getMissingObjects().size());
-//        assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
-////        assertEquals(differences, 0, diffResult.getChangedObjects().size()); //unimportant differences in schema name and datatypes causing test to fail
-//
-//    }
+    @Test
+    public void hibernateSchemaExport() throws Exception {
 
-//    /**
-//     * Generates the changelog from Hibernate mapping, creates 2 databases,
-//     * updates 1 of the databases with HibernateSchemaUpdate. Compare the 2
-//     * databases.
-//     *
-//     * @throws Exception
-//     */
-//    @Test
-//    public void hibernateSchemaUpdate() throws Exception {
-//
-//        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
-//
-//        Database hibernateDatabase = new HibernateClassicDatabase();
-//        hibernateDatabase.setDefaultSchemaName("PUBLIC");
-//        hibernateDatabase.setDefaultCatalogName("TESTDB");
-//        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:classic:" + HIBERNATE_CONFIG_FILE)));
-//
-//        DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
-//
-//        assertTrue(diffResult.getMissingObjects().size() > 0);
-//
-//        File outFile = File.createTempFile("lb-test", ".xml");
-//        OutputStream outChangeLog = new FileOutputStream(outFile);
-//        String changeLogString = toChangeLog(diffResult);
-//        outChangeLog.write(changeLogString.getBytes("UTF-8"));
-//        outChangeLog.close();
-//
-//        log.info("Changelog:\n" + changeLogString);
-//
-//        liquibase = new Liquibase(outFile.toString(), new FileSystemResourceAccessor(), database);
-//        StringWriter stringWriter = new StringWriter();
-//        liquibase.update((String) null, stringWriter);
-//        log.info(stringWriter.toString());
-//        liquibase.update((String) null);
-//
-//        long currentTimeMillis = System.currentTimeMillis();
-//        Connection connection2 = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis, "SA", "");
-//        Database database2 = new HsqlDatabase();
-//        database2.setConnection(new JdbcConnection(connection2));
-//
-//        Configuration cfg = new Configuration();
-//        cfg.configure(HIBERNATE_CONFIG_FILE);
-//        cfg.getProperties().remove(Environment.DATASOURCE);
-//        cfg.setProperty(Environment.URL, "jdbc:hsqldb:mem:TESTDB2" + currentTimeMillis);
-//
-//        SchemaUpdate update = new SchemaUpdate(cfg);
-//        update.execute(true, true);
-//
-//        diffResult = liquibase.diff(database, database2, compareControl);
-//
-//        ignoreDatabaseChangeLogTable(diffResult);
-//        ignoreConversionFromFloatToDouble64(diffResult);
-//
-//        String differences = toString(diffResult);
-//
-//        assertEquals(differences, 0, diffResult.getMissingObjects().size());
-//        assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
-//        assertEquals(differences, 0, diffResult.getChangedObjects().size());
-//    }
+        SingleConnectionDataSource ds = new SingleConnectionDataSource(connection, true);
+
+        Configuration cfg = new Configuration();
+        cfg.configure(HIBERNATE_CONFIG_FILE);
+        Properties properties = new Properties();
+        properties.put(Environment.DATASOURCE, ds);
+        cfg.addProperties(properties);
+
+        SchemaExport export = new SchemaExport(cfg);
+        export.execute(true, true, false, false);
+
+        Database hibernateDatabase = new HibernateClassicDatabase();
+        hibernateDatabase.setDefaultSchemaName("PUBLIC");
+        hibernateDatabase.setDefaultCatalogName("TESTDB");
+        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:classic:" + HIBERNATE_CONFIG_FILE)));
+
+        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
+        DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
+
+        ignoreDatabaseChangeLogTable(diffResult);
+        ignoreConversionFromFloatToDouble64(diffResult);
+
+        String differences = toString(diffResult);
+
+        assertEquals(differences, 0, diffResult.getMissingObjects().size());
+        assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
+//        assertEquals(differences, 0, diffResult.getChangedObjects().size()); //unimportant differences in schema name and datatypes causing test to fail
+
+    }
+
+    /**
+     * Generates the changelog from Hibernate mapping, creates 2 databases,
+     * updates 1 of the databases with HibernateSchemaUpdate. Compare the 2
+     * databases.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void hibernateSchemaUpdate() throws Exception {
+
+        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
+
+        Database hibernateDatabase = new HibernateClassicDatabase();
+        hibernateDatabase.setDefaultSchemaName("PUBLIC");
+        hibernateDatabase.setDefaultCatalogName("TESTDB");
+        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:classic:" + HIBERNATE_CONFIG_FILE)));
+
+        DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
+
+        assertTrue(diffResult.getMissingObjects().size() > 0);
+
+        File outFile = File.createTempFile("lb-test", ".xml");
+        OutputStream outChangeLog = new FileOutputStream(outFile);
+        String changeLogString = toChangeLog(diffResult);
+        outChangeLog.write(changeLogString.getBytes("UTF-8"));
+        outChangeLog.close();
+
+        log.info("Changelog:\n" + changeLogString);
+
+        liquibase = new Liquibase(outFile.toString(), new FileSystemResourceAccessor(), database);
+        StringWriter stringWriter = new StringWriter();
+        liquibase.update((String) null, stringWriter);
+        log.info(stringWriter.toString());
+        liquibase.update((String) null);
+
+        long currentTimeMillis = System.currentTimeMillis();
+        Connection connection2 = DriverManager.getConnection("jdbc:h2:mem:TESTDB2" + currentTimeMillis, "SA", "");
+        Database database2 = new H2Database();
+        database2.setConnection(new JdbcConnection(connection2));
+
+        Configuration cfg = new Configuration();
+        cfg.configure(HIBERNATE_CONFIG_FILE);
+        cfg.getProperties().remove(Environment.DATASOURCE);
+        cfg.setProperty(Environment.URL, "jdbc:h2:mem:TESTDB2" + currentTimeMillis);
+        cfg.setProperty(Environment.USER, "SA");
+        cfg.setProperty(Environment.PASS, "");
+
+        SchemaUpdate update = new SchemaUpdate(cfg);
+        update.execute(true, true);
+
+        diffResult = liquibase.diff(database, database2, compareControl);
+        
+        ignoreDatabaseChangeLogTable(diffResult);
+        ignoreConversionFromFloatToDouble64(diffResult);
+
+        String differences = toString(diffResult);
+
+        assertEquals(differences, 0, diffResult.getMissingObjects().size());
+        assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
+        assertEquals(differences, 0, diffResult.getChangedObjects().size());
+    }
 
     private String toString(DiffResult diffResult) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();

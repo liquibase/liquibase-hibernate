@@ -14,7 +14,7 @@ import liquibase.integration.commandline.CommandLineUtils;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
-import org.hibernate.dialect.HSQLDialect;
+import org.hibernate.dialect.H2Dialect;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,22 +36,22 @@ public class HibernateSpringDatabaseTest {
         db.close();
     }
 
-//    @Test
-//    public void testSpringUrlSimple() throws DatabaseException {
-//        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:spring.ctx.xml?bean=sessionFactory"));
-//        db.setConnection(conn);
-//        assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
-//        assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
-//    }
-//
-//
-//    @Test
-//    public void testSpringPackageScanningMustHaveItemClassMapping() throws DatabaseException {
-//        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:com.example.ejb3.auction?dialect=" + HSQLDialect.class.getName()));
-//        db.setConnection(conn);
-//        assertNotNull(db.getConfiguration().getClassMapping(Bid.class.getName()));
-//        assertNotNull(db.getConfiguration().getClassMapping(BuyNow.class.getName()));
-//    }
+    @Test
+    public void testSpringUrlSimple() throws DatabaseException {
+        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:spring.ctx.xml?bean=sessionFactory"));
+        db.setConnection(conn);
+        assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
+        assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
+    }
+
+
+    @Test
+    public void testSpringPackageScanningMustHaveItemClassMapping() throws DatabaseException {
+        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:com.example.ejb3.auction?dialect=" + H2Dialect.class.getName()));
+        db.setConnection(conn);
+        assertNotNull(db.getConfiguration().getClassMapping(Bid.class.getName()));
+        assertNotNull(db.getConfiguration().getClassMapping(BuyNow.class.getName()));
+    }
 
     @Test
     public void simpleSpringUrl() throws Exception {
@@ -67,7 +67,7 @@ public class HibernateSpringDatabaseTest {
 
     @Test
     public void simpleSpringScanningUrl() throws Exception {
-        String url = "hibernate:spring:com.example.ejb3.auction?dialect=" + HSQLDialect.class.getName();
+        String url = "hibernate:spring:com.example.ejb3.auction?dialect=" + H2Dialect.class.getName();
         Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);

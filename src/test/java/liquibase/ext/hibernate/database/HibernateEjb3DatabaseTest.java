@@ -65,13 +65,13 @@ public class HibernateEjb3DatabaseTest {
 
         assertThat(bidTable.getOutgoingForeignKeys(), containsInAnyOrder(
                 allOf(
-                        hasProperty("primaryKeyColumns", hasToString("[AuctionItem.id]")),
-                        hasProperty("foreignKeyColumns", hasToString("[Bid.item_id]")),
+                        hasProperty("primaryKeyColumns", hasToString("[HIBERNATE.AuctionItem.id]")),
+                        hasProperty("foreignKeyColumns", hasToString("[HIBERNATE.Bid.item_id]")),
                         hasProperty("primaryKeyTable", hasProperty("name", is("AuctionItem")))
                 ),
                 allOf(
-                        hasProperty("primaryKeyColumns", hasToString("[User.id]")),
-                        hasProperty("foreignKeyColumns", hasToString("[Bid.bidder_id]")),
+                        hasProperty("primaryKeyColumns", hasToString("[HIBERNATE.User.id]")),
+                        hasProperty("foreignKeyColumns", hasToString("[HIBERNATE.Bid.bidder_id]")),
                         hasProperty("primaryKeyTable", hasProperty("name", is("User")))
                 )
         ));

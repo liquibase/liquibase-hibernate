@@ -14,7 +14,7 @@
 		<!-- SQL dialect -->
         <!--<property name="dialect">org.hibernate.dialect.DB2Dialect</property>-->
         <!--<property name="dialect">org.hibernate.dialect.DaffodilDBDialect</property>  -->
-        <property name="dialect">org.hibernate.dialect.HSQLDialect</property>
+        <property name="dialect">org.hibernate.dialect.H2Dialect</property>
 
         <!-- Echo all executed SQL to stdout -->
 		<property name="cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>

@@ -37,11 +37,11 @@ public class ChangedUniqueConstraintChangeGenerator implements ChangedObjectChan
 
     @Override
     public Change[] fixChanged(DatabaseObject changedObject, ObjectDifferences differences, DiffOutputControl control, Database referenceDatabase, Database comparisonDatabase, ChangeGeneratorChain chain) {
-        if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
-            return null;
-        } else {
+//        if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
+//            return null;
+//        } else {
             return chain.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase);
-        }
+//        }
     }
 
     @Override
