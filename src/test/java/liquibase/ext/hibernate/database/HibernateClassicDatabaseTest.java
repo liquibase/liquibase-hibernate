@@ -112,13 +112,13 @@ public class HibernateClassicDatabaseTest {
 
         assertThat(bidTable.getOutgoingForeignKeys(), containsInAnyOrder(
                 allOf(
-                        hasProperty("primaryKeyColumns", hasToString("[AuctionItem.id]")),
-                        hasProperty("foreignKeyColumns", hasToString("[Bid.item]")),
+                        hasProperty("primaryKeyColumns", hasToString("[HIBERNATE.AuctionItem.id]")),
+                        hasProperty("foreignKeyColumns", hasToString("[HIBERNATE.Bid.item]")),
                         hasProperty("primaryKeyTable", hasProperty("name", is("AuctionItem")))
                 ),
                 allOf(
-                        hasProperty("primaryKeyColumns", hasToString("[AuctionUser.id]")),
-                        hasProperty("foreignKeyColumns", hasToString("[Bid.bidder]")),
+                        hasProperty("primaryKeyColumns", hasToString("[HIBERNATE.AuctionUser.id]")),
+                        hasProperty("foreignKeyColumns", hasToString("[HIBERNATE.Bid.bidder]")),
                         hasProperty("primaryKeyTable", hasProperty("name", is("AuctionUser")))
                 )
         ));
