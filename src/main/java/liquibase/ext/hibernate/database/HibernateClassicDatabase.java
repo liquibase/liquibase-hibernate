@@ -32,15 +32,15 @@ public class HibernateClassicDatabase extends HibernateDatabase {
     }
 
 
-    protected Metadata generateMetadata() throws DatabaseException {
+    protected Metadata buildMetadataFromPath() throws DatabaseException {
         this.configuration = new Configuration();
         this.configuration.configure(getHibernateConnection().getPath());
 
-        return super.generateMetadata();
+        return super.buildMetadataFromPath();
     }
 
     @Override
-    protected void addToSources(MetadataSources sources) throws DatabaseException {
+    protected void configureSources(MetadataSources sources) throws DatabaseException {
         Configuration config = new Configuration(sources);
         config.configure(getHibernateConnection().getPath());
 

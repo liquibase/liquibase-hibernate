@@ -22,10 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Database implementation for "ejb3" hibernate configurations. This supports
- * passing an persistence unit name or a
- * {@link CustomMetadataFactory}
- * implementation
+ * Database implementation for "ejb3" hibernate configurations.
  */
 public class HibernateEjb3Database extends HibernateDatabase {
 
@@ -47,10 +44,13 @@ public class HibernateEjb3Database extends HibernateDatabase {
         return conn.getURL().startsWith("hibernate:ejb3:");
     }
 
-    protected Metadata generateMetadata() throws DatabaseException {
+    /**
+     * Calls {@link #createEntityManagerFactory()} to create and save the entity manager factory.
+     */
+    protected Metadata buildMetadataFromPath() throws DatabaseException {
         this.entityManagerFactory = createEntityManagerFactory();
 
-        return super.generateMetadata();
+        return super.buildMetadataFromPath();
     }
 
     protected EntityManagerFactory createEntityManagerFactory() {
@@ -85,11 +85,13 @@ public class HibernateEjb3Database extends HibernateDatabase {
         return (String) entityManagerFactory.getProperties().get(AvailableSettings.DIALECT);
     }
 
+    /**
+     * Adds sources based on what is in the saved entityManagerFactory
+     */
     @Override
-    protected void addToSources(MetadataSources sources) throws DatabaseException {
-        Iterator<ManagedType<?>> it = entityManagerFactory.getMetamodel().getManagedTypes().iterator();
-        while (it.hasNext()) {
-            Class<?> javaType = it.next().getJavaType();
+    protected void configureSources(MetadataSources sources) throws DatabaseException {
+        for (ManagedType<?> managedType : entityManagerFactory.getMetamodel().getManagedTypes()) {
+            Class<?> javaType = managedType.getJavaType();
             if (javaType == null) {
                 continue;
             }

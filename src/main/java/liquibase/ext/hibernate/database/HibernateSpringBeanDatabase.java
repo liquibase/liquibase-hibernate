@@ -25,8 +25,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Database implementation for "spring" hibernate configurations.
- * This supports passing a spring XML file reference and bean name or a package containing hibernate annotated classes.
+ * Database implementation for "spring" hibernate configurations where a bean name is given. If a package is used, {@link HibernateSpringPackageDatabase} will be used.
  */
 public class HibernateSpringBeanDatabase extends HibernateDatabase {
 
@@ -37,10 +36,13 @@ public class HibernateSpringBeanDatabase extends HibernateDatabase {
         return conn.getURL().startsWith("hibernate:spring:");
     }
 
+    /**
+     * Calls {@link #loadBeanDefinition()}
+     */
     @Override
-    protected Metadata generateMetadata() throws DatabaseException {
+    protected Metadata buildMetadataFromPath() throws DatabaseException {
         loadBeanDefinition();
-        return super.generateMetadata();
+        return super.buildMetadataFromPath();
     }
 
 
@@ -73,17 +75,11 @@ public class HibernateSpringBeanDatabase extends HibernateDatabase {
         reader.loadBeanDefinitions(new ClassPathResource(connection.getPath()));
 
         Properties props = connection.getProperties();
-        Class<? extends LocalSessionFactoryBean> beanClass = LocalSessionFactoryBean.class;
 
         String beanName = props.getProperty("bean", null);
-        String beanClassName = props.getProperty("beanClass", null);
-
-        if (beanClassName != null) {
-            beanClass = findClass(beanClassName, beanClass);
-        }
 
         if (beanName == null) {
-            throw new IllegalStateException("A 'bean' name is required, matching a '" + beanClassName + "' definition in '" + connection.getPath() + "'.");
+            throw new IllegalStateException("A 'bean' name is required, definition in '" + connection.getPath() + "'.");
         }
 
         beanDefinition = registry.getBeanDefinition(beanName);
@@ -95,7 +91,7 @@ public class HibernateSpringBeanDatabase extends HibernateDatabase {
     }
 
     @Override
-    protected void addToSources(MetadataSources sources) throws DatabaseException {
+    protected void configureSources(MetadataSources sources) throws DatabaseException {
         MutablePropertyValues properties = beanDefinition.getPropertyValues();
 
         // Add annotated classes list.

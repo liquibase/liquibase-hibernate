@@ -45,6 +45,26 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         setDefaultSchemaName(DEFAULT_SCHEMA);
     }
 
+    public boolean requiresPassword() {
+        return false;
+    }
+
+    public boolean requiresUsername() {
+        return false;
+    }
+
+    public String getDefaultDriver(String url) {
+        if (url.startsWith("hibernate")) {
+            return HibernateDriver.class.getName();
+        }
+        return null;
+    }
+
+    public int getPriority() {
+        return PRIORITY_DEFAULT;
+    }
+
+
     @Override
     public void setConnection(DatabaseConnection conn) {
         super.setConnection(conn);
@@ -61,19 +81,81 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     }
 
-
+    /**
+     * Called by {@link #createMetadataSources()} to determine the correct dialect name based on url parameters, configuration files, etc.
+     */
     protected String findDialectName() {
         return getHibernateConnection().getProperties().getProperty(AvailableSettings.DIALECT);
     }
 
+    /**
+     * Returns the dialect determined during database initialization.
+     */
     public Dialect getDialect() {
         return dialect;
     }
 
+    /**
+     * Return the hibernate {@link Metadata} used by this database.
+     */
+    public Metadata getMetadata() throws DatabaseException {
+        return metadata;
+    }
+
+
+    /**
+     * Convenience method to return the underlying HibernateConnection in the JdbcConnection returned by {@link #getConnection()}
+     */
     protected HibernateConnection getHibernateConnection() {
         return ((HibernateConnection) ((JdbcConnection) getConnection()).getUnderlyingConnection());
     }
 
+    /**
+     * Called by {@link #setConnection(DatabaseConnection)} to create the Metadata stored in this database.
+     * If the URL path is configured for a {@link CustomMetadataFactory}, create the metadata from that class.
+     * Otherwise, it delegates to {@link #buildMetadataFromPath()}
+     */
+    protected final Metadata buildMetadata() throws DatabaseException {
+        String path = getHibernateConnection().getPath();
+        if (!path.contains("/")) {
+            try {
+                Class<?> clazz = Class.forName(path);
+                if (CustomMetadataFactory.class.isAssignableFrom(clazz)) {
+                    try {
+                        return ((CustomMetadataFactory) clazz.newInstance()).getMetadata(this, getHibernateConnection());
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        throw new DatabaseException(e);
+                    }
+                }
+            } catch (ClassNotFoundException ignore) {
+                //not really a class, continue
+            }
+        }
+
+
+        return buildMetadataFromPath();
+    }
+
+    /**
+     * Called by {@link #buildMetadata()} when a {@link CustomMetadataFactory} is not configured.
+     * Default implementation passes the results of {@link #createMetadataSources()} to {@link #configureSources(MetadataSources)} and then calls {@link #configureMetadataBuilder(MetadataBuilder)}
+     * but this method can be overridden with any provider-specific implementations needed.
+     */
+    protected Metadata buildMetadataFromPath() throws DatabaseException {
+        MetadataSources sources = createMetadataSources();
+        configureSources(sources);
+
+        MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
+        configureMetadataBuilder(metadataBuilder);
+
+        return metadataBuilder.build();
+    }
+
+
+    /**
+     * Creates the base {@link MetadataSources} to use for this database.
+     * Normally, the result of this method is passed through {@link #configureSources(MetadataSources)}.
+     */
     protected MetadataSources createMetadataSources() throws DatabaseException {
         String dialectString = findDialectName();
         if (dialectString != null) {
@@ -98,6 +180,13 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         return new MetadataSources(standardRegistry);
 
     }
+
+
+    /**
+     * Adds any implementation-specific sources to the given {@link MetadataSources}
+     */
+    protected abstract void configureSources(MetadataSources sources) throws DatabaseException;
+
 
     protected void configureNewIdentifierGeneratorSupport(String value, MetadataBuilder builder) throws DatabaseException {
         String _value;
@@ -165,71 +254,23 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         }
     }
 
-    protected Metadata buildMetadata() throws DatabaseException {
-        String path = getHibernateConnection().getPath();
-        if (!path.contains("/")) {
-            try {
-                Class<?> clazz = Class.forName(path);
-                if (CustomMetadataFactory.class.isAssignableFrom(clazz)) {
-                    try {
-                        return ((CustomMetadataFactory) clazz.newInstance()).getMetadata(this, getHibernateConnection());
-                    } catch (InstantiationException e) {
-                        throw new DatabaseException(e);
-                    } catch (IllegalAccessException e) {
-                        throw new DatabaseException(e);
-                    }
-                }
-            } catch (ClassNotFoundException ignore) {
-                //not really a class, continue
-            }
-        }
 
-
-        return generateMetadata();
-    }
-
-    protected Metadata generateMetadata() throws DatabaseException {
-        MetadataSources sources = createMetadataSources();
-        addToSources(sources);
-
-        MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
-        configureMetadataBuilder(metadataBuilder);
-
-        return metadataBuilder.build();
-    }
-
-
-    protected abstract void addToSources(MetadataSources sources) throws DatabaseException;
-
+    /**
+     * Called by {@link #buildMetadataFromPath()} to do final configuration on the {@link MetadataBuilder} before {@link MetadataBuilder#build()} is called.
+     */
     protected void configureMetadataBuilder(MetadataBuilder metadataBuilder) throws DatabaseException {
         configureNewIdentifierGeneratorSupport(getProperty(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS), metadataBuilder);
         configureImplicitNamingStrategy(getProperty(AvailableSettings.IMPLICIT_NAMING_STRATEGY), metadataBuilder);
         configurePhysicalNamingStrategy(getProperty(AvailableSettings.PHYSICAL_NAMING_STRATEGY), metadataBuilder);
     }
 
+    /**
+     * Returns the value of the given property. Should return the value given as a connection URL first, then fall back to configuration-specific values.
+     */
     public String getProperty(String name) {
         return getHibernateConnection().getProperties().getProperty(name);
     }
 
-
-    public boolean requiresPassword() {
-        return false;
-    }
-
-    public boolean requiresUsername() {
-        return false;
-    }
-
-    public String getDefaultDriver(String url) {
-        if (url.startsWith("hibernate")) {
-            return HibernateDriver.class.getName();
-        }
-        return null;
-    }
-
-    public int getPriority() {
-        return PRIORITY_DEFAULT;
-    }
 
     @Override
     public boolean createsIndexesForForeignKeys() {
@@ -249,10 +290,6 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     @Override
     public boolean supportsTablespaces() {
         return false;
-    }
-
-    public Metadata getMetadata() throws DatabaseException {
-        return metadata;
     }
 
     @Override
@@ -295,6 +332,9 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         return false;
     }
 
+    /**
+     * Used by hibernate to ensure no database access is performed.
+     */
     static class NoOpConnectionProvider implements ConnectionProvider, MultiTenantConnectionProvider {
 
         @Override

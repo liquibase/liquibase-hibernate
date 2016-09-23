@@ -20,14 +20,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * Database implementation for "spring" hibernate configurations.
- * This supports passing a spring XML file reference and bean name or a package containing hibernate annotated classes.
+ * Database implementation for "spring" hibernate configurations that scans packages. If specifying a bean, {@link HibernateSpringBeanDatabase} is used.
  */
 public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
-
-    private BeanDefinition beanDefinition;
-    private ManagedProperties beanDefinitionProperties;
-    private EntityManagerFactory entityManagerFactory;
 
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
         return conn.getURL().startsWith("hibernate:spring:") && !isXmlFile(conn);
