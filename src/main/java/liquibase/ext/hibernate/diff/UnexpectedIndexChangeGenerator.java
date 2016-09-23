@@ -4,7 +4,6 @@ import liquibase.change.Change;
 import liquibase.database.Database;
 import liquibase.diff.output.DiffOutputControl;
 import liquibase.diff.output.changelog.ChangeGeneratorChain;
-import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Index;
 
@@ -27,7 +26,7 @@ public class UnexpectedIndexChangeGenerator extends liquibase.diff.output.change
 //        if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
 //            return null;
 //        } else {
-            return super.fixUnexpected(unexpectedObject, control, referenceDatabase, comparisonDatabase, chain);
+        return super.fixUnexpected(unexpectedObject, control, referenceDatabase, comparisonDatabase, chain);
 //        }
     }
 }

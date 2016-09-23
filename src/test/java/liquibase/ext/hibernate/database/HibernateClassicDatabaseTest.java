@@ -1,16 +1,9 @@
 package liquibase.ext.hibernate.database;
 
-import com.example.customconfig.auction.Item;
-import com.example.pojo.auction.AuctionItem;
-import com.example.pojo.auction.Watcher;
 import liquibase.CatalogAndSchema;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.DatabaseException;
-import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.integration.commandline.CommandLineUtils;
-import liquibase.integration.commandline.Main;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;

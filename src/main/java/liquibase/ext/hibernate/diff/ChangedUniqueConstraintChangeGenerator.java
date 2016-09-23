@@ -7,7 +7,6 @@ import liquibase.diff.compare.CompareControl;
 import liquibase.diff.output.DiffOutputControl;
 import liquibase.diff.output.changelog.ChangeGeneratorChain;
 import liquibase.diff.output.changelog.ChangedObjectChangeGenerator;
-import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.UniqueConstraint;
 
@@ -40,7 +39,7 @@ public class ChangedUniqueConstraintChangeGenerator implements ChangedObjectChan
 //        if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
 //            return null;
 //        } else {
-            return chain.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase);
+        return chain.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase);
 //        }
     }
 

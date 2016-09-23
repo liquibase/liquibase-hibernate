@@ -8,7 +8,6 @@ import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Schema;
 import liquibase.structure.core.Sequence;
 import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.SequenceGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
@@ -43,11 +42,11 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
             HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
             MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
             Iterator<PersistentClass> classMappings = metadata.getEntityBindings().iterator();
-            
+
             while (classMappings.hasNext()) {
                 PersistentClass persistentClass = (PersistentClass) classMappings
                         .next();
-                if ( !persistentClass.isInherited() ) {
+                if (!persistentClass.isInherited()) {
                     IdentifierGenerator ig = persistentClass.getIdentifier().createIdentifierGenerator(
                             metadata.getIdentifierGeneratorFactory(),
                             database.getDialect(),
@@ -63,7 +62,7 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
                         createSequence((String) sequenceGenerator.generatorKey(), schema);
                     }
                 }
-                
+
             }
         }
     }

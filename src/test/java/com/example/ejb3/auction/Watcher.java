@@ -6,8 +6,8 @@ import javax.persistence.*;
 public class Watcher {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE,generator="WATCHER_SEQ")
-    @TableGenerator(name="WATCHER_SEQ",table="WatcherSeqTable")
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "WATCHER_SEQ")
+    @TableGenerator(name = "WATCHER_SEQ", table = "WatcherSeqTable")
     private Integer id;
 
     @SuppressWarnings("unused")

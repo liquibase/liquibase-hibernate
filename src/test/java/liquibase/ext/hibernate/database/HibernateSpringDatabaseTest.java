@@ -16,7 +16,6 @@ import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
 import org.hibernate.dialect.H2Dialect;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertNotNull;

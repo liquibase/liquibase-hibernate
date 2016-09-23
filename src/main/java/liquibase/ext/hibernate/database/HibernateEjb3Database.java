@@ -3,7 +3,6 @@ package liquibase.ext.hibernate.database;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.customfactory.CustomMetadataFactory;
-import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.logging.LogFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;

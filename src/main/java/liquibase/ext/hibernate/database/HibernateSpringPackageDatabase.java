@@ -4,41 +4,20 @@ import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataSources;
 import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
-import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
-import org.hibernate.service.ServiceRegistry;
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.TypedStringValue;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.ManagedProperties;
-import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 import org.springframework.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
-import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceUnitInfo;
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Database implementation for "spring" hibernate configurations.
@@ -97,7 +76,7 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
         String[] packagesToScan = getHibernateConnection().getPath().split(",");
 
         for (String packageName : packagesToScan) {
-            LOG.info("Found package "+packageName);
+            LOG.info("Found package " + packageName);
         }
 
         internalPersistenceUnitManager.setPackagesToScan(packagesToScan);
@@ -113,7 +92,7 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
         HashMap map = new HashMap();
         map.put(AvailableSettings.DIALECT, getProperty(AvailableSettings.DIALECT));
         EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, map);
-        return  builder.build();
+        return builder.build();
 
     }
 

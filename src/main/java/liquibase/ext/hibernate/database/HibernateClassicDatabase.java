@@ -1,27 +1,14 @@
 package liquibase.ext.hibernate.database;
 
 import liquibase.database.DatabaseConnection;
-import liquibase.database.OfflineConnection;
 import liquibase.exception.DatabaseException;
-import liquibase.ext.hibernate.database.connection.HibernateConnection;
-import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.SessionFactoryBuilder;
-import org.hibernate.boot.registry.BootstrapServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.hibernate.service.ServiceRegistry;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Properties;
 
 /**
  * Database implementation for "classic" hibernate configurations.

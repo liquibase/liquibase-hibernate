@@ -2,7 +2,6 @@ package liquibase.ext.hibernate;
 
 import liquibase.Liquibase;
 import liquibase.database.Database;
-import liquibase.database.ObjectQuotingStrategy;
 import liquibase.database.core.H2Database;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.diff.DiffResult;
@@ -20,20 +19,18 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
-import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -230,7 +227,6 @@ public class HibernateIntegrationTest {
 //        assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
 //        assertEquals(differences, 0, diffResult.getChangedObjects().size());
 //    }
-
     private String toString(DiffResult diffResult) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out, true, "UTF-8");
@@ -261,7 +257,7 @@ public class HibernateIntegrationTest {
                 diffResult.getUnexpectedObjects().remove(table);
         }
         Set<Table> missingTables = diffResult.getMissingObjects(Table.class);
-        for (Iterator<Table> iterator = missingTables.iterator(); iterator.hasNext();) {
+        for (Iterator<Table> iterator = missingTables.iterator(); iterator.hasNext(); ) {
             Table table = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(table.getName()) || "DATABASECHANGELOG".equalsIgnoreCase(table.getName()))
                 diffResult.getMissingObjects().remove(table);
@@ -273,7 +269,7 @@ public class HibernateIntegrationTest {
                 diffResult.getUnexpectedObjects().remove(column);
         }
         Set<Column> missingColumns = diffResult.getMissingObjects(Column.class);
-        for (Iterator<Column> iterator = missingColumns.iterator(); iterator.hasNext();) {
+        for (Iterator<Column> iterator = missingColumns.iterator(); iterator.hasNext(); ) {
             Column column = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(column.getRelation().getName()) || "DATABASECHANGELOG".equalsIgnoreCase(column.getRelation().getName()))
                 diffResult.getMissingObjects().remove(column);
@@ -285,7 +281,7 @@ public class HibernateIntegrationTest {
                 diffResult.getUnexpectedObjects().remove(index);
         }
         Set<Index> missingIndexes = diffResult.getMissingObjects(Index.class);
-        for (Iterator<Index> iterator = missingIndexes.iterator(); iterator.hasNext();) {
+        for (Iterator<Index> iterator = missingIndexes.iterator(); iterator.hasNext(); ) {
             Index index = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(index.getTable().getName()) || "DATABASECHANGELOG".equalsIgnoreCase(index.getTable().getName()))
                 diffResult.getMissingObjects().remove(index);
@@ -297,7 +293,7 @@ public class HibernateIntegrationTest {
                 diffResult.getUnexpectedObjects().remove(primaryKey);
         }
         Set<PrimaryKey> missingPrimaryKeys = diffResult.getMissingObjects(PrimaryKey.class);
-        for (Iterator<PrimaryKey> iterator = missingPrimaryKeys.iterator(); iterator.hasNext();) {
+        for (Iterator<PrimaryKey> iterator = missingPrimaryKeys.iterator(); iterator.hasNext(); ) {
             PrimaryKey primaryKey = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(primaryKey.getTable().getName()) || "DATABASECHANGELOG".equalsIgnoreCase(primaryKey.getTable().getName()))
                 diffResult.getMissingObjects().remove(primaryKey);

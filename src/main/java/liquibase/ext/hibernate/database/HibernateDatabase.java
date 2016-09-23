@@ -295,7 +295,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         return false;
     }
 
-    static class NoOpConnectionProvider implements ConnectionProvider, MultiTenantConnectionProvider{
+    static class NoOpConnectionProvider implements ConnectionProvider, MultiTenantConnectionProvider {
 
         @Override
         public Connection getConnection() throws SQLException {

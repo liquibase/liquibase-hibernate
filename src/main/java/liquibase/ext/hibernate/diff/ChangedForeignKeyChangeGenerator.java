@@ -5,7 +5,6 @@ import liquibase.database.Database;
 import liquibase.diff.ObjectDifferences;
 import liquibase.diff.output.DiffOutputControl;
 import liquibase.diff.output.changelog.ChangeGeneratorChain;
-import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.ForeignKey;
 
@@ -28,7 +27,7 @@ public class ChangedForeignKeyChangeGenerator extends liquibase.diff.output.chan
 //        if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
 //            return null;
 //        } else {
-            return super.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase, chain);
+        return super.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase, chain);
 //        }
     }
 }

@@ -50,7 +50,7 @@ public class SpringPackageScanningIntegrationTest {
     @Before
     public void setUp() throws Exception {
         Class.forName("org.hsqldb.jdbc.JDBCDriver");
-        connection = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB" + System.currentTimeMillis()+"-"+(run++), "SA", "");
+        connection = DriverManager.getConnection("jdbc:hsqldb:mem:TESTDB" + System.currentTimeMillis() + "-" + (run++), "SA", "");
         database = new HsqlDatabase();
         database.setConnection(new JdbcConnection(connection));
 
@@ -93,7 +93,7 @@ public class SpringPackageScanningIntegrationTest {
         Database hibernateDatabase = new HibernateSpringPackageDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
         hibernateDatabase.setDefaultCatalogName("TESTDB");
-        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:"+ PACKAGES+ "?dialect=" + HSQLDialect.class.getName())));
+        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect=" + HSQLDialect.class.getName())));
 
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
 
@@ -307,7 +307,7 @@ public class SpringPackageScanningIntegrationTest {
         Set<Table> unexpectedTables = diffResult
                 .getUnexpectedObjects(Table.class);
         for (Iterator<Table> iterator = unexpectedTables.iterator(); iterator
-                .hasNext();) {
+                .hasNext(); ) {
             Table table = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(table.getName())
                     || "DATABASECHANGELOG".equalsIgnoreCase(table.getName()))
@@ -316,42 +316,42 @@ public class SpringPackageScanningIntegrationTest {
         Set<Table> missingTables = diffResult
                 .getMissingObjects(Table.class);
         for (Iterator<Table> iterator = missingTables.iterator(); iterator
-                .hasNext();) {
+                .hasNext(); ) {
             Table table = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(table.getName())
                     || "DATABASECHANGELOG".equalsIgnoreCase(table.getName()))
                 diffResult.getMissingObjects().remove(table);
         }
         Set<Column> unexpectedColumns = diffResult.getUnexpectedObjects(Column.class);
-        for (Iterator<Column> iterator = unexpectedColumns.iterator(); iterator.hasNext();) {
+        for (Iterator<Column> iterator = unexpectedColumns.iterator(); iterator.hasNext(); ) {
             Column column = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(column.getRelation().getName())
                     || "DATABASECHANGELOG".equalsIgnoreCase(column.getRelation().getName()))
                 diffResult.getUnexpectedObjects().remove(column);
         }
         Set<Column> missingColumns = diffResult.getMissingObjects(Column.class);
-        for (Iterator<Column> iterator = missingColumns.iterator(); iterator.hasNext();) {
+        for (Iterator<Column> iterator = missingColumns.iterator(); iterator.hasNext(); ) {
             Column column = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(column.getRelation().getName())
                     || "DATABASECHANGELOG".equalsIgnoreCase(column.getRelation().getName()))
                 diffResult.getMissingObjects().remove(column);
         }
         Set<Index> unexpectedIndexes = diffResult.getUnexpectedObjects(Index.class);
-        for (Iterator<Index> iterator = unexpectedIndexes.iterator(); iterator.hasNext();) {
+        for (Iterator<Index> iterator = unexpectedIndexes.iterator(); iterator.hasNext(); ) {
             Index index = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(index.getTable().getName())
                     || "DATABASECHANGELOG".equalsIgnoreCase(index.getTable().getName()))
                 diffResult.getUnexpectedObjects().remove(index);
         }
         Set<Index> missingIndexes = diffResult.getMissingObjects(Index.class);
-        for (Iterator<Index> iterator = missingIndexes.iterator(); iterator.hasNext();) {
+        for (Iterator<Index> iterator = missingIndexes.iterator(); iterator.hasNext(); ) {
             Index index = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(index.getTable().getName())
                     || "DATABASECHANGELOG".equalsIgnoreCase(index.getTable().getName()))
                 diffResult.getMissingObjects().remove(index);
         }
         Set<PrimaryKey> unexpectedPrimaryKeys = diffResult.getUnexpectedObjects(PrimaryKey.class);
-        for (Iterator<PrimaryKey> iterator = unexpectedPrimaryKeys.iterator(); iterator.hasNext();) {
+        for (Iterator<PrimaryKey> iterator = unexpectedPrimaryKeys.iterator(); iterator.hasNext(); ) {
             PrimaryKey primaryKey = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(primaryKey.getTable()
                     .getName())
@@ -359,7 +359,7 @@ public class SpringPackageScanningIntegrationTest {
                 diffResult.getUnexpectedObjects().remove(primaryKey);
         }
         Set<PrimaryKey> missingPrimaryKeys = diffResult.getMissingObjects(PrimaryKey.class);
-        for (Iterator<PrimaryKey> iterator = missingPrimaryKeys.iterator(); iterator.hasNext();) {
+        for (Iterator<PrimaryKey> iterator = missingPrimaryKeys.iterator(); iterator.hasNext(); ) {
             PrimaryKey primaryKey = iterator.next();
             if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(primaryKey.getTable().getName())
                     || "DATABASECHANGELOG".equalsIgnoreCase(primaryKey.getTable().getName()))
@@ -377,7 +377,7 @@ public class SpringPackageScanningIntegrationTest {
     private void ignoreConversionFromFloatToDouble64(DiffResult diffResult)
             throws Exception {
         Map<DatabaseObject, ObjectDifferences> differences = diffResult.getChangedObjects();
-        for (Iterator<Entry<DatabaseObject, ObjectDifferences>> iterator = differences.entrySet().iterator(); iterator.hasNext();) {
+        for (Iterator<Entry<DatabaseObject, ObjectDifferences>> iterator = differences.entrySet().iterator(); iterator.hasNext(); ) {
             Entry<DatabaseObject, ObjectDifferences> changedObject = iterator.next();
             Difference difference = changedObject.getValue().getDifference("type");
             if (difference != null

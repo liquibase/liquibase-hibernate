@@ -1,16 +1,11 @@
 package liquibase.ext.hibernate.database;
 
 import liquibase.database.DatabaseConnection;
-import liquibase.database.OfflineConnection;
 import liquibase.exception.DatabaseException;
-import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.ext.hibernate.database.connection.HibernateDriver;
-import org.hibernate.boot.Metadata;
 import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
-import org.hibernate.service.ServiceRegistry;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 
 import javax.persistence.EntityManagerFactory;
