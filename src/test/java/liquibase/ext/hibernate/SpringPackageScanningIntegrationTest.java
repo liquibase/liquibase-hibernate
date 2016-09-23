@@ -11,7 +11,7 @@ import liquibase.diff.compare.CompareControl;
 import liquibase.diff.output.DiffOutputControl;
 import liquibase.diff.output.changelog.DiffToChangeLog;
 import liquibase.diff.output.report.DiffToReport;
-import liquibase.ext.hibernate.database.HibernateSpringDatabase;
+import liquibase.ext.hibernate.database.HibernateSpringPackageDatabase;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
@@ -19,30 +19,21 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.jpa.HibernatePersistenceProvider;
-import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
-import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
-import org.hibernate.service.ServiceRegistry;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
-import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
-import org.springframework.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
-import javax.persistence.spi.PersistenceUnitInfo;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -99,7 +90,7 @@ public class SpringPackageScanningIntegrationTest {
 
         Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
 
-        Database hibernateDatabase = new HibernateSpringDatabase();
+        Database hibernateDatabase = new HibernateSpringPackageDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
         hibernateDatabase.setDefaultCatalogName("TESTDB");
         hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:"+ PACKAGES+ "?dialect=" + HSQLDialect.class.getName())));
@@ -168,7 +159,7 @@ public class SpringPackageScanningIntegrationTest {
 //        SchemaExport export = new SchemaExport(cfg);
 //        export.execute(true, true, false, false);
 //
-//        Database hibernateDatabase = new HibernateSpringDatabase();
+//        Database hibernateDatabase = new HibernateSpringPackageDatabase();
 //        hibernateDatabase.setDefaultSchemaName("PUBLIC");
 //        hibernateDatabase.setDefaultCatalogName("TESTDB");
 //        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect="
@@ -244,7 +235,7 @@ public class SpringPackageScanningIntegrationTest {
 //
 //        Liquibase liquibase = new Liquibase((String) null, new ClassLoaderResourceAccessor(), database);
 //
-//        Database hibernateDatabase = new HibernateSpringDatabase();
+//        Database hibernateDatabase = new HibernateSpringPackageDatabase();
 //        hibernateDatabase.setDefaultSchemaName("PUBLIC");
 //        hibernateDatabase.setDefaultCatalogName("TESTDB");
 //        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect="

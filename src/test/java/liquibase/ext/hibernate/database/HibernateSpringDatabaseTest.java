@@ -24,33 +24,32 @@ import static junit.framework.Assert.assertNotNull;
 public class HibernateSpringDatabaseTest {
 
     private DatabaseConnection conn;
-    private HibernateSpringDatabase db;
-
-    @Before
-    public void setUp() throws Exception {
-        db = new HibernateSpringDatabase();
-    }
+    private HibernateDatabase db;
 
     @After
     public void tearDown() throws Exception {
-        db.close();
+        if (db != null) {
+            db.close();
+        }
     }
 
     @Test
     public void testSpringUrlSimple() throws DatabaseException {
         conn = new JdbcConnection(new HibernateConnection("hibernate:spring:spring.ctx.xml?bean=sessionFactory"));
+        db = new HibernateSpringBeanDatabase();
         db.setConnection(conn);
-        assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
-        assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
+        assertNotNull(db.getMetadata().getEntityBinding(AuctionItem.class.getName()));
+        assertNotNull(db.getMetadata().getEntityBinding(Watcher.class.getName()));
     }
 
 
     @Test
     public void testSpringPackageScanningMustHaveItemClassMapping() throws DatabaseException {
         conn = new JdbcConnection(new HibernateConnection("hibernate:spring:com.example.ejb3.auction?dialect=" + H2Dialect.class.getName()));
+        db = new HibernateSpringPackageDatabase();
         db.setConnection(conn);
-        assertNotNull(db.getConfiguration().getClassMapping(Bid.class.getName()));
-        assertNotNull(db.getConfiguration().getClassMapping(BuyNow.class.getName()));
+        assertNotNull(db.getMetadata().getEntityBinding(Bid.class.getName()));
+        assertNotNull(db.getMetadata().getEntityBinding(BuyNow.class.getName()));
     }
 
     @Test

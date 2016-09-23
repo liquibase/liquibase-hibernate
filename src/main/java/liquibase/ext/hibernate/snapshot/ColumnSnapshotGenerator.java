@@ -46,7 +46,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         Column column = (Column) example;
         if (column.getType() == null) { //not the actual full version found with the table
             if (column.getRelation() == null) {
-                throw new InvalidExampleException("No relation set on "+column);
+                throw new InvalidExampleException("No relation set on " + column);
             }
             Relation relation = snapshot.get(column.getRelation());
             if (relation != null) {
@@ -159,21 +159,20 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                             //nothing
                         } else {
 
-                            identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue()
-                                    ? ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
+                            identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue() ? ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
 
-                        if (("native".equalsIgnoreCase(identifierGeneratorStrategy) || "identity".equalsIgnoreCase(identifierGeneratorStrategy))) {
-                            if (PostgreSQL81Dialect.class.isAssignableFrom(dialect.getClass())) {
-                                column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                                String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
-                                column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
-                            } else if (dialect.getNativeIdentifierGeneratorClass().equals(IdentityGenerator.class)) {
-                                column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                            }
+                            if (("native".equalsIgnoreCase(identifierGeneratorStrategy) || "identity".equalsIgnoreCase(identifierGeneratorStrategy))) {
+                                if (PostgreSQL81Dialect.class.isAssignableFrom(dialect.getClass())) {
+                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                    String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
+                                    column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+                                } else if (database.supportsAutoIncrement()) {
+                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                }
                             } else if ("org.hibernate.id.enhanced.SequenceStyleGenerator".equals(identifierGeneratorStrategy)) {
                                 Properties prop = ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorProperties();
                                 if (prop.get("sequence_name") == null)
-                                   column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                             }
                         }
                         column.setNullable(false);

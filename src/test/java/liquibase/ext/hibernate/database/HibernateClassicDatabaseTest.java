@@ -123,22 +123,4 @@ public class HibernateClassicDatabaseTest {
                 )
         ));
     }
-
-    @Test
-    public void hibernateUrlWithNamingStrategy() throws Exception {
-        String url = "hibernate:classic:com/example/pojo/Hibernate.cfg.xml?hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
-
-        assertNotNull(database);
-
-        DatabaseSnapshot snapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(CatalogAndSchema.DEFAULT, database, new SnapshotControl(database));
-
-        assertThat(snapshot.get(Table.class), containsInAnyOrder(
-                hasProperty("name", is("bid")),
-                hasProperty("name", is("watcher")),
-                hasProperty("name", is("auction_user")),
-                hasProperty("name", is("auction_item"))));
-
-    }
-
 }

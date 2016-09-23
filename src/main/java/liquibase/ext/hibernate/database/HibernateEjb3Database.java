@@ -63,7 +63,11 @@ public class HibernateEjb3Database extends HibernateDatabase {
 
     @Override
     public String getProperty(String name) {
-        String property = (String) entityManagerFactory.getProperties().get(name);
+        String property = null;
+        if (entityManagerFactory != null) {
+            property = (String) entityManagerFactory.getProperties().get(name);
+        }
+
         if (property == null) {
             return super.getProperty(name);
         } else {

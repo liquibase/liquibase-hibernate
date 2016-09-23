@@ -21,10 +21,8 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
-import org.hibernate.service.Service;
 import org.hibernate.service.ServiceRegistry;
 
-import javax.naming.OperationNotSupportedException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -114,7 +112,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         }
     }
 
-    protected void configurePhysicalNamingStrategy(MetadataBuilder builder, String physicalNamingStrategy) throws DatabaseException {
+    protected void configurePhysicalNamingStrategy(String physicalNamingStrategy, MetadataBuilder builder) throws DatabaseException {
         String namingStrategy;
         namingStrategy = getHibernateConnection().getProperties().getProperty(AvailableSettings.PHYSICAL_NAMING_STRATEGY, physicalNamingStrategy);
 
@@ -206,7 +204,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     protected void configureMetadataBuilder(MetadataBuilder metadataBuilder) throws DatabaseException {
         configureNewIdentifierGeneratorSupport(getProperty(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS), metadataBuilder);
         configureImplicitNamingStrategy(getProperty(AvailableSettings.IMPLICIT_NAMING_STRATEGY), metadataBuilder);
-        configurePhysicalNamingStrategy(metadataBuilder, getProperty(AvailableSettings.PHYSICAL_NAMING_STRATEGY));
+        configurePhysicalNamingStrategy(getProperty(AvailableSettings.PHYSICAL_NAMING_STRATEGY), metadataBuilder);
     }
 
     public String getProperty(String name) {

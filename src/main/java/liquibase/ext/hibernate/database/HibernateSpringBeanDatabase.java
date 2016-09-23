@@ -4,18 +4,21 @@ import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.service.ServiceRegistry;
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.ManagedProperties;
 import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.ClassPathResource;
@@ -28,7 +31,6 @@ import org.springframework.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.metamodel.ManagedType;
 import javax.persistence.spi.PersistenceUnitInfo;
 import java.io.IOException;
 import java.net.URL;
@@ -38,48 +40,43 @@ import java.util.*;
  * Database implementation for "spring" hibernate configurations.
  * This supports passing a spring XML file reference and bean name or a package containing hibernate annotated classes.
  */
-public class HibernateSpringDatabase extends HibernateEjb3Database {
+public class HibernateSpringBeanDatabase extends HibernateDatabase {
+
+    private BeanDefinition beanDefinition;
+    private ManagedProperties beanDefinitionProperties;
 
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
         return conn.getURL().startsWith("hibernate:spring:");
     }
 
     @Override
-    protected void addToSources(MetadataSources sources) throws DatabaseException {
-        if (isXmlFile()) {
-            addToSourcesFromXml(sources);
-        } else {
-            super.addToSources(sources);
-        }
+    protected Metadata generateMetadata() throws DatabaseException {
+        loadBeanDefinition();
+        return super.generateMetadata();
     }
 
 
-    /**
-     * Return true if the given path is a spring XML file.
-     */
-    protected boolean isXmlFile() {
-        String path = getHibernateConnection().getPath();
-        if (path.contains("/")) {
-            return true;
-        }
-        ClassPathResource resource = new ClassPathResource(path);
-        try {
-            if (resource.exists() && !resource.getFile().isDirectory()) {
-                return true;
-            } else {
-                return false;
+    @Override
+    public String getProperty(String name) {
+        String value = super.getProperty(name);
+        if (value == null && beanDefinitionProperties != null) {
+            for (Map.Entry entry : ((ManagedProperties) beanDefinition.getPropertyValues().getPropertyValue("hibernateProperties").getValue()).entrySet()) {
+                if (entry.getKey() instanceof TypedStringValue && entry.getValue() instanceof TypedStringValue) {
+                    if (((TypedStringValue) entry.getKey()).getValue().equals(name)) {
+                        return ((TypedStringValue) entry.getValue()).getValue();
+                    }
+                }
             }
-        } catch (IOException e) {
-            return false;
+
+            value = beanDefinitionProperties.getProperty(name);
         }
-
-
+        return value;
     }
 
     /**
      * Parse the given URL assuming it is a spring XML file
      */
-    protected void addToSourcesFromXml(MetadataSources sources) throws DatabaseException {
+    protected void loadBeanDefinition() throws DatabaseException {
         // Read configuration
         BeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry);
@@ -101,12 +98,17 @@ public class HibernateSpringDatabase extends HibernateEjb3Database {
             throw new IllegalStateException("A 'bean' name is required, matching a '" + beanClassName + "' definition in '" + connection.getPath() + "'.");
         }
 
-        BeanDefinition beanDef = registry.getBeanDefinition(beanName);
-        if (beanDef == null) {
+        beanDefinition = registry.getBeanDefinition(beanName);
+        if (beanDefinition == null) {
             throw new IllegalStateException("A bean named '" + beanName + "' could not be found in '" + connection.getPath() + "'.");
         }
 
-        MutablePropertyValues properties = beanDef.getPropertyValues();
+        beanDefinitionProperties = (ManagedProperties) beanDefinition.getPropertyValues().getPropertyValue("hibernateProperties").getValue();
+    }
+
+    @Override
+    protected void addToSources(MetadataSources sources) throws DatabaseException {
+        MutablePropertyValues properties = beanDefinition.getPropertyValues();
 
         // Add annotated classes list.
         PropertyValue annotatedClassesProperty = properties.getPropertyValue("annotatedClasses");
@@ -164,42 +166,14 @@ public class HibernateSpringDatabase extends HibernateEjb3Database {
         }
     }
 
-
-    @Override
-    protected EntityManagerFactory createEntityManagerFactory() {
-        DefaultPersistenceUnitManager internalPersistenceUnitManager = new DefaultPersistenceUnitManager();
-
-        String[] packagesToScan = getHibernateConnection().getPath().split(",");
-
-        for (String packageName : packagesToScan) {
-            LOG.info("Found package "+packageName);
-        }
-
-        internalPersistenceUnitManager.setPackagesToScan(packagesToScan);
-
-        internalPersistenceUnitManager.preparePersistenceUnitInfos();
-        PersistenceUnitInfo persistenceUnitInfo = internalPersistenceUnitManager.obtainDefaultPersistenceUnitInfo();
-        HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-
-        if (persistenceUnitInfo instanceof SmartPersistenceUnitInfo) {
-            ((SmartPersistenceUnitInfo) persistenceUnitInfo).setPersistenceProviderPackageName(jpaVendorAdapter.getPersistenceProviderRootPackage());
-        }
-
-        HashMap map = new HashMap();map.put(AvailableSettings.DIALECT, findDialectName());
-        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, map);
-        return  builder.build();
-
-    }
-
-
     @Override
     public String getShortName() {
-        return "hibernateSpring";
+        return "hibernateSpringBean";
     }
 
     @Override
     protected String getDefaultDatabaseProductName() {
-        return "Hibernate Spring";
+        return "Hibernate Spring Bean";
     }
 
 }

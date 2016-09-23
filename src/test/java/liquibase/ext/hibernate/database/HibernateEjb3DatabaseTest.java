@@ -76,27 +76,4 @@ public class HibernateEjb3DatabaseTest {
                 )
         ));
     }
-
-    @Test
-    public void ejb3UrlWithNamingStrategy() throws Exception {
-        String url = "hibernate:ejb3:auction?hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
-
-        assertNotNull(database);
-
-        DatabaseSnapshot snapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(CatalogAndSchema.DEFAULT, database, new SnapshotControl(database));
-
-        assertThat(snapshot.get(Table.class), containsInAnyOrder(
-                hasProperty("name", is("bid")),
-                hasProperty("name", is("watcher")),
-                hasProperty("name", is("user")),
-                hasProperty("name", is("auction_info")),
-                hasProperty("name", is("auction_item")),
-                hasProperty("name", is("item")),
-                hasProperty("name", is("audited_item")),
-                hasProperty("name", is("audited_item_aud")),
-                hasProperty("name", is("revinfo")),
-                hasProperty("name", is("WatcherSeqTable"))));
-
-    }
 }
