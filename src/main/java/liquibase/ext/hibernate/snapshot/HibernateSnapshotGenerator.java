@@ -27,7 +27,7 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
     private Class<? extends DatabaseObject> defaultFor = null;
     private Class<? extends DatabaseObject>[] addsTo = null;
 
-    protected static final Logger LOG = LogFactory.getLogger("liquibase-hibernate");
+    protected static final Logger LOG = LogFactory.getInstance().getLog("liquibase-hibernate");
 
 
     protected HibernateSnapshotGenerator(Class<? extends DatabaseObject> defaultFor) {

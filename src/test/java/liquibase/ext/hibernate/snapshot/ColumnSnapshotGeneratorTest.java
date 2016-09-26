@@ -6,8 +6,7 @@ import org.junit.Test;
 
 import java.sql.Types;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.TestCase.assertNull;
+import static org.junit.Assert.*;
 
 public class ColumnSnapshotGeneratorTest {
 

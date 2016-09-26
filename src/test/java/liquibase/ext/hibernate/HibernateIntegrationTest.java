@@ -36,7 +36,7 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
 public class HibernateIntegrationTest {
-    private final static Logger log = LogFactory.getLogger();
+    private final static Logger log = LogFactory.getInstance().getLog();
     private static final String HIBERNATE_CONFIG_FILE = "com/example/pojo/Hibernate.cfg.xml";
     private Database database;
     private Connection connection;

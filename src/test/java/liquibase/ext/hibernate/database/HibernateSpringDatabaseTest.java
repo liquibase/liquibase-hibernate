@@ -1,9 +1,5 @@
 package liquibase.ext.hibernate.database;
 
-import com.example.ejb3.auction.Bid;
-import com.example.ejb3.auction.BuyNow;
-import com.example.pojo.auction.AuctionItem;
-import com.example.pojo.auction.Watcher;
 import liquibase.CatalogAndSchema;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
@@ -18,7 +14,12 @@ import org.hibernate.dialect.H2Dialect;
 import org.junit.After;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertNotNull;
+import com.example.ejb3.auction.Bid;
+import com.example.ejb3.auction.BuyNow;
+import com.example.pojo.auction.AuctionItem;
+import com.example.pojo.auction.Watcher;
+
+import static org.junit.Assert.*;
 
 public class HibernateSpringDatabaseTest {
 
