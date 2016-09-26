@@ -7,17 +7,17 @@ import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.ManagedProperties;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 import org.springframework.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.spi.PersistenceUnitInfo;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.spi.PersistenceUnitInfo;
 
 /**
  * Database implementation for "spring" hibernate configurations that scans packages. If specifying a bean, {@link HibernateSpringBeanDatabase} is used.
@@ -84,7 +84,7 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
             ((SmartPersistenceUnitInfo) persistenceUnitInfo).setPersistenceProviderPackageName(jpaVendorAdapter.getPersistenceProviderRootPackage());
         }
 
-        HashMap map = new HashMap();
+        Map<String, String> map = new HashMap<>();
         map.put(AvailableSettings.DIALECT, getProperty(AvailableSettings.DIALECT));
         EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, map);
         return builder.build();
