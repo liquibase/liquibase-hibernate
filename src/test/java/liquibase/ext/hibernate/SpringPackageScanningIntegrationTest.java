@@ -40,7 +40,7 @@ import static junit.framework.TestCase.assertTrue;
 
 public class SpringPackageScanningIntegrationTest {
     private static final String PACKAGES = "com.example.ejb3.auction";
-    private final static Logger log = LogFactory.getLogger();
+    private final static Logger log = LogFactory.getInstance().getLog();
     private Database database;
     private Connection connection;
     private CompareControl compareControl;

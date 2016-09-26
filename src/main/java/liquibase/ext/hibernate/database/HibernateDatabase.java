@@ -32,7 +32,7 @@ import java.sql.SQLException;
  */
 public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
-    protected static final Logger LOG = LogFactory.getLogger("liquibase-hibernate");
+    protected static final Logger LOG = LogFactory.getInstance().getLog("liquibase-hibernate");
 
     private Metadata metadata;
     protected Dialect dialect;
