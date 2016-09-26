@@ -10,7 +10,6 @@ import liquibase.structure.core.Schema;
 import liquibase.structure.core.Table;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertNotNull;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.*;
