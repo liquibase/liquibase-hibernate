@@ -86,6 +86,7 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
 
         Map<String, String> map = new HashMap<>();
         map.put(AvailableSettings.DIALECT, getProperty(AvailableSettings.DIALECT));
+        map.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, Boolean.FALSE.toString());
         EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, map);
         return builder.build();
 
