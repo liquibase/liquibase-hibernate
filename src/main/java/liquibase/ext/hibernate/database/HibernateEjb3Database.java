@@ -14,6 +14,7 @@ import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
@@ -55,7 +56,10 @@ public class HibernateEjb3Database extends HibernateDatabase {
     protected EntityManagerFactory createEntityManagerFactory() {
         MyHibernatePersistenceProvider persistenceProvider = new MyHibernatePersistenceProvider();
 
-        final EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(getHibernateConnection().getPath(), null, null);
+        Map properties = new HashMap();
+        properties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, Boolean.FALSE.toString());
+
+        final EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(getHibernateConnection().getPath(), properties, null);
         return builder.build();
     }
 
