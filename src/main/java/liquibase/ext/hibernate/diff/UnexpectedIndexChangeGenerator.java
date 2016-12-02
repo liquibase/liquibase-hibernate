@@ -24,10 +24,10 @@ public class UnexpectedIndexChangeGenerator extends liquibase.diff.output.change
 
     @Override
     public Change[] fixUnexpected(DatabaseObject unexpectedObject, DiffOutputControl control, Database referenceDatabase, Database comparisonDatabase, ChangeGeneratorChain chain) {
-//        if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
-//            return null;
-//        } else {
+        if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
+            return null;
+        } else {
             return super.fixUnexpected(unexpectedObject, control, referenceDatabase, comparisonDatabase, chain);
-//        }
+        }
     }
 }
