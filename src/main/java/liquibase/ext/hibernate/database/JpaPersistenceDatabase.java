@@ -1,16 +1,16 @@
 package liquibase.ext.hibernate.database;
 
-import liquibase.database.DatabaseConnection;
-import liquibase.exception.DatabaseException;
-import liquibase.ext.hibernate.database.connection.HibernateDriver;
-import org.hibernate.boot.registry.classloading.spi.ClassLoaderService;
+import java.util.Collections;
+
+import javax.persistence.spi.PersistenceUnitInfo;
+
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.spi.PersistenceUnitInfo;
-import java.util.Collections;
+import liquibase.database.DatabaseConnection;
+import liquibase.exception.DatabaseException;
+import liquibase.ext.hibernate.database.connection.HibernateDriver;
 
 /**
  * Database implementation for JPA configurations.
@@ -18,6 +18,7 @@ import java.util.Collections;
  */
 public class JpaPersistenceDatabase extends HibernateEjb3Database {
 
+    @Override
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
         return conn.getURL().startsWith("jpa:persistence:");
     }
@@ -41,7 +42,7 @@ public class JpaPersistenceDatabase extends HibernateEjb3Database {
     }
 
     @Override
-    protected EntityManagerFactory createEntityManagerFactory() {
+    protected EntityManagerFactoryBuilderImpl createEntityManagerFactoryBuilder() {
         DefaultPersistenceUnitManager internalPersistenceUnitManager = new DefaultPersistenceUnitManager();
 
         internalPersistenceUnitManager.setPersistenceXmlLocation(getHibernateConnection().getPath());
@@ -51,7 +52,7 @@ public class JpaPersistenceDatabase extends HibernateEjb3Database {
         PersistenceUnitInfo persistenceUnitInfo = internalPersistenceUnitManager.obtainDefaultPersistenceUnitInfo();
 
         EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, Collections.emptyMap());
-        return builder.build();
+        return builder;
     }
 
 }
