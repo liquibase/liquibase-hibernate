@@ -34,7 +34,7 @@ public class ChangedIndexChangeGenerator extends
             Difference unique = differences.getDifference("unique");
             if ( unique != null && isNullOrFalse( unique.getReferenceValue() ) && isNullOrFalse( unique.getComparedValue() ) )
             {
-                differences.removeDifference(UNIQUE);;
+                differences.removeDifference("unique");
                 if (!differences.hasDifferences()) {
                     return null;
                 }
