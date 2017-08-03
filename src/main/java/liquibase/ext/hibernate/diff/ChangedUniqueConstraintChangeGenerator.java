@@ -60,4 +60,8 @@ public class ChangedUniqueConstraintChangeGenerator implements ChangedObjectChan
     public Change[] fixOutputAsSchema(Change[] changes, CompareControl.SchemaComparison[] schemaComparisons) {
         return changes;
     }
+    
+    private boolean isNullOrFalse( Object value ) {
+        return value == null || !(Boolean)value;
+    }
 }
