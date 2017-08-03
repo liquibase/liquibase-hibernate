@@ -40,8 +40,10 @@ public class ChangedUniqueConstraintChangeGenerator implements ChangedObjectChan
     public Change[] fixChanged(DatabaseObject changedObject, ObjectDifferences differences, DiffOutputControl control, Database referenceDatabase, Database comparisonDatabase, ChangeGeneratorChain chain) {
         if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
             Difference difference = differences.getDifference("unique");
-            if (difference != null) {
-                if (difference.getReferenceValue() == null && (Boolean)(difference.getComparedValue()) == true) {
+            if ( unique != null && isNullOrFalse( unique.getReferenceValue() ) && isNullOrFalse( unique.getComparedValue() ) )
+            {
+                differences.removeDifference("unique");
+                if (!differences.hasDifferences()) {
                     return null;
                 }
             }
