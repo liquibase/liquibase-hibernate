@@ -93,7 +93,7 @@ public class SpringPackageScanningIntegrationTest {
         Database hibernateDatabase = new HibernateSpringPackageDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
         hibernateDatabase.setDefaultCatalogName("TESTDB");
-        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect=" + HSQLDialect.class.getName())));
+        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect=" + HSQLDialect.class.getName(), new ClassLoaderResourceAccessor())));
 
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
 

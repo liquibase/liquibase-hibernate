@@ -94,7 +94,7 @@ public class HibernateIntegrationTest {
         Database hibernateDatabase = new HibernateClassicDatabase();
 //        hibernateDatabase.setDefaultSchemaName("PUBLIC");
 //        hibernateDatabase.setDefaultCatalogName("TESTDB");
-        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:classic:" + HIBERNATE_CONFIG_FILE)));
+        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:classic:" + HIBERNATE_CONFIG_FILE, new ClassLoaderResourceAccessor())));
 
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
 

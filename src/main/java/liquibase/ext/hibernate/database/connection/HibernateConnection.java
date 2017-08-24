@@ -1,5 +1,7 @@
 package liquibase.ext.hibernate.database.connection;
 
+import liquibase.resource.ResourceAccessor;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLDecoder;
@@ -17,15 +19,17 @@ public class HibernateConnection implements Connection {
     private String url;
 
     private String path;
+    private ResourceAccessor resourceAccessor;
     private Properties properties;
 
-    public HibernateConnection(String url) {
+    public HibernateConnection(String url, ResourceAccessor resourceAccessor) {
         this.url = url;
 
         this.prefix = url.replaceFirst(":[^:]+$", "");
 
         // Trim the prefix off the URL for the path
         path = url.substring(prefix.length() + 1);
+        this.resourceAccessor = resourceAccessor;
 
         // Check if there is a parameter/query string value.
         properties = new Properties();
@@ -314,5 +318,9 @@ public class HibernateConnection implements Connection {
 
     //@Override only in java 1.7
     public void setSchema(String arg0) throws SQLException {
+    }
+
+    public ResourceAccessor getResourceAccessor() {
+        return resourceAccessor;
     }
 }
