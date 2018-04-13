@@ -11,7 +11,7 @@ import java.util.Iterator;
 public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
 
     @SuppressWarnings("unchecked")
-	public IndexSnapshotGenerator() {
+    public IndexSnapshotGenerator() {
         super(Index.class, new Class[]{Table.class, ForeignKey.class, UniqueConstraint.class});
     }
 
