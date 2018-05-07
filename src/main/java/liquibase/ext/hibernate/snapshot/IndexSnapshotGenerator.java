@@ -10,6 +10,7 @@ import java.util.Iterator;
 
 public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
 
+    @SuppressWarnings("unchecked")
     public IndexSnapshotGenerator() {
         super(Index.class, new Class[]{Table.class, ForeignKey.class, UniqueConstraint.class});
     }
@@ -19,20 +20,20 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         if (example.getSnapshotId() != null) {
             return example;
         }
-        Table table = ((Index) example).getTable();
+        Relation table = ((Index) example).getTable();
         org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
         if (hibernateTable == null) {
             return example;
         }
-        Iterator indexIterator = hibernateTable.getIndexIterator();
+        Iterator<org.hibernate.mapping.Index> indexIterator = hibernateTable.getIndexIterator();
         while (indexIterator.hasNext()) {
-            org.hibernate.mapping.Index hibernateIndex = (org.hibernate.mapping.Index) indexIterator.next();
+            org.hibernate.mapping.Index hibernateIndex = indexIterator.next();
             Index index = new Index();
             index.setTable(table);
             index.setName(hibernateIndex.getName());
-            Iterator columnIterator = hibernateIndex.getColumnIterator();
+            Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
             while (columnIterator.hasNext()) {
-                org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
+                org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
                 index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table));
             }
 
@@ -57,15 +58,15 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             if (hibernateTable == null) {
                 return;
             }
-            Iterator indexIterator = hibernateTable.getIndexIterator();
+            Iterator<org.hibernate.mapping.Index> indexIterator = hibernateTable.getIndexIterator();
             while (indexIterator.hasNext()) {
-                org.hibernate.mapping.Index hibernateIndex = (org.hibernate.mapping.Index) indexIterator.next();
+                org.hibernate.mapping.Index hibernateIndex =  indexIterator.next();
                 Index index = new Index();
                 index.setTable(table);
                 index.setName(hibernateIndex.getName());
-                Iterator columnIterator = hibernateIndex.getColumnIterator();
+                Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
                 while (columnIterator.hasNext()) {
-                    org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
+                    org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
                     index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table));
                 }
                 LOG.info("Found index " + index.getName());
