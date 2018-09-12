@@ -119,7 +119,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         String path = getHibernateConnection().getPath();
         if (!path.contains("/")) {
             try {
-                Class<?> clazz = Class.forName(path);
+                Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(path);
                 if (CustomMetadataFactory.class.isAssignableFrom(clazz)) {
                     try {
                         return ((CustomMetadataFactory) clazz.newInstance()).getMetadata(this, getHibernateConnection());
@@ -160,7 +160,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         String dialectString = findDialectName();
         if (dialectString != null) {
             try {
-                dialect = (Dialect) Class.forName(dialectString).newInstance();
+                dialect = (Dialect) Thread.currentThread().getContextClassLoader().loadClass(dialectString).newInstance();
                 LOG.info("Using dialect " + dialectString);
             } catch (Exception e) {
                 throw new DatabaseException(e);
@@ -207,7 +207,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
         try {
             if (namingStrategy != null) {
-                builder.applyPhysicalNamingStrategy((PhysicalNamingStrategy) Class.forName(namingStrategy).newInstance());
+                builder.applyPhysicalNamingStrategy((PhysicalNamingStrategy) Thread.currentThread().getContextClassLoader().loadClass(namingStrategy).newInstance());
             }
         } catch (Exception e) {
             throw new DatabaseException(e);
@@ -235,7 +235,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
                         builder.applyImplicitNamingStrategy(org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl.INSTANCE);
                         break;
                     default:
-                        builder.applyImplicitNamingStrategy((ImplicitNamingStrategy) Class.forName(namingStrategy).newInstance());
+                        builder.applyImplicitNamingStrategy((ImplicitNamingStrategy) Thread.currentThread().getContextClassLoader().loadClass(namingStrategy).newInstance());
                         break;
                 }
 
