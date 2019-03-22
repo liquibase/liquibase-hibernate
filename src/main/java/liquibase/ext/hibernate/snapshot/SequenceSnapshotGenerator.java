@@ -14,6 +14,7 @@ import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.RootClass;
 
+import java.math.BigInteger;
 import java.util.Iterator;
 
 /**
@@ -59,7 +60,9 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
                         createSequence(sequenceGenerator.getSequenceName(), schema);
                     } else if (ig instanceof SequenceStyleGenerator) {
                         SequenceStyleGenerator sequenceGenerator = (SequenceStyleGenerator) ig;
-                        createSequence((String) sequenceGenerator.generatorKey(), schema);
+                        createSequence((String) sequenceGenerator.generatorKey(),
+                                sequenceGenerator.getDatabaseStructure().getInitialValue(),
+                                sequenceGenerator.getDatabaseStructure().getIncrementSize(), schema);
                     }
                 }
 
@@ -67,11 +70,21 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
         }
     }
 
-    private void createSequence(String sequenceName, Schema schema) {
+    private void createSequence(String sequenceName, Integer initialValue, Integer incrementBy, Schema schema) {
         Sequence sequence = new Sequence();
         sequence.setName(sequenceName);
         sequence.setSchema(schema);
+        if(initialValue != null) {
+            sequence.setStartValue(BigInteger.valueOf(initialValue));
+        }
+        if(incrementBy != null) {
+            sequence.setIncrementBy(BigInteger.valueOf(incrementBy));
+        }
         schema.addDatabaseObject(sequence);
+    }
+
+    private void createSequence(String sequenceName, Schema schema) {
+        createSequence(sequenceName, null, null, schema);
     }
 
 }
