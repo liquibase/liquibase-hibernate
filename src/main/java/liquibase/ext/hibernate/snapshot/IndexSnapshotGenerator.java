@@ -30,6 +30,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             Index index = new Index();
             index.setTable(table);
             index.setName(hibernateIndex.getName());
+            index.setUnique(isUniqueIndex(hibernateIndex));
             Iterator columnIterator = hibernateIndex.getColumnIterator();
             while (columnIterator.hasNext()) {
                 org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
@@ -63,9 +64,10 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
                 Index index = new Index();
                 index.setTable(table);
                 index.setName(hibernateIndex.getName());
-                Iterator columnIterator = hibernateIndex.getColumnIterator();
+                index.setUnique(isUniqueIndex(hibernateIndex));
+                Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
                 while (columnIterator.hasNext()) {
-                    org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
+                    org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
                     index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table));
                 }
                 LOG.info("Found index " + index.getName());
@@ -74,4 +76,16 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         }
     }
 
+    private Boolean isUniqueIndex(org.hibernate.mapping.Index hibernateIndex) {
+        /*
+        This seems to be necessary to explicitly tell liquibase that there's no
+        actual diff in certain non-unique indexes
+        */
+        if (hibernateIndex.getColumnSpan() == 1) {
+            org.hibernate.mapping.Column col = hibernateIndex.getColumnIterator().next();
+            return col.isUnique();
+        } else {
+            return null;
+        }
+    }
 }
