@@ -1,16 +1,5 @@
 package liquibase.ext.hibernate.database;
 
-import liquibase.database.DatabaseConnection;
-import liquibase.exception.DatabaseException;
-import liquibase.logging.LogFactory;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.cfg.AvailableSettings;
-import org.hibernate.jpa.HibernatePersistenceProvider;
-import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
-import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
-import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
-
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -20,6 +9,19 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.spi.PersistenceUnitTransactionType;
+
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.jpa.HibernatePersistenceProvider;
+import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
+import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
+
+import liquibase.database.DatabaseConnection;
+import liquibase.exception.DatabaseException;
+import liquibase.logging.LogFactory;
 
 /**
  * Database implementation for "ejb3" hibernate configurations.
@@ -47,20 +49,39 @@ public class HibernateEjb3Database extends HibernateDatabase {
     /**
      * Calls {@link #createEntityManagerFactory()} to create and save the entity manager factory.
      */
+    @Override
     protected Metadata buildMetadataFromPath() throws DatabaseException {
-        this.entityManagerFactory = createEntityManagerFactory();
+        
+        EntityManagerFactoryBuilderImpl builder = createEntityManagerFactoryBuilder();
 
-        return super.buildMetadataFromPath();
+        this.entityManagerFactory = builder.build();
+
+        Metadata metadata = builder.getMetadata();
+        
+        String dialectString = findDialectName();
+        if (dialectString != null) {
+            try {
+                dialect = (Dialect) Class.forName(dialectString).newInstance();
+                LOG.info("Using dialect " + dialectString);
+            } catch (Exception e) {
+                throw new DatabaseException(e);
+            }
+        } else {
+            LOG.info("Could not determine hibernate dialect, using HibernateGenericDialect");
+            dialect = new HibernateGenericDialect();
+        }
+
+        return metadata;
     }
 
-    protected EntityManagerFactory createEntityManagerFactory() {
+    protected EntityManagerFactoryBuilderImpl createEntityManagerFactoryBuilder() {
         MyHibernatePersistenceProvider persistenceProvider = new MyHibernatePersistenceProvider();
 
-        Map properties = new HashMap();
+        Map<String, Object> properties = new HashMap<>();
         properties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, Boolean.FALSE.toString());
 
         final EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(getHibernateConnection().getPath(), properties, null);
-        return builder.build();
+        return builder;
     }
 
     @Override

@@ -31,6 +31,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             Index index = new Index();
             index.setTable(table);
             index.setName(hibernateIndex.getName());
+            index.setUnique(isUniqueIndex(hibernateIndex));
             Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
             while (columnIterator.hasNext()) {
                 org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
@@ -64,6 +65,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
                 Index index = new Index();
                 index.setTable(table);
                 index.setName(hibernateIndex.getName());
+                index.setUnique(isUniqueIndex(hibernateIndex));
                 Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
                 while (columnIterator.hasNext()) {
                     org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
@@ -75,4 +77,16 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         }
     }
 
+    private Boolean isUniqueIndex(org.hibernate.mapping.Index hibernateIndex) {
+        /*
+        This seems to be necessary to explicitly tell liquibase that there's no
+        actual diff in certain non-unique indexes
+        */
+        if (hibernateIndex.getColumnSpan() == 1) {
+            org.hibernate.mapping.Column col = hibernateIndex.getColumnIterator().next();
+            return col.isUnique();
+        } else {
+            return null;
+        }
+    }
 }

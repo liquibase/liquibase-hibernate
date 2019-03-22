@@ -10,12 +10,16 @@ import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.ext.hibernate.database.connection.HibernateDriver;
 import liquibase.logging.LogFactory;
 import liquibase.logging.Logger;
+import org.hibernate.annotations.common.reflection.ClassLoaderDelegate;
+import org.hibernate.annotations.common.reflection.ClassLoadingException;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataBuilder;
 import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.internal.MetadataBuilderImpl;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategy;
 import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.boot.spi.MetadataBuilderImplementor;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
@@ -23,8 +27,12 @@ import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.hibernate.service.ServiceRegistry;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base class for all Hibernate Databases. This extension interacts with Hibernate by creating standard liquibase.database.Database implementations that
@@ -132,7 +140,6 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
             }
         }
 
-
         return buildMetadataFromPath();
     }
 
@@ -148,7 +155,23 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         MetadataBuilder metadataBuilder = sources.getMetadataBuilder();
         configureMetadataBuilder(metadataBuilder);
 
-        return metadataBuilder.build();
+        AtomicReference<Throwable> thrownException = new AtomicReference<>();
+        AtomicReference<Metadata> result = new AtomicReference<>();
+
+        Thread t = new Thread(() -> result.set(metadataBuilder.build()));
+        t.setContextClassLoader(getHibernateConnection().getResourceAccessor().toClassLoader());
+        t.setUncaughtExceptionHandler((_t,e) -> thrownException.set(e));
+        t.start();
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            throw new DatabaseException(e);
+        }
+        Throwable thrown = thrownException.get();
+        if (thrown != null) {
+            throw new DatabaseException(thrown);
+        }
+        return result.get();
     }
 
 
@@ -178,7 +201,6 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
                 .build();
 
         return new MetadataSources(standardRegistry);
-
     }
 
 
