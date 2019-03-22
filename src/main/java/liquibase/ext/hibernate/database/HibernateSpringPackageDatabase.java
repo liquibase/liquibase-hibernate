@@ -1,9 +1,11 @@
 package liquibase.ext.hibernate.database;
 
-import liquibase.database.DatabaseConnection;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.DatabaseException;
-import liquibase.ext.hibernate.database.connection.HibernateConnection;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.persistence.spi.PersistenceUnitInfo;
+
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
@@ -12,18 +14,17 @@ import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager
 import org.springframework.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.spi.PersistenceUnitInfo;
+import liquibase.database.DatabaseConnection;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
+import liquibase.ext.hibernate.database.connection.HibernateConnection;
 
 /**
  * Database implementation for "spring" hibernate configurations that scans packages. If specifying a bean, {@link HibernateSpringBeanDatabase} is used.
  */
 public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
 
+    @Override
     public boolean isCorrectDatabaseImplementation(DatabaseConnection conn) throws DatabaseException {
         return conn.getURL().startsWith("hibernate:spring:") && !isXmlFile(conn);
     }
@@ -65,7 +66,8 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
 
     }
 
-    protected EntityManagerFactory createEntityManagerFactory() {
+    @Override
+    protected EntityManagerFactoryBuilderImpl createEntityManagerFactoryBuilder() {
         DefaultPersistenceUnitManager internalPersistenceUnitManager = new DefaultPersistenceUnitManager();
 
         String[] packagesToScan = getHibernateConnection().getPath().split(",");
@@ -89,10 +91,11 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
         map.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, Boolean.FALSE.toString());
         map.put(AvailableSettings.PHYSICAL_NAMING_STRATEGY, getHibernateConnection().getProperties().getProperty(AvailableSettings.PHYSICAL_NAMING_STRATEGY));
         map.put(AvailableSettings.IMPLICIT_NAMING_STRATEGY, getHibernateConnection().getProperties().getProperty(AvailableSettings.IMPLICIT_NAMING_STRATEGY));
-
+        map.put(AvailableSettings.SCANNER_DISCOVERY, "");	// disable scanning of all classes and hbm.xml files. Only scan speficied packages
+        
         EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, map);
-        return builder.build();
-
+        
+        return builder;
     }
 
     @Override
