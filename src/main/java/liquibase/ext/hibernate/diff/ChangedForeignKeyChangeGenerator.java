@@ -25,10 +25,13 @@ public class ChangedForeignKeyChangeGenerator extends liquibase.diff.output.chan
 
     @Override
     public Change[] fixChanged(DatabaseObject changedObject, ObjectDifferences differences, DiffOutputControl control, Database referenceDatabase, Database comparisonDatabase, ChangeGeneratorChain chain) {
-//        if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
-//            return null;
-//        } else {
-            return super.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase, chain);
-//        }
+        if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
+            differences.removeDifference("deleteRule");
+            differences.removeDifference("updateRule");
+            if (!differences.hasDifferences()) {
+                return null;
+            }
+        }
+        return super.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase, chain);
     }
 }
