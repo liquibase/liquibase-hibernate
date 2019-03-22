@@ -7,6 +7,7 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.integration.commandline.CommandLineUtils;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
@@ -35,7 +36,7 @@ public class HibernateSpringDatabaseTest {
 
     @Test
     public void testSpringUrlSimple() throws DatabaseException {
-        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:spring.ctx.xml?bean=sessionFactory"));
+        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:spring.ctx.xml?bean=sessionFactory", new ClassLoaderResourceAccessor()));
         db = new HibernateSpringBeanDatabase();
         db.setConnection(conn);
         assertNotNull(db.getMetadata().getEntityBinding(AuctionItem.class.getName()));
@@ -45,7 +46,7 @@ public class HibernateSpringDatabaseTest {
 
     @Test
     public void testSpringPackageScanningMustHaveItemClassMapping() throws DatabaseException {
-        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:com.example.ejb3.auction?dialect=" + H2Dialect.class.getName()));
+        conn = new JdbcConnection(new HibernateConnection("hibernate:spring:com.example.ejb3.auction?dialect=" + H2Dialect.class.getName(), new ClassLoaderResourceAccessor()));
         db = new HibernateSpringPackageDatabase();
         db.setConnection(conn);
         assertNotNull(db.getMetadata().getEntityBinding(Bid.class.getName()));

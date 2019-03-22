@@ -10,6 +10,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 import org.springframework.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -69,6 +70,7 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
     @Override
     protected EntityManagerFactoryBuilderImpl createEntityManagerFactoryBuilder() {
         DefaultPersistenceUnitManager internalPersistenceUnitManager = new DefaultPersistenceUnitManager();
+        internalPersistenceUnitManager.setResourceLoader(new DefaultResourceLoader(getHibernateConnection().getResourceAccessor().toClassLoader()));
 
         String[] packagesToScan = getHibernateConnection().getPath().split(",");
 
