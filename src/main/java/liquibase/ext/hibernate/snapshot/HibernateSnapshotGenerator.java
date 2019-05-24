@@ -4,6 +4,7 @@ import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.logging.LogFactory;
+import liquibase.logging.LogService;
 import liquibase.logging.Logger;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
@@ -27,7 +28,7 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
     private Class<? extends DatabaseObject> defaultFor = null;
     private Class<? extends DatabaseObject>[] addsTo = null;
 
-    protected static final Logger LOG = LogFactory.getInstance().getLog("liquibase-hibernate");
+    protected static final Logger LOG = LogService.getLog(HibernateSnapshotGenerator.class);
 
 
     protected HibernateSnapshotGenerator(Class<? extends DatabaseObject> defaultFor) {
