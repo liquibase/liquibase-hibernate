@@ -45,6 +45,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 UniqueConstraint uniqueConstraint = new UniqueConstraint();
                 uniqueConstraint.setName(hibernateUnique.getName());
                 uniqueConstraint.setTable(table);
+                uniqueConstraint.setClustered(false); // No way to set true via Hibernate
                 Iterator columnIterator = hibernateUnique.getColumnIterator();
                 int i = 0;
                 while (columnIterator.hasNext()) {
@@ -65,6 +66,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 if (column.isUnique()) {
                     UniqueConstraint uniqueConstraint = new UniqueConstraint();
                     uniqueConstraint.setTable(table);
+                    uniqueConstraint.setClustered(false); // No way to set true via Hibernate
                     String name = "UC_" + table.getName().toUpperCase() + column.getName().toUpperCase() + "_COL";
                     if (name.length() > 64) {
                         name = name.substring(0, 63);
