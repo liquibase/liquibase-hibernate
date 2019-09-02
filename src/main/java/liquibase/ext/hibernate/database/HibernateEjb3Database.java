@@ -10,6 +10,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 
+import liquibase.logging.LogService;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.cfg.AvailableSettings;
@@ -162,7 +163,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
                 setField(persistenceUnitDescriptor, "jtaDataSource", null);
                 setField(persistenceUnitDescriptor, "transactionType", PersistenceUnitTransactionType.RESOURCE_LOCAL);
             } catch (Exception ex) {
-                LogFactory.getInstance().getLog().severe(null, ex);
+                LogService.getLog(HibernateEjb3Database.class).severe(null, ex);
             }
             return super.getEntityManagerFactoryBuilder(persistenceUnitDescriptor, integration, providedClassLoader);
         }

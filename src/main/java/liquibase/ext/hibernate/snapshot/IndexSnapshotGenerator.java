@@ -20,7 +20,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         if (example.getSnapshotId() != null) {
             return example;
         }
-        Relation table = ((Index) example).getTable();
+        Relation table = ((Index) example).getRelation();
         org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
         if (hibernateTable == null) {
             return example;
@@ -29,7 +29,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         while (indexIterator.hasNext()) {
             org.hibernate.mapping.Index hibernateIndex = indexIterator.next();
             Index index = new Index();
-            index.setTable(table);
+            index.setRelation(table);
             index.setName(hibernateIndex.getName());
             index.setUnique(isUniqueIndex(hibernateIndex));
             Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
@@ -63,7 +63,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             while (indexIterator.hasNext()) {
                 org.hibernate.mapping.Index hibernateIndex =  indexIterator.next();
                 Index index = new Index();
-                index.setTable(table);
+                index.setRelation(table);
                 index.setName(hibernateIndex.getName());
                 index.setUnique(isUniqueIndex(hibernateIndex));
                 Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
