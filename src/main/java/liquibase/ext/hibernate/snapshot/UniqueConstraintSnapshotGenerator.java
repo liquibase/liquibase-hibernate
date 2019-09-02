@@ -44,7 +44,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
 
                 UniqueConstraint uniqueConstraint = new UniqueConstraint();
                 uniqueConstraint.setName(hibernateUnique.getName());
-                uniqueConstraint.setTable(table);
+                uniqueConstraint.setRelation(table);
                 uniqueConstraint.setClustered(false); // No way to set true via Hibernate
                 Iterator columnIterator = hibernateUnique.getColumnIterator();
                 int i = 0;
@@ -65,7 +65,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 org.hibernate.mapping.Column column = (org.hibernate.mapping.Column) columnIterator.next();
                 if (column.isUnique()) {
                     UniqueConstraint uniqueConstraint = new UniqueConstraint();
-                    uniqueConstraint.setTable(table);
+                    uniqueConstraint.setRelation(table);
                     uniqueConstraint.setClustered(false); // No way to set true via Hibernate
                     String name = "UC_" + table.getName().toUpperCase() + column.getName().toUpperCase() + "_COL";
                     if (name.length() > 64) {
@@ -112,7 +112,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
 
     protected Index getBackingIndex(UniqueConstraint uniqueConstraint, org.hibernate.mapping.Table hibernateTable, DatabaseSnapshot snapshot) {
         Index index = new Index();
-        index.setTable(uniqueConstraint.getTable());
+        index.setRelation(uniqueConstraint.getRelation());
         index.setColumns(uniqueConstraint.getColumns());
         index.setUnique(true);
 

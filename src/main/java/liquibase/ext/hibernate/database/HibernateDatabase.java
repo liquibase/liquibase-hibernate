@@ -9,7 +9,9 @@ import liquibase.ext.hibernate.customfactory.CustomMetadataFactory;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.ext.hibernate.database.connection.HibernateDriver;
 import liquibase.logging.LogFactory;
+import liquibase.logging.LogService;
 import liquibase.logging.Logger;
+import liquibase.logging.LoggerFactory;
 import org.hibernate.annotations.common.reflection.ClassLoaderDelegate;
 import org.hibernate.annotations.common.reflection.ClassLoadingException;
 import org.hibernate.boot.Metadata;
@@ -40,7 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
-    protected static final Logger LOG = LogFactory.getInstance().getLog("liquibase-hibernate");
+    protected static final Logger LOG = LogService.getLog(HibernateDatabase.class);
 
     private Metadata metadata;
     protected Dialect dialect;
