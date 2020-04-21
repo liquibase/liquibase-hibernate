@@ -86,7 +86,13 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             org.hibernate.mapping.Column col = hibernateIndex.getColumnIterator().next();
             return col.isUnique();
         } else {
-            return null;
+            /*
+            It seems that because Hibernate does not implement the unique property of the Jpa composite index,
+            the diff command appears 'diffence', because the unique property of the entity index is 'null',
+            and the value read from the database is 'false', resulting in the generated changeSet after the Drop and
+            Recreate Index.
+            */
+            return false;
         }
     }
 }
