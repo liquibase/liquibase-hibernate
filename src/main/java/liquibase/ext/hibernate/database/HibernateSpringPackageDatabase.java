@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.persistence.spi.PersistenceUnitInfo;
 
+import liquibase.Scope;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
@@ -70,12 +71,12 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
     @Override
     protected EntityManagerFactoryBuilderImpl createEntityManagerFactoryBuilder() {
         DefaultPersistenceUnitManager internalPersistenceUnitManager = new DefaultPersistenceUnitManager();
-        internalPersistenceUnitManager.setResourceLoader(new DefaultResourceLoader(getHibernateConnection().getResourceAccessor().toClassLoader()));
+        internalPersistenceUnitManager.setResourceLoader(new DefaultResourceLoader(Scope.getCurrentScope().getClassLoader()));
 
         String[] packagesToScan = getHibernateConnection().getPath().split(",");
 
         for (String packageName : packagesToScan) {
-            LOG.info("Found package " + packageName);
+            Scope.getCurrentScope().getLog(getClass()).info("Found package " + packageName);
         }
 
         internalPersistenceUnitManager.setPackagesToScan(packagesToScan);

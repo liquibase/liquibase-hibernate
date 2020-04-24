@@ -1,5 +1,6 @@
 package liquibase.ext.hibernate.snapshot;
 
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
@@ -57,7 +58,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 Index index = getBackingIndex(uniqueConstraint, hibernateTable, snapshot);
                 uniqueConstraint.setBackingIndex(index);
 
-                LOG.info("Found unique constraint " + uniqueConstraint.toString());
+                Scope.getCurrentScope().getLog(getClass()).info("Found unique constraint " + uniqueConstraint.toString());
                 table.getUniqueConstraints().add(uniqueConstraint);
             }
             Iterator columnIterator = hibernateTable.getColumnIterator();
@@ -73,7 +74,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                     }
                     uniqueConstraint.addColumn(0, new Column(column.getName()).setRelation(table));
                     uniqueConstraint.setName(name);
-                    LOG.info("Found unique constraint " + uniqueConstraint.toString());
+                    Scope.getCurrentScope().getLog(getClass()).info("Found unique constraint " + uniqueConstraint.toString());
                     table.getUniqueConstraints().add(uniqueConstraint);
 
                     Index index = getBackingIndex(uniqueConstraint, hibernateTable, snapshot);

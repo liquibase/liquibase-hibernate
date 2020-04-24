@@ -1,5 +1,6 @@
 package liquibase.ext.hibernate.snapshot;
 
+import liquibase.Scope;
 import liquibase.datatype.DataTypeFactory;
 import liquibase.datatype.core.UnknownType;
 import liquibase.exception.DatabaseException;
@@ -13,7 +14,7 @@ import liquibase.structure.core.DataType;
 import liquibase.structure.core.Relation;
 import liquibase.structure.core.Table;
 import liquibase.util.SqlUtil;
-import liquibase.util.StringUtils;
+import liquibase.util.StringUtil;
 import org.hibernate.boot.Metadata;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQL81Dialect;
@@ -114,7 +115,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 }
 
                 column.setType(dataType);
-                LOG.info("Found column " + column.getName() + " " + column.getType().toString());
+                Scope.getCurrentScope().getLog(getClass()).info("Found column " + column.getName() + " " + column.getType().toString());
 
                 column.setRemarks(hibernateColumn.getComment());
                 if (hibernateColumn.getValue() instanceof SimpleValue) {
@@ -195,7 +196,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             dataType.setDecimalDigits(Integer.parseInt(matcher.group(3)));
         }
 
-        String extra = StringUtils.trimToNull(matcher.group(4));
+        String extra = StringUtil.trimToNull(matcher.group(4));
         if (extra != null) {
             if (extra.equalsIgnoreCase("char")) {
                 dataType.setColumnSizeUnit(DataType.ColumnSizeUnit.CHAR);

@@ -1,5 +1,6 @@
 package liquibase.ext.hibernate.snapshot;
 
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
@@ -39,7 +40,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             }
 
             if (index.getColumnNames().equalsIgnoreCase(((Index) example).getColumnNames())) {
-                LOG.info("Found index " + index.getName());
+                Scope.getCurrentScope().getLog(getClass()).info("Found index " + index.getName());
                 table.getIndexes().add(index);
                 return index;
             }
@@ -71,7 +72,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
                     org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
                     index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table));
                 }
-                LOG.info("Found index " + index.getName());
+                Scope.getCurrentScope().getLog(getClass()).info("Found index " + index.getName());
                 table.getIndexes().add(index);
             }
         }
