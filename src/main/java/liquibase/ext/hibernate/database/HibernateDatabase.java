@@ -328,12 +328,18 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     @Override
     public String getDefaultSchemaName() {
-        return DEFAULT_SCHEMA;
+        if(defaultSchemaName == null) {
+            return DEFAULT_SCHEMA;
+        }
+        return defaultSchemaName;
     }
 
     @Override
     public String getDefaultCatalogName() {
-        return DEFAULT_SCHEMA;
+        if(defaultCatalogName == null) {
+            return DEFAULT_SCHEMA;
+        }
+        return defaultCatalogName;
     }
 
     @Override
