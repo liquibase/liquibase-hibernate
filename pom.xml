@@ -27,8 +27,8 @@
 	</issueManagement>
 
    <scm>
-        <connection>scm:git:http://github.com/liquibase/liquibase-hibernate.git</connection>
-        <url>https://github.com/liquibase/liquibase-hibernate.git</url>
+        <connection>https://github.com/liquibase/liquibase-hibernate.git</connection>
+        <url>https://github.com/liquibase/liquibase-hibernate</url>
 
       <tag>liquibase-hibernate5-3.9.0</tag>
   </scm>
