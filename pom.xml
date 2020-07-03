@@ -4,12 +4,10 @@
 
 	<groupId>org.liquibase.ext</groupId>
 	<artifactId>liquibase-hibernate5</artifactId>
-	<version>3.9-SNAPSHOT</version>
+	<version>4.0.0-beta2-SNAPSHOT</version>
 
 	<name>Liquibase Hibernate Integration</name>
-	<description>Liquibase extension for hibernate integration including generating changesets based on changed
-        hibernate mapping files
-    </description>
+	<description>Liquibase extension for hibernate integration including generating changesets based on changed hibernate mapping files    </description>
 	<url>https://github.com/liquibase/liquibase-hibernate/wiki</url>
 
 	<organization>
@@ -29,10 +27,9 @@
 	</issueManagement>
 
    <scm>
-        <connection>scm:git:git@github.com:liquibase/liquibase-hibernate.git</connection>
-        <url>scm:git:https://github.com/liquibase/liquibase-hibernate.git</url>
-        <developerConnection>scm:git:git@github.com:liquibase/liquibase-hibernate.git</developerConnection>
-      <tag>HEAD</tag>
+		<connection>scm:git:http://github.com/liquibase/liquibase-hibernate.git</connection>
+		<url>https://github.com/liquibase/liquibase-hibernate</url>
+		<tag>HEAD</tag>
   </scm>
 
 	<developers>
@@ -70,7 +67,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<hibernate.version>5.4.4.Final</hibernate.version>
-		<spring.version>5.2.5.RELEASE</spring.version>
+		<spring.version>5.2.7.RELEASE</spring.version>
 	</properties>
 
 	<dependencies>
@@ -153,7 +150,7 @@
 		<dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.19</version>
+            <version>8.0.20</version>
             <scope>test</scope>
         </dependency>
 	</dependencies>
@@ -210,16 +207,26 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.2.0</version>
 				</plugin>
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-release-plugin</artifactId>
                     <version>2.5.3</version>
-                    <configuration>
-                        <mavenExecutorId>forked-path</mavenExecutorId>
-                    </configuration>
+					<configuration>
+                        <stagingRepository>/tmp/maven-snapshot</stagingRepository>
+						<mavenExecutorId>forked-path</mavenExecutorId>
+                        <pushChanges>false</pushChanges>
+					</configuration>
+				</plugin>
+
+
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<configuration>
+						<skip>false</skip>
+					</configuration>
 				</plugin>
 
 				<plugin>
@@ -243,11 +250,25 @@
 				</plugin>
 
 				<plugin>
-					<artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
+    					<groupId>org.apache.maven.plugins</groupId>
+    					<artifactId>maven-javadoc-plugin</artifactId>
 					<configuration>
-						<skip>false</skip>
-					</configuration>
+						<author>false</author>
+        					<doctitle>Liquibase CDI ${project.version} API</doctitle>
+        					<quiet>true</quiet>
+        					<doclint>none</doclint>
+        					<encoding>UTF-8</encoding>
+        					<jarOutputDirectory>${project.basedir}/target</jarOutputDirectory>
+    					</configuration>
+    					<executions>
+        					<execution>
+            						<id>jar-javadoc</id>
+            						<goals>
+                						<goal>jar</goal>
+            						</goals>
+            						<phase>package</phase>
+        					</execution>
+    					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -256,12 +277,12 @@
     <distributionManagement>
         <repository>
             <id>sonatype-nexus-staging</id>
-            <name>Sonatype Production Repository</name>
+            <name>Nexus Release Repository</name>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
         <snapshotRepository>
             <id>sonatype-nexus-snapshots</id>
-            <name>Sontatype Snapshot Repository</name>
+            <name>Sonatype Nexus Snapshots</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
@@ -289,6 +310,17 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
+    						<version>1.6</version>
+                				<configuration>
+                    					<passphrase>${env.GPG_PASSPHRASE}</passphrase>
+                    					<gpgArguments>
+                        					<!-- This is necessary for gpg to not try to use the pinentry programs -->
+                        					<arg>--batch</arg>
+                        					<arg>--no-tty</arg>
+                        					<arg>--pinentry-mode</arg>
+                        					<arg>loopback</arg>
+                    					</gpgArguments>
+                				</configuration>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -300,38 +332,6 @@
 						</executions>
 					</plugin>
 
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>3.2.0</version>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-								<configuration>
-									<additionalparam>${javadoc.opts}</additionalparam>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-site-plugin</artifactId>
-						<version>3.9.0</version>
-						<configuration>
-							<reportPlugins>
-								<plugin>
-									<groupId>org.apache.maven.plugins</groupId>
-									<artifactId>maven-javadoc-plugin</artifactId>
-									<configuration>
-										<additionalparam>${javadoc.opts}</additionalparam>
-									</configuration>
-								</plugin>
-							</reportPlugins>
-						</configuration>
-					</plugin>
 				</plugins>
 			</build>
 		</profile>
