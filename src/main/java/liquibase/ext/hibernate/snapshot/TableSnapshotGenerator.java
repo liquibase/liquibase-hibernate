@@ -1,5 +1,6 @@
 package liquibase.ext.hibernate.snapshot;
 
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.ext.hibernate.snapshot.extension.ExtendedSnapshotGenerator;
@@ -41,7 +42,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
         }
 
         Table table = new Table().setName(hibernateTable.getName());
-        LOG.info("Found table " + table.getName());
+        Scope.getCurrentScope().getLog(getClass()).info("Found table " + table.getName());
 //        table.setSnapshotId(SnapshotIdService.getInstance().generateId());
         table.setSchema(example.getSchema());
 
@@ -71,7 +72,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                 if (hibernateTable.isPhysicalTable()) {
                     Table table = new Table().setName(hibernateTable.getName());
                     table.setSchema(schema);
-                    LOG.info("Found table " + table.getName());
+                    Scope.getCurrentScope().getLog(getClass()).info("Found table " + table.getName());
                     schema.addDatabaseObject(snapshotObject(table, snapshot));
                 }
             }
@@ -107,7 +108,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                 if (hTable.isPhysicalTable()) {
                     Table table = new Table().setName(hTable.getName());
                     table.setSchema(schema);
-                    LOG.info("Found table " + table.getName());
+                    Scope.getCurrentScope().getLog(getClass()).info("Found table " + table.getName());
                     schema.addDatabaseObject(snapshotObject(table, snapshot));
                 }
             }

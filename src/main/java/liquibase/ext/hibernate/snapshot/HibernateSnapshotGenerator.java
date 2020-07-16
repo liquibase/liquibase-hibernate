@@ -28,9 +28,6 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
     private Class<? extends DatabaseObject> defaultFor = null;
     private Class<? extends DatabaseObject>[] addsTo = null;
 
-    protected static final Logger LOG = LogService.getLog(HibernateSnapshotGenerator.class);
-
-
     protected HibernateSnapshotGenerator(Class<? extends DatabaseObject> defaultFor) {
         this.defaultFor = defaultFor;
     }

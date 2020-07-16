@@ -1,6 +1,7 @@
 package liquibase.ext.hibernate;
 
 import liquibase.Liquibase;
+import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.core.HsqlDatabase;
 import liquibase.database.jvm.JdbcConnection;
@@ -40,7 +41,6 @@ import static junit.framework.TestCase.assertTrue;
 
 public class SpringPackageScanningIntegrationTest {
     private static final String PACKAGES = "com.example.ejb3.auction";
-    private final static Logger log = LogFactory.getInstance().getLog();
     private Database database;
     private Connection connection;
     private CompareControl compareControl;
@@ -105,12 +105,12 @@ public class SpringPackageScanningIntegrationTest {
         outChangeLog.write(changeLogString.getBytes("UTF-8"));
         outChangeLog.close();
 
-        log.info("Changelog:\n" + changeLogString);
+        Scope.getCurrentScope().getLog(getClass()).info("Changelog:\n" + changeLogString);
 
-        liquibase = new Liquibase(outFile.toString(), new FileSystemResourceAccessor(), database);
+        liquibase = new Liquibase(outFile.toString(), new FileSystemResourceAccessor(File.listRoots()), database);
         StringWriter stringWriter = new StringWriter();
         liquibase.update((String) null, stringWriter);
-        log.info(stringWriter.toString());
+        Scope.getCurrentScope().getLog(getClass()).info(stringWriter.toString());
         liquibase.update((String) null);
 
         diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
@@ -385,7 +385,7 @@ public class SpringPackageScanningIntegrationTest {
                     && difference.getComparedValue() != null
                     && difference.getReferenceValue().toString().equals("float")
                     && difference.getComparedValue().toString().startsWith("DOUBLE(64)")) {
-                log.info("Ignoring difference "
+                Scope.getCurrentScope().getLog(getClass()).info("Ignoring difference "
                         + changedObject.getKey().toString() + " "
                         + difference.toString());
                 changedObject.getValue()

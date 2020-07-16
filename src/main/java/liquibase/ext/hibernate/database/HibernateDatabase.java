@@ -1,5 +1,6 @@
 package liquibase.ext.hibernate.database;
 
+import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
@@ -11,7 +12,6 @@ import liquibase.ext.hibernate.database.connection.HibernateDriver;
 import liquibase.logging.LogFactory;
 import liquibase.logging.LogService;
 import liquibase.logging.Logger;
-import liquibase.logging.LoggerFactory;
 import org.hibernate.annotations.common.reflection.ClassLoaderDelegate;
 import org.hibernate.annotations.common.reflection.ClassLoadingException;
 import org.hibernate.boot.Metadata;
@@ -41,8 +41,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * bridge what Liquibase expects and the Hibernate APIs.
  */
 public abstract class HibernateDatabase extends AbstractJdbcDatabase {
-
-    protected static final Logger LOG = LogService.getLog(HibernateDatabase.class);
 
     private Metadata metadata;
     protected Dialect dialect;
@@ -80,7 +78,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         super.setConnection(conn);
 
         try {
-            LOG.info("Reading hibernate configuration " + getConnection().getURL());
+            Scope.getCurrentScope().getLog(getClass()).info("Reading hibernate configuration " + getConnection().getURL());
 
             this.metadata = buildMetadata();
 
@@ -161,7 +159,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         AtomicReference<Metadata> result = new AtomicReference<>();
 
         Thread t = new Thread(() -> result.set(metadataBuilder.build()));
-        t.setContextClassLoader(getHibernateConnection().getResourceAccessor().toClassLoader());
+        t.setContextClassLoader(Scope.getCurrentScope().getClassLoader());
         t.setUncaughtExceptionHandler((_t,e) -> thrownException.set(e));
         t.start();
         try {
@@ -186,12 +184,12 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         if (dialectString != null) {
             try {
                 dialect = (Dialect) Thread.currentThread().getContextClassLoader().loadClass(dialectString).newInstance();
-                LOG.info("Using dialect " + dialectString);
+                Scope.getCurrentScope().getLog(getClass()).info("Using dialect " + dialectString);
             } catch (Exception e) {
                 throw new DatabaseException(e);
             }
         } else {
-            LOG.info("Could not determine hibernate dialect, using HibernateGenericDialect");
+            Scope.getCurrentScope().getLog(getClass()).info("Could not determine hibernate dialect, using HibernateGenericDialect");
             dialect = new HibernateGenericDialect();
         }
 

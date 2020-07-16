@@ -1,5 +1,6 @@
 package liquibase.ext.hibernate.snapshot;
 
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
@@ -49,7 +50,7 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
                  */
                 String hbnTableName = hibernateTable.getName();
                 if (hbnPrimaryKeyName != null && hbnPrimaryKeyName.length() == 15 && hbnPrimaryKeyName.equals(PK_ALIAS_15.toAliasString(hbnTableName))) {
-                    LOG.warning("Hibernate primary key name is probably truncated. " + hbnPrimaryKeyName);
+                    Scope.getCurrentScope().getLog(getClass()).warning("Hibernate primary key name is probably truncated. " + hbnPrimaryKeyName);
                     String newAlias = NEW_PK_ALIAS.toAliasString(hbnTableName);
                     int newAliasLength = newAlias.length();
                     if (newAliasLength > 15) {
@@ -59,7 +60,7 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
                         } else {
                             hbnPrimaryKeyName = newAlias;
                         }
-                        LOG.warning("Changing hibernate primary key name to " + hbnPrimaryKeyName);
+                        Scope.getCurrentScope().getLog(getClass()).warning("Changing hibernate primary key name to " + hbnPrimaryKeyName);
                     }
                 }
                 pk.setName(hbnPrimaryKeyName);
@@ -68,7 +69,7 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
                     pk.getColumns().add(new Column(((org.hibernate.mapping.Column) hibernateColumn).getName()).setRelation(table));
                 }
 
-                LOG.info("Found primary key " + pk.getName());
+                Scope.getCurrentScope().getLog(getClass()).info("Found primary key " + pk.getName());
                 table.setPrimaryKey(pk);
                 Index index = new Index();
                 index.setName("IX_" + pk.getName());

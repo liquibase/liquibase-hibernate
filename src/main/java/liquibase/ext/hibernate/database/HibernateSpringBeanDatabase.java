@@ -1,5 +1,6 @@
 package liquibase.ext.hibernate.database;
 
+import liquibase.Scope;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
@@ -100,7 +101,7 @@ public class HibernateSpringBeanDatabase extends HibernateDatabase {
             List<TypedStringValue> annotatedClasses = (List<TypedStringValue>) annotatedClassesProperty.getValue();
             if (annotatedClasses != null) {
                 for (TypedStringValue className : annotatedClasses) {
-                    LOG.info("Found annotated class " + className.getValue());
+                    Scope.getCurrentScope().getLog(getClass()).info("Found annotated class " + className.getValue());
                     sources.addAnnotatedClass(findClass(className.getValue()));
                 }
             }
@@ -114,11 +115,11 @@ public class HibernateSpringBeanDatabase extends HibernateDatabase {
                 if (mappingLocations != null) {
                     ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
                     for (TypedStringValue mappingLocation : mappingLocations) {
-                        LOG.info("Found mappingLocation " + mappingLocation.getValue());
+                        Scope.getCurrentScope().getLog(getClass()).info("Found mappingLocation " + mappingLocation.getValue());
                         Resource[] resources = resourcePatternResolver.getResources(mappingLocation.getValue());
                         for (int i = 0; i < resources.length; i++) {
                             URL url = resources[i].getURL();
-                            LOG.info("Adding resource  " + url);
+                            Scope.getCurrentScope().getLog(getClass()).info("Adding resource  " + url);
                             sources.addURL(url);
                         }
                     }

@@ -10,6 +10,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 
+import liquibase.Scope;
 import liquibase.logging.LogService;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
@@ -63,12 +64,12 @@ public class HibernateEjb3Database extends HibernateDatabase {
         if (dialectString != null) {
             try {
                 dialect = (Dialect) Class.forName(dialectString).newInstance();
-                LOG.info("Using dialect " + dialectString);
+                Scope.getCurrentScope().getLog(getClass()).info("Using dialect " + dialectString);
             } catch (Exception e) {
                 throw new DatabaseException(e);
             }
         } else {
-            LOG.info("Could not determine hibernate dialect, using HibernateGenericDialect");
+            Scope.getCurrentScope().getLog(getClass()).info("Could not determine hibernate dialect, using HibernateGenericDialect");
             dialect = new HibernateGenericDialect();
         }
 
@@ -163,7 +164,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
                 setField(persistenceUnitDescriptor, "jtaDataSource", null);
                 setField(persistenceUnitDescriptor, "transactionType", PersistenceUnitTransactionType.RESOURCE_LOCAL);
             } catch (Exception ex) {
-                LogService.getLog(HibernateEjb3Database.class).severe(null, ex);
+                Scope.getCurrentScope().getLog(getClass()).severe(null, ex);
             }
             return super.getEntityManagerFactoryBuilder(persistenceUnitDescriptor, integration, providedClassLoader);
         }
