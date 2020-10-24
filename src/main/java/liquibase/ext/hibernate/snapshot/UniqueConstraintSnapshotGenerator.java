@@ -4,6 +4,7 @@ import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
+import liquibase.structure.core.Column;
 import liquibase.structure.core.Table;
 import liquibase.structure.core.UniqueConstraint;
 
@@ -44,7 +45,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 while (columnIterator.hasNext()) {
                     org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
                     name += "_" + hibernateColumn.getName().toUpperCase();
-                    uniqueConstraint.addColumn(i, hibernateColumn.getName());
+                    uniqueConstraint.addColumn(i, new Column(hibernateColumn.getName()));
                     i++;
                 }
                 uniqueConstraint.setName(name);
@@ -58,7 +59,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                     UniqueConstraint uniqueConstraint = new UniqueConstraint();
                     uniqueConstraint.setTable(table);
                     String name = "UC_" + table.getName().toUpperCase() + column.getName().toUpperCase() + "_COL";
-                    uniqueConstraint.addColumn(0, column.getName());
+                    uniqueConstraint.addColumn(0, new Column(column.getName()));
                     uniqueConstraint.setName(name);
                     LOG.info("Found unique constraint " + uniqueConstraint.toString());
                     table.getUniqueConstraints().add(uniqueConstraint);
