@@ -5,6 +5,7 @@ import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
+import liquibase.structure.core.Column;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Table;
 import org.hibernate.cfg.Configuration;
@@ -34,9 +35,9 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
             Iterator<org.hibernate.mapping.Table> tableMappings = cfg.getTableMappings();
             while (tableMappings.hasNext()) {
                 org.hibernate.mapping.Table hibernateTable = (org.hibernate.mapping.Table) tableMappings.next();
-                Iterator fkIterator = hibernateTable.getForeignKeyIterator();
+                Iterator<org.hibernate.mapping.ForeignKey> fkIterator = hibernateTable.getForeignKeyIterator();
                 while (fkIterator.hasNext()) {
-                    org.hibernate.mapping.ForeignKey hibernateForeignKey = (org.hibernate.mapping.ForeignKey) fkIterator.next();
+                    org.hibernate.mapping.ForeignKey hibernateForeignKey = fkIterator.next();
                     Table currentTable = new Table().setName(hibernateTable.getName());
                     currentTable.setSchema(hibernateTable.getCatalog(), hibernateTable.getSchema());
                     org.hibernate.mapping.Table hibernateReferencedTable = hibernateForeignKey.getReferencedTable();
@@ -46,16 +47,16 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
                         ForeignKey fk = new ForeignKey();
                         fk.setName(hibernateForeignKey.getName());
                         fk.setPrimaryKeyTable(referencedTable);
-                        for (Object column : hibernateForeignKey.getColumns()) {
-                            fk.addForeignKeyColumn(((org.hibernate.mapping.Column) column).getName());
+                        for (Object hibernateColumn : hibernateForeignKey.getColumns()) {
+                            fk.addForeignKeyColumn(toLiquibaseColumn(hibernateColumn));
                         }
                         fk.setForeignKeyTable(currentTable);
-                        for (Object column : hibernateForeignKey.getReferencedColumns()) {
-                            fk.addPrimaryKeyColumn(((org.hibernate.mapping.Column) column).getName());
+                        for (Object hibernateColumn : hibernateForeignKey.getReferencedColumns()) {
+                            fk.addPrimaryKeyColumn(toLiquibaseColumn(hibernateColumn));
                         }
                         if (fk.getPrimaryKeyColumns() == null || fk.getPrimaryKeyColumns().isEmpty()) {
-                            for (Object column : hibernateReferencedTable.getPrimaryKey().getColumns()) {
-                                fk.addPrimaryKeyColumn(((org.hibernate.mapping.Column) column).getName());
+                            for (Object hibernateColumn : hibernateReferencedTable.getPrimaryKey().getColumns()) {
+                                fk.addPrimaryKeyColumn(toLiquibaseColumn(hibernateColumn));
                             }
                         }
 
@@ -76,6 +77,10 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
                 }
             }
         }
+    }
+
+    private Column toLiquibaseColumn(Object hibernateColumn) {
+        return new Column(((org.hibernate.mapping.Column) hibernateColumn).getName());
     }
 
 }

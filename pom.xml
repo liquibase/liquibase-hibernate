@@ -143,7 +143,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>3.2.0</version>
+			<version>3.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
@@ -171,8 +171,8 @@
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
+						<source>1.8</source>
+						<target>1.8</target>
 						<optimize>true</optimize>
 						<debug>true</debug>
 						<encoding>${project.build.sourceEncoding}</encoding>
@@ -180,6 +180,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19.1</version>
 					<configuration>
 						<redirectTestOutputToFile>true</redirectTestOutputToFile>
 						<reportFormat>plain</reportFormat>

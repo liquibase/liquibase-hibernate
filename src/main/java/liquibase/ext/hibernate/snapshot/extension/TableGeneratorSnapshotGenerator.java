@@ -28,7 +28,7 @@ public class TableGeneratorSnapshotGenerator implements ExtendedSnapshotGenerato
 
         PrimaryKey primaryKey = new PrimaryKey();
         primaryKey.setName(tableGenerator.getTableName() + "PK");
-        primaryKey.addColumnName(0, pkColumn.getName());
+        primaryKey.addColumn(0, pkColumn);
         primaryKey.setTable(table);
         table.setPrimaryKey(primaryKey);
 

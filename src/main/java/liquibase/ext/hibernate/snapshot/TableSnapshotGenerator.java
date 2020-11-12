@@ -95,7 +95,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                         primaryKey = new PrimaryKey();
                         primaryKey.setName(hibernatePrimaryKey.getName());
                     }
-                    primaryKey.addColumnName(pkColumnPosition++, column.getName());
+                    primaryKey.addColumn(pkColumnPosition++, column);
 
                     String identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue() ?
                             ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;

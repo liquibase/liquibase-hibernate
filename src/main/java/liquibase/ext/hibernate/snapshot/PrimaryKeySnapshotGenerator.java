@@ -44,12 +44,11 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
                 Index index = new Index();
                 index.setName("IX_" + pk.getName());
                 index.setTable(table);
-                index.setColumns(pk.getColumnNames());
+                index.setColumns(pk.getColumns());
                 index.setUnique(true);
                 pk.setBackingIndex(index);
                 table.getIndexes().add(index);
             }
         }
     }
-
 }
