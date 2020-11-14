@@ -73,6 +73,20 @@ public class HibernateClassicDatabaseTest {
         assertPojoHibernateMapped(snapshot);
     }
 
+    @Test
+    public void nationalizedCharactersHibernateUrl() throws Exception {
+        String url = "hibernate:classic:com/example/pojo/Hibernate.cfg.xml?hibernate.use_nationalized_character_data=true";
+        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
+
+        assertNotNull(database);
+
+        DatabaseSnapshot snapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(CatalogAndSchema.DEFAULT, database, new SnapshotControl(database));
+
+        assertPojoHibernateMapped(snapshot);
+        Table watcherTable = (Table) snapshot.get(new Table().setName("watcher").setSchema(new Schema()));
+        assertEquals("nvarchar", watcherTable.getColumn("name").getType().getTypeName());
+    }
+
     public static void assertPojoHibernateMapped(DatabaseSnapshot snapshot) {
         assertThat(snapshot.get(Table.class), containsInAnyOrder(
                 hasProperty("name", is("Bid")),

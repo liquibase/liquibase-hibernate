@@ -94,7 +94,8 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
         map.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, Boolean.FALSE.toString());
         map.put(AvailableSettings.PHYSICAL_NAMING_STRATEGY, getHibernateConnection().getProperties().getProperty(AvailableSettings.PHYSICAL_NAMING_STRATEGY));
         map.put(AvailableSettings.IMPLICIT_NAMING_STRATEGY, getHibernateConnection().getProperties().getProperty(AvailableSettings.IMPLICIT_NAMING_STRATEGY));
-        map.put(AvailableSettings.SCANNER_DISCOVERY, "");	// disable scanning of all classes and hbm.xml files. Only scan speficied packages
+        map.put(AvailableSettings.SCANNER_DISCOVERY, "");	// disable scanning of all classes and hbm.xml files. Only scan specified packages
+        map.put(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA, getProperty(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA));
         
         EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, map);
         
