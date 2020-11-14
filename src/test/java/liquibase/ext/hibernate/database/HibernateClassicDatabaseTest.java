@@ -4,6 +4,7 @@ import liquibase.CatalogAndSchema;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.integration.commandline.CommandLineUtils;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
@@ -13,9 +14,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.*;
+
 
 public class HibernateClassicDatabaseTest {
 
@@ -64,7 +67,7 @@ public class HibernateClassicDatabaseTest {
     @Test
     public void simpleHibernateUrl() throws Exception {
         String url = "hibernate:classic:com/example/pojo/Hibernate.cfg.xml";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(new ClassLoaderResourceAccessor(this.getClass().getClassLoader()), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -76,7 +79,7 @@ public class HibernateClassicDatabaseTest {
     @Test
     public void nationalizedCharactersHibernateUrl() throws Exception {
         String url = "hibernate:classic:com/example/pojo/Hibernate.cfg.xml?hibernate.use_nationalized_character_data=true";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(new ClassLoaderResourceAccessor(this.getClass().getClassLoader()), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 

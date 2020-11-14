@@ -58,7 +58,7 @@ public class HibernateSpringDatabaseTest {
     @Test
     public void simpleSpringUrl() throws Exception {
         String url = "hibernate:spring:spring.ctx.xml?bean=sessionFactory";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(new ClassLoaderResourceAccessor(this.getClass().getClassLoader()), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -70,7 +70,7 @@ public class HibernateSpringDatabaseTest {
     @Test
     public void nationalizedCharactersSpringBeanUrl() throws Exception {
         String url = "hibernate:spring:spring.ctx.xml?hibernate.use_nationalized_character_data=true&bean=sessionFactory";
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(new ClassLoaderResourceAccessor(this.getClass().getClassLoader()), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -84,7 +84,7 @@ public class HibernateSpringDatabaseTest {
     @Test
     public void simpleSpringScanningUrl() throws Exception {
         String url = "hibernate:spring:com.example.ejb3.auction?dialect=" + H2Dialect.class.getName();
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(new ClassLoaderResourceAccessor(this.getClass().getClassLoader()), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 
@@ -96,7 +96,7 @@ public class HibernateSpringDatabaseTest {
     @Test
     public void nationalizedCharactersSpringScanningUrl() throws Exception {
         String url = "hibernate:spring:com.example.ejb3.auction?hibernate.use_nationalized_character_data=true&dialect=" + H2Dialect.class.getName();
-        Database database = CommandLineUtils.createDatabaseObject(this.getClass().getClassLoader(), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
+        Database database = CommandLineUtils.createDatabaseObject(new ClassLoaderResourceAccessor(this.getClass().getClassLoader()), url, null, null, null, null, null, false, false, null, null, null, null, null, null, null);
 
         assertNotNull(database);
 

@@ -339,15 +339,15 @@ public class SpringPackageScanningIntegrationTest {
         Set<Index> unexpectedIndexes = diffResult.getUnexpectedObjects(Index.class);
         for (Iterator<Index> iterator = unexpectedIndexes.iterator(); iterator.hasNext(); ) {
             Index index = iterator.next();
-            if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(index.getTable().getName())
-                    || "DATABASECHANGELOG".equalsIgnoreCase(index.getTable().getName()))
+            if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(index.getRelation().getName())
+                    || "DATABASECHANGELOG".equalsIgnoreCase(index.getRelation().getName()))
                 diffResult.getUnexpectedObjects().remove(index);
         }
         Set<Index> missingIndexes = diffResult.getMissingObjects(Index.class);
         for (Iterator<Index> iterator = missingIndexes.iterator(); iterator.hasNext(); ) {
             Index index = iterator.next();
-            if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(index.getTable().getName())
-                    || "DATABASECHANGELOG".equalsIgnoreCase(index.getTable().getName()))
+            if ("DATABASECHANGELOGLOCK".equalsIgnoreCase(index.getRelation().getName())
+                    || "DATABASECHANGELOG".equalsIgnoreCase(index.getRelation().getName()))
                 diffResult.getMissingObjects().remove(index);
         }
         Set<PrimaryKey> unexpectedPrimaryKeys = diffResult.getUnexpectedObjects(PrimaryKey.class);
