@@ -44,7 +44,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
         LOG.info("Found table " + table.getName());
 //        table.setSnapshotId(SnapshotIdService.getInstance().generateId());
         table.setSchema(example.getSchema());
-
+        table.setRemarks(hibernateTable.getComment());
 
         return table;
     }
