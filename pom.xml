@@ -4,7 +4,7 @@
 
 	<groupId>org.liquibase.ext</groupId>
 	<artifactId>liquibase-hibernate5</artifactId>
-	<version>4.2.3-SNAPSHOT</version>
+	<version>4.3.1-SNAPSHOT</version>
 
 	<name>Liquibase Hibernate Integration</name>
 	<description>Liquibase extension for hibernate integration including generating changesets based on changed hibernate mapping files    </description>
@@ -67,7 +67,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<hibernate.version>5.4.27.Final</hibernate.version>
-		<spring.version>5.3.2</spring.version>
+		<spring.version>5.3.3</spring.version>
 	</properties>
 
 	<dependencies>
@@ -133,7 +133,13 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>4.2.2</version>
+			<version>4.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.27</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -150,7 +156,7 @@
 		<dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.22</version>
+            <version>8.0.23</version>
             <scope>test</scope>
         </dependency>
 	</dependencies>
