@@ -4,7 +4,7 @@
 
 	<groupId>org.liquibase.ext</groupId>
 	<artifactId>liquibase-hibernate5</artifactId>
-	<version>4.3.0.2-SNAPSHOT</version>
+	<version>4.3.1</version>
 
 	<name>Liquibase Hibernate Integration</name>
 	<description>Liquibase extension for hibernate integration including generating changesets based on changed hibernate mapping files    </description>
@@ -29,7 +29,7 @@
    <scm>
 		<connection>scm:git:http://github.com/liquibase/liquibase-hibernate.git</connection>
 		<url>https://github.com/liquibase/liquibase-hibernate</url>
-		<tag>HEAD</tag>
+		<tag>liquibase-hibernate5-4.3.1</tag>
   </scm>
 
 	<developers>
