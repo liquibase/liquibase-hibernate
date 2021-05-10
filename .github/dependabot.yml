@@ -5,16 +5,3 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: org.hibernate:hibernate-envers
-    versions:
-    - 5.4.27.Final
-    - 5.4.29.Final
-  - dependency-name: org.hibernate:hibernate-entitymanager
-    versions:
-    - 5.4.27.Final
-    - 5.4.29.Final
-  - dependency-name: org.hibernate:hibernate-core
-    versions:
-    - 5.4.27.Final
-    - 5.4.29.Final
