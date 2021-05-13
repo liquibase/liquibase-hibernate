@@ -4,7 +4,7 @@
 
 	<groupId>org.liquibase.ext</groupId>
 	<artifactId>liquibase-hibernate5</artifactId>
-	<version>4.3.5-SNAPSHOT</version>
+	<version>4.3.5</version>
 
 	<name>Liquibase Hibernate Integration</name>
 	<description>Liquibase extension for hibernate integration including generating changesets based on changed hibernate mapping files    </description>
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
-            <version>2.2</version>
+            <version>1.3</version>
             <scope>test</scope>
         </dependency>
 
@@ -133,7 +133,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>4.3.4</version>
+			<version>4.3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.yaml</groupId>
