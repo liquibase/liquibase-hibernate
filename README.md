@@ -83,3 +83,20 @@ Any issues can be logged in the [Github issue tracker](https://github.com/liquib
 ## License
 
 This project is licensed under the [Apache License Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
+
+Ideally changes should go into the hibernate3 branch and then be merged into master in order to support both Hibernate 3 and 4.
+
+## Using Liquibase Test Harness's Diff test
+Liquibase Hibernate extension uses [Liquibase Test Harness](https://github.com/liquibase/liquibase-test-harness) for integration testing.
+HibernateDiffCommandTest class extends DiffCommandTest class from Test Harness and utilize ability to check differences between two databases.
+As Hibernate isn't relational DB this is a way to check database objects generated/updated by Hibernate extension against some DB 
+to see if those objects have correct attributes. In general DiffCommandTest works utilizing Liquibase diff command to check 
+differences between two databases, next it creates changelog file based on diff, apply changes to target database and check diff again. 
+There still could be some differences afterwards as different DBs support different features, so checking diffs again test will ignore diffs that are expected.
+Configurations for this test lives in 2 files:
+ * `src/test/resources/harness-config.yml` general config file for Test Harness where DB connection details are settled.
+ * `src/test/resources/liquibase/harness/diff/diffDatabases.yml` that says which DBs should be compared and what are expected diffs even after we try to 
+ bring target DB to same state as reference DB
+
+DiffCommandTest will take all pairs of targetDB-referenceDB from `diffDatabases.yml`
+Test is taking into consideration `*.cfg.xml` configuration files and paths to those files work as DB connection URLs in `harness-config.yml`
