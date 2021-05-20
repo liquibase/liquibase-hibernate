@@ -201,7 +201,6 @@
 
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
-					<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<skipTests>false</skipTests>
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
@@ -239,7 +238,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-enforcer-plugin</artifactId>
-					<artifactId>maven-enforcer-plugin</artifactId>
 				<executions>
 					<execution>
 						<id>enforce-java</id>
@@ -349,7 +347,6 @@
 							</execution>
 						</executions>
 					</plugin>
-				</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>

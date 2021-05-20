@@ -84,8 +84,6 @@ Any issues can be logged in the [Github issue tracker](https://github.com/liquib
 
 This project is licensed under the [Apache License Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
 
-Ideally changes should go into the hibernate3 branch and then be merged into master in order to support both Hibernate 3 and 4.
-
 ## Using Liquibase Test Harness's Diff test
 Liquibase Hibernate extension uses [Liquibase Test Harness](https://github.com/liquibase/liquibase-test-harness) for integration testing.
 HibernateDiffCommandTest class extends DiffCommandTest class from Test Harness and utilize ability to check differences between two databases.
