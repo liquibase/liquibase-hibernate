@@ -14,8 +14,6 @@ import liquibase.diff.output.changelog.DiffToChangeLog;
 import liquibase.diff.output.report.DiffToReport;
 import liquibase.ext.hibernate.database.HibernateSpringPackageDatabase;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
-import liquibase.logging.LogFactory;
-import liquibase.logging.Logger;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.structure.DatabaseObject;
@@ -93,10 +91,14 @@ public class SpringPackageScanningIntegrationTest {
         Database hibernateDatabase = new HibernateSpringPackageDatabase();
         hibernateDatabase.setDefaultSchemaName("PUBLIC");
         hibernateDatabase.setDefaultCatalogName("TESTDB");
-        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect=" + HSQLDialect.class.getName(), new ClassLoaderResourceAccessor())));
+        hibernateDatabase.setConnection(new JdbcConnection(new HibernateConnection("hibernate:spring:" + PACKAGES + "?dialect=" + HSQLDialect.class.getName() + "&org.hibernate.envers.audit_table_prefix=zz_", new ClassLoaderResourceAccessor())));
 
         DiffResult diffResult = liquibase.diff(hibernateDatabase, database, compareControl);
-
+        boolean isTablePrefixWithZZ_ = diffResult.getMissingObjects().stream()
+                .filter(e -> e.getName().equals("zz_AuditedItem_AUD"))
+                .findAny()
+                .isPresent();
+        assertTrue(isTablePrefixWithZZ_);
         assertTrue(diffResult.getMissingObjects().size() > 0);
 
         File outFile = File.createTempFile("lb-test", ".xml");
