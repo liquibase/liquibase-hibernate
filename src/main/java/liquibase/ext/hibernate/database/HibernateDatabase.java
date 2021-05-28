@@ -284,6 +284,8 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         configureNewIdentifierGeneratorSupport(getProperty(AvailableSettings.USE_NEW_ID_GENERATOR_MAPPINGS), metadataBuilder);
         configureImplicitNamingStrategy(getProperty(AvailableSettings.IMPLICIT_NAMING_STRATEGY), metadataBuilder);
         configurePhysicalNamingStrategy(getProperty(AvailableSettings.PHYSICAL_NAMING_STRATEGY), metadataBuilder);
+        metadataBuilder.enableGlobalNationalizedCharacterDataSupport(
+                Boolean.parseBoolean(getProperty(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA)));
     }
 
     /**
