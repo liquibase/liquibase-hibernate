@@ -43,9 +43,10 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
         Table table = new Table().setName(hibernateTable.getName());
         Scope.getCurrentScope().getLog(getClass()).info("Found table " + table.getName());
-//        table.setSnapshotId(SnapshotIdService.getInstance().generateId());
         table.setSchema(example.getSchema());
-        table.setRemarks(hibernateTable.getComment());
+        if (hibernateTable.getComment() != null && !hibernateTable.getComment().isEmpty()) {
+            table.setRemarks(hibernateTable.getComment());
+        }
 
         return table;
     }
