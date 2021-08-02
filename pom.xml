@@ -81,7 +81,7 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
-            <version>2.2</version>
+            <version>1.3</version>
             <scope>test</scope>
         </dependency>
 
@@ -166,6 +166,7 @@
 		<dependency> <!-- use a specific Groovy version rather than the one specified by spock-core -->
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
+<!--			<version>2.5.14</version>-->
 			<version>3.0.8</version>
 			<type>pom</type>
 			<scope>test</scope>
@@ -174,6 +175,7 @@
 			<groupId>org.spockframework</groupId>
 			<artifactId>spock-core</artifactId>
 			<version>2.0-groovy-3.0</version>
+<!--			<version>1.3-groovy-2.5</version>-->
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -199,7 +201,6 @@
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<skipTests>false</skipTests>
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
 					<reportFormat>plain</reportFormat>
 				</configuration>
@@ -210,11 +211,6 @@
 						<goals>
 							<goal>test</goal>
 						</goals>
-						<configuration>
-							<includes>
-								<include>**/*Test.java</include>
-							</includes>
-						</configuration>
 					</execution>
 					<execution>
 						<id>integration-tests</id>

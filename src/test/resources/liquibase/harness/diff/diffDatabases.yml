@@ -40,10 +40,12 @@ references:
         - diffName: "HIBERNATE.posts.inserted_date"
           diffs:
             order: "order changed from 'null' to '6'"
+            defaultValue: "defaultValue changed from 'null' to 'NULL'"
         - diffName: "HIBERNATE.posts.title"
           diffs:
             type : "type changed from 'varchar(255)' to 'VARCHAR(255 BYTE)'"
             order: "order changed from 'null' to '3'"
+            defaultValue: "defaultValue changed from 'null' to 'NULL'"
         - diffName: "HIBERNATE.posts.author_id"
           diffs:
             order: "order changed from 'null' to '2'"
