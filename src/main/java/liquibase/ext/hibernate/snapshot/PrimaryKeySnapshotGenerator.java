@@ -13,12 +13,9 @@ import org.hibernate.sql.Alias;
 
 public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
 
-    private static final int PKNAMELENGTH = 63;
-    private static final String PK = "PK";
-
-    // This is the same Alias as in org.hibernate.mapping.PersistentClass.PK_ALIAS
-    private static final Alias PK_ALIAS_15 = new Alias(15, PK);
-    private static final Alias NEW_PK_ALIAS = new Alias(PKNAMELENGTH, PK);
+    private static final int PK_NAME_LENGTH = 63;
+    private static final String PK_NAME_SUFFIX = "PK";
+    private static final Alias PK_NAME_ALIAS = new Alias(PK_NAME_LENGTH, PK_NAME_SUFFIX);
 
     public PrimaryKeySnapshotGenerator() {
         super(PrimaryKey.class, new Class[]{Table.class});
@@ -43,30 +40,18 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
             org.hibernate.mapping.PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
             if (hibernatePrimaryKey != null) {
                 PrimaryKey pk = new PrimaryKey();
-                String hbnPrimaryKeyName = hibernatePrimaryKey.getName();
-                                /*
-                 * pk name is probably truncated and maybe a duplicate in case
-                 * of tables with long prefixes
-                 */
                 String hbnTableName = hibernateTable.getName();
-                if (hbnPrimaryKeyName != null && hbnPrimaryKeyName.length() == 15 && hbnPrimaryKeyName.equals(PK_ALIAS_15.toAliasString(hbnTableName))) {
-                    Scope.getCurrentScope().getLog(getClass()).warning("Hibernate primary key name is probably truncated. " + hbnPrimaryKeyName);
-                    String newAlias = NEW_PK_ALIAS.toAliasString(hbnTableName);
-                    int newAliasLength = newAlias.length();
-                    if (newAliasLength > 15) {
-                        if (newAliasLength == PKNAMELENGTH) {
-                            String suffix = "_" + Integer.toHexString(hbnTableName.hashCode()).toUpperCase() + "_" + PK;
-                            hbnPrimaryKeyName = newAlias.substring(0, PKNAMELENGTH - suffix.length()) + suffix;
-                        } else {
-                            hbnPrimaryKeyName = newAlias;
-                        }
-                        Scope.getCurrentScope().getLog(getClass()).warning("Changing hibernate primary key name to " + hbnPrimaryKeyName);
-                    }
+
+                String pkName = PK_NAME_ALIAS.toAliasString(hbnTableName);
+                if (pkName.length() == PK_NAME_LENGTH) {
+                    String suffix = "_" + Integer.toHexString(hbnTableName.hashCode()).toUpperCase() + "_" + PK_NAME_SUFFIX;
+                    pkName = pkName.substring(0, PK_NAME_LENGTH - suffix.length()) + suffix;
                 }
-                pk.setName(hbnPrimaryKeyName);
+                pk.setName(pkName);
+
                 pk.setTable(table);
-                for (Object hibernateColumn : hibernatePrimaryKey.getColumns()) {
-                    pk.getColumns().add(new Column(((org.hibernate.mapping.Column) hibernateColumn).getName()).setRelation(table));
+                for (org.hibernate.mapping.Column hibernateColumn : hibernatePrimaryKey.getColumns()) {
+                    pk.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table));
                 }
 
                 Scope.getCurrentScope().getLog(getClass()).info("Found primary key " + pk.getName());
