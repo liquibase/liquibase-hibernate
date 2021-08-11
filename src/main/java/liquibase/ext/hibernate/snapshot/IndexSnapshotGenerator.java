@@ -11,6 +11,9 @@ import java.util.Iterator;
 
 public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
 
+    private static final String HIBERNATE_ORDER_ASC = "asc";
+    private static final String HIBERNATE_ORDER_DESC = "desc";
+
     @SuppressWarnings("unchecked")
     public IndexSnapshotGenerator() {
         super(Index.class, new Class[]{Table.class, ForeignKey.class, UniqueConstraint.class});
@@ -36,7 +39,11 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
             while (columnIterator.hasNext()) {
                 org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
-                index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table));
+                String hibernateOrder = hibernateIndex.getColumnOrderMap().get(hibernateColumn);
+                Boolean descending = HIBERNATE_ORDER_ASC.equals(hibernateOrder)
+                        ? Boolean.FALSE
+                        : (HIBERNATE_ORDER_DESC.equals(hibernateOrder) ? Boolean.TRUE : null);
+                index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table).setDescending(descending));
             }
 
             if (index.getColumnNames().equalsIgnoreCase(((Index) example).getColumnNames())) {
@@ -70,7 +77,11 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
                 Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
                 while (columnIterator.hasNext()) {
                     org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
-                    index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table));
+                    String hibernateOrder = hibernateIndex.getColumnOrderMap().get(hibernateColumn);
+                    Boolean descending = HIBERNATE_ORDER_ASC.equals(hibernateOrder)
+                            ? Boolean.FALSE
+                            : (HIBERNATE_ORDER_DESC.equals(hibernateOrder) ? Boolean.TRUE : null);
+                    index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table).setDescending(descending));
                 }
                 Scope.getCurrentScope().getLog(getClass()).info("Found index " + index.getName());
                 table.getIndexes().add(index);
