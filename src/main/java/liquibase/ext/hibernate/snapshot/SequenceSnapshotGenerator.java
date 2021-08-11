@@ -7,6 +7,7 @@ import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Schema;
 import liquibase.structure.core.Sequence;
+import org.hibernate.boot.model.relational.Namespace;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.SequenceGenerator;
@@ -38,53 +39,21 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
         }
 
         if (foundObject instanceof Schema) {
-
             Schema schema = (Schema) foundObject;
             HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
-            MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
-            Iterator<PersistentClass> classMappings = metadata.getEntityBindings().iterator();
-
-            while (classMappings.hasNext()) {
-                PersistentClass persistentClass = (PersistentClass) classMappings
-                        .next();
-                if (!persistentClass.isInherited()) {
-                    IdentifierGenerator ig = persistentClass.getIdentifier().createIdentifierGenerator(
-                            metadata.getIdentifierGeneratorFactory(),
-                            database.getDialect(),
-                            null,
-                            null,
-                            (RootClass) persistentClass
+            for (org.hibernate.boot.model.relational.Namespace namespace : database.getMetadata().getDatabase().getNamespaces()) {
+                for (org.hibernate.boot.model.relational.Sequence sequence : namespace.getSequences()) {
+                    schema.addDatabaseObject(new Sequence()
+                            .setName(sequence.getName().getSequenceName().getText())
+                            .setSchema(schema)
+                            .setStartValue(BigInteger.valueOf(sequence.getInitialValue()))
+                            .setIncrementBy(BigInteger.valueOf(sequence.getIncrementSize()))
                     );
-                    if (ig instanceof SequenceGenerator) {
-                        SequenceGenerator sequenceGenerator = (SequenceGenerator) ig;
-                        createSequence(sequenceGenerator.getSequenceName(), schema);
-                    } else if (ig instanceof SequenceStyleGenerator) {
-                        SequenceStyleGenerator sequenceGenerator = (SequenceStyleGenerator) ig;
-                        createSequence((String) sequenceGenerator.generatorKey(),
-                                sequenceGenerator.getDatabaseStructure().getInitialValue(),
-                                sequenceGenerator.getDatabaseStructure().getIncrementSize(), schema);
-                    }
                 }
-
             }
         }
     }
 
-    private void createSequence(String sequenceName, Integer initialValue, Integer incrementBy, Schema schema) {
-        Sequence sequence = new Sequence();
-        sequence.setName(sequenceName);
-        sequence.setSchema(schema);
-        if(initialValue != null) {
-            sequence.setStartValue(BigInteger.valueOf(initialValue));
-        }
-        if(incrementBy != null) {
-            sequence.setIncrementBy(BigInteger.valueOf(incrementBy));
-        }
-        schema.addDatabaseObject(sequence);
-    }
 
-    private void createSequence(String sequenceName, Schema schema) {
-        createSequence(sequenceName, null, null, schema);
-    }
 
 }
