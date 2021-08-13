@@ -12,10 +12,12 @@ import liquibase.structure.core.Sequence;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * Hibernate handles manages sequences only by the name, startValue and incrementBy fields.
+ * Hibernate manages sequences only by the name, startValue and incrementBy fields.
  * However, non-hibernate databases might return default values for other fields triggering false positives.
  */
 public class ChangedSequenceChangeGenerator extends liquibase.diff.output.changelog.core.ChangedSequenceChangeGenerator {
@@ -46,10 +48,11 @@ public class ChangedSequenceChangeGenerator extends liquibase.diff.output.change
         }
 
         // if any of the databases is a hibernate database, remove all differences that affect a field not managed by hibernate
-        differences.getDifferences().stream()
+        Set<String> ignoredDifferenceFields = differences.getDifferences().stream()
                 .map(Difference::getField)
-                .filter(field -> !HIBERNATE_SEQUENCE_FIELDS.contains(field))
-                .forEach(differences::removeDifference);
+                .filter(differenceField ->  !HIBERNATE_SEQUENCE_FIELDS.contains(differenceField))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        ignoredDifferenceFields.forEach(differences::removeDifference);
         return super.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase, chain);
     }
 
