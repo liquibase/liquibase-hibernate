@@ -7,16 +7,8 @@ import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Schema;
 import liquibase.structure.core.Sequence;
-import org.hibernate.boot.model.relational.Namespace;
-import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.id.IdentifierGenerator;
-import org.hibernate.id.SequenceGenerator;
-import org.hibernate.id.enhanced.SequenceStyleGenerator;
-import org.hibernate.mapping.PersistentClass;
-import org.hibernate.mapping.RootClass;
 
 import java.math.BigInteger;
-import java.util.Iterator;
 
 /**
  * Sequence snapshots are not yet supported, but this class needs to be implemented in order to prevent the default SequenceSnapshotGenerator from running.
