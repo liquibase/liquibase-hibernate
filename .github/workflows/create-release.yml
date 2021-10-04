@@ -180,7 +180,7 @@ jobs:
           tag_name: liquibase-hibernate-${{ needs.setup.outputs.extensionVersion }}
           draft: true
           body: Support for Liquibase ${{ needs.setup.outputs.liquibaseVersion }}.
-          files: liquibase-hibernate-*.jar
+          files: liquibase-hibernate5-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
