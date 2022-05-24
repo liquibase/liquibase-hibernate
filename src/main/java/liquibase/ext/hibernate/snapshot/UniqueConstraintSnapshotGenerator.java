@@ -116,6 +116,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         index.setRelation(uniqueConstraint.getRelation());
         index.setColumns(uniqueConstraint.getColumns());
         index.setUnique(true);
+        index.setName(hibernateTable.getName() + "_IX");
 
         return index;
     }
