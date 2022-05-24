@@ -161,7 +161,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-test-harness</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.5</version>
 		</dependency>
 		<dependency> <!-- use a specific Groovy version rather than the one specified by spock-core -->
 			<groupId>org.codehaus.groovy</groupId>
