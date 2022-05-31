@@ -48,7 +48,7 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
                     Table referencedTable = new Table().setName(hibernateReferencedTable.getName());
                     referencedTable.setSchema(hibernateReferencedTable.getCatalog(), hibernateReferencedTable.getSchema());
 
-                    if (hibernateForeignKey.isPhysicalConstraint()) {
+                    if (hibernateForeignKey.isCreationEnabled() && hibernateForeignKey.isPhysicalConstraint()) {
                         ForeignKey fk = new ForeignKey();
                         fk.setName(hibernateForeignKey.getName());
                         fk.setPrimaryKeyTable(referencedTable);
