@@ -166,7 +166,7 @@
 		<dependency> <!-- use a specific Groovy version rather than the one specified by spock-core -->
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>3.0.10</version>
+			<version>3.0.11</version>
 			<type>pom</type>
 			<scope>test</scope>
 		</dependency>
