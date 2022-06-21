@@ -49,7 +49,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
     }
 
     /**
-     * Calls {@link #createEntityManagerFactory()} to create and save the entity manager factory.
+     * Calls {@link #createEntityManagerFactoryBuilder()} to create and save the entity manager factory.
      */
     @Override
     protected Metadata buildMetadataFromPath() throws DatabaseException {
@@ -81,6 +81,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, Boolean.FALSE.toString());
+        properties.put(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA, getProperty(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA));
 
         final EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) persistenceProvider.getEntityManagerFactoryBuilderOrNull(getHibernateConnection().getPath(), properties, null);
         return builder;
