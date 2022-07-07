@@ -66,7 +66,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<hibernate.version>5.6.9.Final</hibernate.version>
+		<hibernate.version>5.6.10.Final</hibernate.version>
 		<spring.version>5.3.21</spring.version>
 	</properties>
 
