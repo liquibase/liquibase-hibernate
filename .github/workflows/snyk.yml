@@ -1,0 +1,14 @@
+name: Snyk Scan
+
+on:
+  workflow_dispatch:
+
+jobs:
+  security-scan:
+    # This workflow only runs on the main liquibase repo, not in forks
+    if: github.repository == 'liquibase/liquibase-hibernate'
+
+    name: Snyk Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
