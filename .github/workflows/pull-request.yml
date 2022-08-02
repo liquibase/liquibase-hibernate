@@ -70,7 +70,7 @@ jobs:
         run: mvn -B clean liquibase-sdk:install-snapshot -Dliquibase.sdk.branchSearch=MATCHING_BRANCHES,master
 
       - name: Build and test
-        run: mvn -B clean -Dliquibase.version=0-SNAPSHOT -Dhibernate.version=${{ matrix.hibernate.version }} test
+        run: mvn -B clean -Dliquibase.version=0-SNAPSHOT -Dhibernate.version=${{ matrix.hibernate }} test
 
       - name: Archive Test Results
         if: ${{ always() }}
