@@ -15,38 +15,85 @@ jobs:
   unit-test:
     name: Java ${{ matrix.java }}
     runs-on: ubuntu-latest
-    # Only run job if untagged as release. Will run for all PRs and release PRs during the first run.
+
     strategy:
       matrix:
-        java: [8, 11, 16]
+        java: [8, 11, 17, 18]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Cache Local Maven Repository
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
+
     - name: Set up JDK ${{ matrix.java }}
       uses: actions/setup-java@v2
       with:
         java-version: ${{ matrix.java }}
         distribution: 'adopt'
-    - name: Run Unit Tests With Maven
-      run: mvn -B clean surefire:test --file pom.xml
+        cache: 'maven'
+
+    - name: Install liquibase-core 0-SNAPSHOT
+      run: mvn -B clean liquibase-sdk:install-snapshot -Dliquibase.sdk.branchSearch=MATCHING_BRANCHES,master
+
+    - name: Build and test
+      run: mvn -B clean -Dliquibase.version=0-SNAPSHOT test
 
     - name: Archive Test Results
       if: ${{ always() }}
       uses: actions/upload-artifact@v2
       with:
-        name: test-reports-jdk${{ matrix.java }}
+        name: test-reports-jdk-${{ matrix.java }}
         path: ./**/target/surefire-reports
 
-    - name: Save Artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: liquibase-postgresql
-        path: |
-          target/*.jar
+  hibernate-test:
+    name: Test Hibernate ${{ matrix.hibernate }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        hibernate: ["5.5.9.Final", "5.4.33.Final", "5.3.27.Final"]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'adopt'
+          cache: 'maven'
+
+      - name: Install liquibase-core 0-SNAPSHOT
+        run: mvn -B clean liquibase-sdk:install-snapshot -Dliquibase.sdk.branchSearch=MATCHING_BRANCHES,master
+
+      - name: Build and test
+        run: mvn -B clean -Dliquibase.version=0-SNAPSHOT -Dhibernate.version=${{ hibernate.version }} test
+
+      - name: Archive Test Results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-reports-hibernate-{{ matrix.java }}
+          path: ./**/target/surefire-reports
+
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'adopt'
+          cache: 'maven'
+
+      - name: Build and test
+        run: mvn -B clean package
+
+      - name: Save Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: liquibase-hibernate5
+          path: |
+            target/*.jar
