@@ -6,7 +6,10 @@ on:
       - opened
       - reopened
       - synchronize
-
+  schedule:
+    - cron: "5 6 * * *"
+  repository_dispatch:
+    types: [liquibase-ci]
   push:
     branches:
       - main

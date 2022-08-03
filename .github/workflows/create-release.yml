@@ -1,4 +1,4 @@
-name: Release Extension (v2)
+name: Release Extension
 on:
   repository_dispatch:
     types: [liquibase-release]
