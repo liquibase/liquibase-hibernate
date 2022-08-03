@@ -98,7 +98,7 @@ jobs:
           cache: 'maven'
 
       - name: Build and test
-        run: mvn -B clean package
+        run: mvn -B clean package -DskipTests=true
 
       - name: Save Artifacts
         uses: actions/upload-artifact@v2
