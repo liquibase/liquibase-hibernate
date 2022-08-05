@@ -4,7 +4,7 @@
 
 	<groupId>org.liquibase.ext</groupId>
 	<artifactId>liquibase-hibernate5</artifactId>
-	<version>4.14.1-SNAPSHOT</version>
+	<version>4.15.0</version>
 
 	<name>Liquibase Hibernate Integration</name>
 	<description>Liquibase extension for hibernate integration including generating changesets based on changed hibernate mapping files    </description>
@@ -133,7 +133,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>4.14.0</version>
+			<version>4.15.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.yaml</groupId>
