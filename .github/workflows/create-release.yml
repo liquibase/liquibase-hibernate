@@ -1,4 +1,4 @@
-name: Create Release Artifacts
+name: Create Release
 on:
   repository_dispatch:
     types: [liquibase-release]
@@ -62,7 +62,7 @@ jobs:
       - name: Download snapshot build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B liquibase-sdk:download-snapshot-artifacts -Dliquibase.sdk.branchSearch=master -Dliquibase.sdk.artifactPattern=liquibase-hibernate-artifacts -Dliquibase.sdk.downloadDirectory=original-artifacts
+        run: mvn -B liquibase-sdk:download-snapshot-artifacts -Dliquibase.sdk.repo=liquibase-hibernate -Dliquibase.sdk.branchSearch=master -Dliquibase.sdk.artifactPattern=liquibase-hibernate-artifacts -Dliquibase.sdk.downloadDirectory=original-artifacts
 
       - name: Re-version Artifacts
         env:
