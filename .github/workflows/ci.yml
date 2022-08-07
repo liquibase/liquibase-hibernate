@@ -34,7 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn -B clean liquibase-sdk:install-snapshot -Dliquibase.sdk.branchSearch=MATCHING_BRANCHES,master
 
-      - name: Build and test
+      - name: Build and Package
         run: mvn -B clean package -DskipTests=true
 
       - name: Save Artifacts
@@ -44,11 +44,13 @@ jobs:
           path: |
             target/*.jar
 
-      - name: Built Code Cache
+      - name: Code Cache
         uses: actions/cache@v3.0.5
         with:
-          key: built-code-${{ github.run_number }}-${{ github.run_attempt }}
-          path: ./**/target
+          key: code-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            ./**/target
+            ~/.m2/repository/org/liquibase/
 
   unit-test:
     name: Test Java ${{ matrix.java }}
@@ -70,11 +72,13 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Restore Built Code Cache
+      - name: Code Cache
         uses: actions/cache@v3.0.5
         with:
-          key: built-code-${{ github.run_number }}-${{ github.run_attempt }}
-          path: ./**/target
+          key: code-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            ./**/target
+            ~/.m2/repository/org/liquibase/
 
       - name: Install liquibase-core 0-SNAPSHOT
         env:
@@ -113,11 +117,13 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Restore Built Code Cache
+      - name: Code Cache
         uses: actions/cache@v3.0.5
         with:
-          key: built-code-${{ github.run_number }}-${{ github.run_attempt }}
-          path: ./**/target
+          key: code-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            ./**/target
+            ~/.m2/repository/org/liquibase/
 
       - name: Install liquibase-core 0-SNAPSHOT
         env:
