@@ -127,7 +127,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: test-reports-hibernate-{{ matrix.hibernate }}
+          name: test-reports-hibernate-${{ matrix.hibernate }}
           path: |
             **/target/surefire-reports
             **/target/jacoco.exec
