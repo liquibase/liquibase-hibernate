@@ -9,7 +9,7 @@ on:
   schedule:
     - cron: "5 6 * * *"
   repository_dispatch:
-    types: [liquibase-ci]
+    types: [ liquibase-ci ]
   push:
     branches:
       - main
@@ -59,38 +59,40 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [8, 11, 17, 18]
+        java: [ 8, 11, 17, 18 ]
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set up JDK ${{ matrix.java }}
-      uses: actions/setup-java@v2
-      with:
-        java-version: ${{ matrix.java }}
-        distribution: 'temurin'
-        cache: 'maven'
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'maven'
 
-    - name: Restore Built Code Cache
-      uses: actions/cache@v3.0.5
-      with:
-        key: built-code-${{ github.run_number }}-${{ github.run_attempt }}
-        path: ./**/target
+      - name: Restore Built Code Cache
+        uses: actions/cache@v3.0.5
+        with:
+          key: built-code-${{ github.run_number }}-${{ github.run_attempt }}
+          path: ./**/target
 
-    - name: Install liquibase-core 0-SNAPSHOT
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: mvn -B clean liquibase-sdk:install-snapshot -Dliquibase.sdk.branchSearch=MATCHING_BRANCHES,master
+      - name: Install liquibase-core 0-SNAPSHOT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B clean liquibase-sdk:install-snapshot -Dliquibase.sdk.branchSearch=MATCHING_BRANCHES,master
 
-    - name: Run Tests
-      run: mvn -B surefire:test
+      - name: Run Tests
+        run: mvn -B jacoco:prepare-agent surefire:test
 
-    - name: Archive Test Results
-      if: ${{ always() }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: test-reports-jdk-${{ matrix.java }}
-        path: ./**/target/surefire-reports
+      - name: Archive Test Results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-reports-jdk-${{ matrix.java }}
+          path: |
+            ./**/target/surefire-reports
+            ./**/target/jacoco.exec
 
   hibernate-test:
     name: Test Hibernate ${{ matrix.hibernate }}
@@ -100,7 +102,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hibernate: ["5.5.9.Final", "5.4.33.Final", "5.3.27.Final"]
+        hibernate: [ "5.5.9.Final", "5.4.33.Final", "5.3.27.Final" ]
 
     steps:
       - uses: actions/checkout@v2
@@ -124,12 +126,14 @@ jobs:
         run: mvn -B clean liquibase-sdk:install-snapshot -Dliquibase.sdk.branchSearch=MATCHING_BRANCHES,master
 
       - name: Run Tests
-        run: mvn -B surefire:test -Dhibernate.version=${{ matrix.hibernate }}
+        run: mvn -B jacoco:prepare-agent surefire:test -Dhibernate.version=${{ matrix.hibernate }}
 
       - name: Archive Test Results
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: test-reports-hibernate-{{ matrix.hibernate }}
-          path: ./**/target/surefire-reports
+          path: |
+            ./**/target/surefire-reports
+            ./**/target/jacoco.exec
 
