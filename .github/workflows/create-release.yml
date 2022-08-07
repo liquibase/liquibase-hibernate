@@ -1,4 +1,4 @@
-name: Release Extension
+name: Create Release Artifacts
 on:
   repository_dispatch:
     types: [liquibase-release]
@@ -60,9 +60,13 @@ jobs:
           GPG_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Download snapshot build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn -B liquibase-sdk:download-snapshot-artifacts -Dliquibase.sdk.branchSearch=master -Dliquibase.sdk.artifactPattern=liquibase-hibernate-artifacts -Dliquibase.sdk.downloadDirectory=original-artifacts
 
       - name: Re-version Artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: mvn -B liquibase-sdk:reversion-jars -Dliquibase.sdk.inputDirectory=original-artifacts -Dliquibase.sdk.outputDirectory=final-artifacts -Dliquibase.sdk.newVersion=${{ needs.setup.outputs.extensionVersion }}
 
       - name: Attach Files to Draft Release
