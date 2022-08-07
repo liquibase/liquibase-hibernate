@@ -1,4 +1,4 @@
-name: Run Unit Tests
+name: Continuous Integration
 
 on:
   pull_request:
@@ -103,6 +103,6 @@ jobs:
       - name: Save Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: liquibase-hibernate5
+          name: liquibase-hibernate-artifacts
           path: |
             target/*.jar
