@@ -68,7 +68,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          unzip original-artifacts/*.zip
+          (cd original-artifacts && unzip *.zip && rm *.zip)
           ls -l original-artifacts
           mvn -B liquibase-sdk:create-release-artifacts -Dliquibase.sdk.repo=${{ github.action_repository }} -Dliquibase.sdk.inputDirectory=original-artifacts -Dliquibase.sdk.outputDirectory=final-artifacts -Dliquibase.sdk.newVersion=${{ needs.setup.outputs.extensionVersion }}
 
