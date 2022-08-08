@@ -69,7 +69,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           (cd original-artifacts && unzip *.zip && rm *.zip)
-          ls -l original-artifacts
+          ls -l ~/.gnupg
           mvn -B liquibase-sdk:create-release-artifacts -Dliquibase.sdk.repo=${{ github.action_repository }} -Dliquibase.sdk.inputDirectory=original-artifacts -Dliquibase.sdk.outputDirectory=final-artifacts -Dliquibase.sdk.newVersion=${{ needs.setup.outputs.extensionVersion }}
 
       - name: Attach Files to Draft Release
