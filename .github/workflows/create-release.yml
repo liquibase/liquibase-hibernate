@@ -67,6 +67,7 @@ jobs:
       - name: Re-version Artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           ls -l /usr/bin/gpg
           (cd original-artifacts && unzip liquibase-hibernate-artifacts.zip && rm liquibase-hibernate-artifacts.zip)
