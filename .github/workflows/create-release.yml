@@ -67,7 +67,7 @@ jobs:
       - name: Re-version Artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B liquibase-sdk:create-release-artifacts -Dliquibase.sdk.inputDirectory=original-artifacts -Dliquibase.sdk.outputDirectory=final-artifacts -Dliquibase.sdk.newVersion=${{ needs.setup.outputs.extensionVersion }}
+        run: mvn -B liquibase-sdk:create-release-artifacts -Dliquibase.sdk.repo=${{ github.action_repository }} -Dliquibase.sdk.inputDirectory=original-artifacts -Dliquibase.sdk.outputDirectory=final-artifacts -Dliquibase.sdk.newVersion=${{ needs.setup.outputs.extensionVersion }}
 
       - name: Attach Files to Draft Release
         uses: softprops/action-gh-release@v1
