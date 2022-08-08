@@ -69,7 +69,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          ls -l /usr/bin/gpg
           (cd original-artifacts && unzip liquibase-hibernate-artifacts.zip && rm liquibase-hibernate-artifacts.zip)
           mvn -B liquibase-sdk:create-release-artifacts -Dliquibase.sdk.repo=${{ github.repository }} -Dliquibase.sdk.inputDirectory=original-artifacts -Dliquibase.sdk.outputDirectory=final-artifacts -Dliquibase.sdk.newVersion=${{ needs.setup.outputs.extensionVersion }} -Dliquibase.sdk.gpgExecutable=/usr/bin/gpg -X
 
