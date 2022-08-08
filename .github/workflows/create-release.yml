@@ -62,13 +62,13 @@ jobs:
       - name: Download snapshot build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B liquibase-sdk:download-snapshot-artifacts -Dliquibase.sdk.repo=${{ github.repository }} -Dliquibase.sdk.branchSearch=master -Dliquibase.sdk.artifactPattern=${{ github.repository }}-artifacts -Dliquibase.sdk.downloadDirectory=original-artifacts
+        run: mvn -B liquibase-sdk:download-snapshot-artifacts -Dliquibase.sdk.repo=${{ github.repository }} -Dliquibase.sdk.branchSearch=master -Dliquibase.sdk.artifactPattern=liquibase-hibernate-artifacts -Dliquibase.sdk.downloadDirectory=original-artifacts
 
       - name: Re-version Artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          (cd original-artifacts && unzip ${{ github.repository }}-artifacts.zip && rm ${{ github.repository }}-artifacts.zip)
+          (cd original-artifacts && unzip liquibase-hibernate-artifacts.zip && rm liquibase-hibernate-artifacts.zip)
           mvn -B liquibase-sdk:create-release-artifacts -Dliquibase.sdk.repo=${{ github.repository }} -Dliquibase.sdk.inputDirectory=original-artifacts -Dliquibase.sdk.outputDirectory=final-artifacts -Dliquibase.sdk.newVersion=${{ needs.setup.outputs.extensionVersion }}
 
       - name: Attach Files to Draft Release
