@@ -198,6 +198,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <release>8</release>
                     <optimize>true</optimize>
                     <debug>true</debug>
                     <encoding>${project.build.sourceEncoding}</encoding>
