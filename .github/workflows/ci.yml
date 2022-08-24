@@ -44,6 +44,12 @@ jobs:
           path: |
             target/*.jar
 
+      - name: Save Event File
+        uses: actions/upload-artifact@v3
+        with:
+          name: Event File
+          path: ${{ github.event_path }}
+
       - name: Build Cache
         uses: actions/cache@v3.0.5
         with:
@@ -105,10 +111,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up JDK 8
+      - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: 8
+          java-version: 17
           distribution: 'temurin'
           cache: 'maven'
 
