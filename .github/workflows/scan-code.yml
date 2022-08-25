@@ -52,7 +52,7 @@ jobs:
         run: mvn compile
 
       - name: Aggregate Jacoco Results
-        run: mvn -Djacoco.fileset.directory=artifacts -Djacoco.destFile="${jacoco.dataFile}" -Djacoco.dataFile=target\jacoco-merged.exec jacoco:merge jacoco:report
+        run: mvn -Djacoco.fileset.directory=artifacts -Djacoco.destFile=target\jacoco-merged.exec -Djacoco.dataFile=target\jacoco-merged.exec jacoco:merge jacoco:report
 
       - name: Sonar Scan
         env:
