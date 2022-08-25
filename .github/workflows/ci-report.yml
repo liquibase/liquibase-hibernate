@@ -3,6 +3,9 @@ on:
   workflow_run:
     workflows: [Continuous Integration]
     types: [completed]
+
+  workflow_dispatch:
+
 jobs:
   test-report:
     name: Report Test Results

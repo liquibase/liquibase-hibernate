@@ -73,6 +73,16 @@
         <spring.version>5.3.22</spring.version>
         <liquibase.version>0-SNAPSHOT</liquibase.version>
         <liquibase.sdk.github.token>${env.GITHUB_TOKEN}</liquibase.sdk.github.token>
+
+        <sonar.organization>liquibase</sonar.organization>
+        <sonar.projectKey>${project.artifactId}</sonar.projectKey>
+        <sonar.projectName>${project.name}</sonar.projectName>
+        <sonar.projectDescription>${project.description}</sonar.projectDescription>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.scm.provider>git</sonar.scm.provider>
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+
+        <jacoco.fileset.directory>target</jacoco.fileset.directory>
     </properties>
 
     <dependencies>
@@ -277,6 +287,22 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.8</version>
+                <configuration>
+                    <fileSets>
+                        <fileSet>
+                            <directory>${jacoco.fileset.directory}</directory>
+                            <includes>
+                                <include>**/jacoco.exec</include>
+                            </includes>
+                        </fileSet>
+                    </fileSets>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
             </plugin>
 
             <plugin>
