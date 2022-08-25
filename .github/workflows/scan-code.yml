@@ -1,0 +1,49 @@
+name: 'Scan Code'
+on:
+  workflow_run:
+    workflows: [Continuous Integration]
+    types: [completed]
+
+  workflow_dispatch:
+
+jobs:
+  sonar:
+    name: Scan code
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          ref: ${{ github.event.pull_request.head.sha || github.event.after}}
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Build code
+        run: mvn compile
+
+      - name: Aggregate Jacoco Results
+        run: mvn -Djacoco.fileset.directory=artifacts -Djacoco.destFile="${jacoco.dataFile}" -Djacoco.dataFile=target\jacoco-merged.exec jacoco:merge jacoco:report
+
+      - name: Sonar Scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -Dsonar.login=$SONAR_TOKEN -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} sonar:sonar

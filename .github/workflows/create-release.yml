@@ -1,4 +1,4 @@
-name: Release Extension
+name: Create Release
 on:
   repository_dispatch:
     types: [liquibase-release]
@@ -51,7 +51,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '8'
+          java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
           gpg-private-key: ${{ secrets.GPG_SECRET }}
@@ -60,10 +60,17 @@ jobs:
           GPG_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Download snapshot build
-        run: mvn -B liquibase-sdk:download-snapshot-artifacts -Dliquibase.sdk.branchSearch=master -Dliquibase.sdk.artifactPattern=liquibase-hibernate-artifacts -Dliquibase.sdk.downloadDirectory=original-artifacts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B liquibase-sdk:download-snapshot-artifacts -Dliquibase.sdk.repo=${{ github.repository }} -Dliquibase.sdk.branchSearch=master -Dliquibase.sdk.artifactPattern=liquibase-hibernate-artifacts -Dliquibase.sdk.downloadDirectory=original-artifacts
 
       - name: Re-version Artifacts
-        run: mvn -B liquibase-sdk:reversion-jars -Dliquibase.sdk.inputDirectory=original-artifacts -Dliquibase.sdk.outputDirectory=final-artifacts -Dliquibase.sdk.newVersion=${{ needs.setup.outputs.extensionVersion }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPG_PASSWORD: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          (cd original-artifacts && unzip liquibase-hibernate-artifacts.zip && rm liquibase-hibernate-artifacts.zip)
+          mvn -B liquibase-sdk:create-release-artifacts -Dliquibase.sdk.repo=${{ github.repository }} -Dliquibase.sdk.inputDirectory=original-artifacts -Dliquibase.sdk.outputDirectory=final-artifacts -Dliquibase.sdk.newVersion=${{ needs.setup.outputs.extensionVersion }} -Dliquibase.sdk.gpgExecutable=/usr/bin/gpg -X
 
       - name: Attach Files to Draft Release
         uses: softprops/action-gh-release@v1
