@@ -17,10 +17,10 @@ jobs:
         run: |
           mvn -B liquibase-sdk:download-snapshot-artifacts \
             -Dliquibase.sdk.repo=${{ github.repository }} \
-            -Dliquibase.sdk.runId=${{ github.event.workflow_run.id }}
+            -Dliquibase.sdk.runId=${{ github.event.workflow_run.id }} \
             -Dliquibase.sdk.downloadDirectory=artifacts \
             -Dliquibase.sdk.artifactPattern=* \
-            -Dliquibase.sdk.unzipArtifacts=true \
+            -Dliquibase.sdk.unzipArtifacts=true
 
       - uses: actions/checkout@v3
         with:
@@ -45,10 +45,20 @@ jobs:
         run: mvn -B compile
 
       - name: Aggregate Jacoco Results
-        run: mvn -B -Djacoco.fileset.directory=artifacts -Djacoco.destFile=target\jacoco-merged.exec -Djacoco.dataFile=target\jacoco-merged.exec jacoco:merge jacoco:report
+        run: |
+          mvn -B -Djacoco.fileset.directory=artifacts \
+            -Djacoco.destFile=target\jacoco-merged.exec \
+            -Djacoco.dataFile=target\jacoco-merged.exec \
+            jacoco:merge \
+            jacoco:report
 
       - name: Sonar Scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B -Dsonar.login=$SONAR_TOKEN -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} sonar:sonar
+        run: |
+          mvn -B -Dsonar.login=$SONAR_TOKEN \
+              -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+              -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} \
+              -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} \
+              sonar:sonar
