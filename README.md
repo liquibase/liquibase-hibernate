@@ -1,3 +1,5 @@
+TESTING COMMIT
+
 # Liquibase Hibernate Integration [![Build and Test Extension](https://github.com/liquibase/liquibase-hibernate/actions/workflows/build.yml/badge.svg)](https://github.com/liquibase/liquibase-hibernate/actions/workflows/build.yml)
 
 This is a Liquibase extension for connecting to Hibernate. The extension lets you use your Hibernate configuration as a comparison database for diff, diffChangeLog, and generateChangeLog in Liquibase.
