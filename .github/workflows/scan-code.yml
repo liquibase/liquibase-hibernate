@@ -11,6 +11,11 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
 
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          ref: ${{ github.event.pull_request.head.sha || github.event.after}}
+
       - name: Download and Extract Artifacts
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -21,11 +26,6 @@ jobs:
             -Dliquibase.sdk.downloadDirectory=artifacts \
             -Dliquibase.sdk.artifactPattern=* \
             -Dliquibase.sdk.unzipArtifacts=true
-
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-          ref: ${{ github.event.pull_request.head.sha || github.event.after}}
 
       - name: Set up JDK
         uses: actions/setup-java@v2

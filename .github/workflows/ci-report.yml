@@ -20,6 +20,8 @@ jobs:
             console.log("payload");
             console.log(context.payload);
 
+      - uses: actions/checkout@v2
+
       - name: Download and Extract Artifacts
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
