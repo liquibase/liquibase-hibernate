@@ -15,7 +15,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          mvn liquibase-sdk:download-snapshot-artifacts \
+          mvn -B liquibase-sdk:download-snapshot-artifacts \
             -Dliquibase.sdk.repo=${{ github.repository }} \
             -Dliquibase.sdk.runId=${{ github.event.workflow_run.id }}
             -Dliquibase.sdk.downloadDirectory=artifacts \
@@ -42,13 +42,13 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Build code
-        run: mvn compile
+        run: mvn -B compile
 
       - name: Aggregate Jacoco Results
-        run: mvn -Djacoco.fileset.directory=artifacts -Djacoco.destFile=target\jacoco-merged.exec -Djacoco.dataFile=target\jacoco-merged.exec jacoco:merge jacoco:report
+        run: mvn -B -Djacoco.fileset.directory=artifacts -Djacoco.destFile=target\jacoco-merged.exec -Djacoco.dataFile=target\jacoco-merged.exec jacoco:merge jacoco:report
 
       - name: Sonar Scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -Dsonar.login=$SONAR_TOKEN -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} sonar:sonar
+        run: mvn -B -Dsonar.login=$SONAR_TOKEN -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} sonar:sonar
