@@ -4,8 +4,6 @@ on:
     workflows: [Continuous Integration]
     types: [completed]
 
-  workflow_dispatch:
-
 jobs:
   sonar:
     name: Scan code
@@ -17,17 +15,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
-          mkdir -p artifacts && cd artifacts
-          
-          artifacts_url=${{ github.event.workflow_run.artifacts_url }}
-          
-          gh api "$artifacts_url" -q '.artifacts[] | [.name, .archive_download_url] | @tsv' | while read artifact
-          do
-            echo "downloading $name"
-            IFS=$'\t' read name url <<< "$artifact"
-            gh api $url > "$name.zip"
-            unzip -d "$name" "$name.zip"
-          done
+          mvn liquibase-sdk:download-snapshot-artifacts \
+            -Dliquibase.sdk.repo=${{ github.repository }} \
+            -Dliquibase.sdk.runId=${{ github.event.workflow_run.id }}
+            -Dliquibase.sdk.downloadDirectory=artifacts \
+            -Dliquibase.sdk.artifactPattern=* \
+            -Dliquibase.sdk.unzipArtifacts=true \
 
       - uses: actions/checkout@v3
         with:

@@ -308,7 +308,7 @@
             <plugin>
                 <groupId>org.liquibase.ext</groupId>
                 <artifactId>liquibase-sdk-maven-plugin</artifactId>
-                <version>0.10.13</version>
+                <version>0.10.15</version>
             </plugin>
         </plugins>
 
