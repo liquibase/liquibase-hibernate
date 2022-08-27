@@ -6,7 +6,7 @@ on:
 
 jobs:
   sonar:
-    name: Scan code
+    name: Sonar Scan
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'success'
 
@@ -16,17 +16,17 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
           ref: ${{ github.event.pull_request.head.sha || github.event.after}}
 
-#      - name: Start commit status
-#        env:
-#          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-#        run: |
-#          mvn -B liquibase-sdk:set-commit-status \
-#            -Dliquibase.sdk.repo=${{ github.repository }} \
-#            -Dliquibase.sdk.context=Sonar Scan \
-#            -Dliquibase.sdk.description=Code analysis \
-#            -Dliquibase.sdk.state=pending \
-#            -Dliquibase.sdk.state.url=${{ github.job.html_url }} \
-#            -Dliquibase.sdk.state.commit=${{ github.event.workflow_run.head_commit.id }}
+      - name: Set pending status
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          mvn -B liquibase-sdk:set-commit-status \
+            -Dliquibase.sdk.repo=${{ github.repository }} \
+            -Dliquibase.sdk.context=Sonar Scan \
+            -Dliquibase.sdk.description=Code analysis \
+            -Dliquibase.sdk.state=pending \
+            -Dliquibase.sdk.state.url=${{ github.job.html_url }} \
+            -Dliquibase.sdk.state.commit=${{ github.event.workflow_run.head_commit.id }}
 
       - name: Download and Extract Artifacts
         env:
@@ -74,3 +74,16 @@ jobs:
               -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} \
               -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} \
               sonar:sonar
+
+      - name: Set final status
+        if: ${{ always() }}
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          mvn -B liquibase-sdk:set-commit-status \
+            -Dliquibase.sdk.repo=${{ github.repository }} \
+            -Dliquibase.sdk.context=Sonar Scan \
+            -Dliquibase.sdk.description=Code analysis \
+            -Dliquibase.sdk.state=${{ job.status  }} \
+            -Dliquibase.sdk.state.url=${{ github.job.html_url }} \
+            -Dliquibase.sdk.state.commit=${{ github.event.workflow_run.head_commit.id }}
