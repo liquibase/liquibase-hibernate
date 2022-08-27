@@ -26,7 +26,7 @@ jobs:
             -Dliquibase.sdk.status.description=Code analysis \
             -Dliquibase.sdk.status.url=${{ github.job.html_url }} \
             -Dliquibase.sdk.status.commit=${{ github.event.workflow_run.head_commit.id }} \
-            -Dliquibase.sdk.status=pending
+            -Dliquibase.sdk.status.state=pending
 
       - name: Download and Extract Artifacts
         env:
@@ -86,4 +86,4 @@ jobs:
             -Dliquibase.sdk.status.description=Code analysis \
             -Dliquibase.sdk.status.url=${{ github.job.html_url }} \
             -Dliquibase.sdk.status.commit=${{ github.event.workflow_run.head_commit.id }}
-            -Dliquibase.sdk.state=${{ job.status  }}
+            -Dliquibase.sdk.status.state=${{ job.status  }}
