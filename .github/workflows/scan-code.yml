@@ -84,6 +84,6 @@ jobs:
             -Dliquibase.sdk.repo="${{ github.repository }}" \
             -Dliquibase.sdk.status.context="Scan Code / Sonar Scan" \
             -Dliquibase.sdk.status.description="Code analysis" \
-            -Dliquibase.sdk.status.url="${{ html_url }}" \
+            -Dliquibase.sdk.status.url="${{ job.html_url }}" \
             -Dliquibase.sdk.status.commit="${{ github.event.workflow_run.head_commit.id }}" \
             -Dliquibase.sdk.status.state="${{ job.status  }}"
