@@ -21,11 +21,11 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           mvn -B liquibase-sdk:set-commit-status \
-            -Dliquibase.sdk.repo=${{ github.repository }} \
-            -Dliquibase.sdk.status.context=Sonar Scan \
-            -Dliquibase.sdk.status.description=Code analysis \
-            -Dliquibase.sdk.status.url=${{ github.job.html_url }} \
-            -Dliquibase.sdk.status.commit=${{ github.event.workflow_run.head_commit.id }} \
+            -Dliquibase.sdk.repo="${{ github.repository }}" \
+            -Dliquibase.sdk.status.context="Sonar Scan" \
+            -Dliquibase.sdk.status.description="Code analysis" \
+            -Dliquibase.sdk.status.url="${{ github.job.html_url }}" \
+            -Dliquibase.sdk.status.commit="${{ github.event.workflow_run.head_commit.id }}" \
             -Dliquibase.sdk.status.state=pending
 
       - name: Download and Extract Artifacts
@@ -81,9 +81,9 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         run: |
           mvn -B liquibase-sdk:set-commit-status \
-            -Dliquibase.sdk.repo=${{ github.repository }} \
-            -Dliquibase.sdk.status.context=Sonar Scan \
-            -Dliquibase.sdk.status.description=Code analysis \
-            -Dliquibase.sdk.status.url=${{ github.job.html_url }} \
-            -Dliquibase.sdk.status.commit=${{ github.event.workflow_run.head_commit.id }}
-            -Dliquibase.sdk.status.state=${{ job.status  }}
+            -Dliquibase.sdk.repo="${{ github.repository }}" \
+            -Dliquibase.sdk.status.context="Sonar Scan" \
+            -Dliquibase.sdk.status.description="Code analysis" \
+            -Dliquibase.sdk.status.url="${{ github.job.html_url }}" \
+            -Dliquibase.sdk.status.commit="${{ github.event.workflow_run.head_commit.id }}" \
+            -Dliquibase.sdk.status.state="${{ job.status  }}"
