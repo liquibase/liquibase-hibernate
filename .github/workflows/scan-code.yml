@@ -16,15 +16,6 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
           ref: ${{ github.event.workflow_run.head_commit.id }}
 
-      - name: debug
-        uses: actions/github-script@v6
-        with:
-          script: |
-            console.log("other job json");  
-            console.log("${{ toJSON(job) }}");  
-            console.log("github json:");
-            console.log("${{ toJSON(github) }}");
-
       - name: Set pending status
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -82,6 +73,7 @@ jobs:
               -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
               -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} \
               -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} \
+              -Dsonar.scm.revision=${{ github.event.workflow_run.head_commit.id }} \
               sonar:sonar
 
       - name: Set final status
