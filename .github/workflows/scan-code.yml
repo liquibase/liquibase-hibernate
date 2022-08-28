@@ -22,8 +22,8 @@ jobs:
           script: |
             console.log("other job json");  
             console.log("${{ toJSON(job) }}");  
-            console.log("event json:");
-            console.log("${{ toJSON(github.event) }}");
+            console.log("github json:");
+            console.log("${{ toJSON(github) }}");
 
       - name: Set pending status
         env:
