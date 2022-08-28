@@ -6,26 +6,38 @@ on:
 
 jobs:
   sonar:
-    name: Scan code
+    name: Sonar Scan
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'success'
 
     steps:
-      - name: Download and Extract Artifacts
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        run: |
-          mvn liquibase-sdk:download-snapshot-artifacts \
-            -Dliquibase.sdk.repo=${{ github.repository }} \
-            -Dliquibase.sdk.runId=${{ github.event.workflow_run.id }}
-            -Dliquibase.sdk.downloadDirectory=artifacts \
-            -Dliquibase.sdk.artifactPattern=* \
-            -Dliquibase.sdk.unzipArtifacts=true \
-
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
           ref: ${{ github.event.pull_request.head.sha || github.event.after}}
+
+      - name: Set pending status
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          mvn -B liquibase-sdk:set-commit-status \
+            -Dliquibase.sdk.repo="${{ github.repository }}" \
+            -Dliquibase.sdk.status.context="Scan Code / Sonar Scan" \
+            -Dliquibase.sdk.status.description="Code analysis" \
+            -Dliquibase.sdk.status.url="${{ github.job.html_url }}" \
+            -Dliquibase.sdk.status.commit="${{ github.event.workflow_run.head_commit.id }}" \
+            -Dliquibase.sdk.status.state=pending
+
+      - name: Download and Extract Artifacts
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          mvn -B liquibase-sdk:download-snapshot-artifacts \
+            -Dliquibase.sdk.repo=${{ github.repository }} \
+            -Dliquibase.sdk.runId=${{ github.event.workflow_run.id }} \
+            -Dliquibase.sdk.downloadDirectory=artifacts \
+            -Dliquibase.sdk.artifactPattern=* \
+            -Dliquibase.sdk.unzipArtifacts=true
 
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -42,13 +54,36 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Build code
-        run: mvn compile
+        run: mvn -B compile
 
       - name: Aggregate Jacoco Results
-        run: mvn -Djacoco.fileset.directory=artifacts -Djacoco.destFile=target\jacoco-merged.exec -Djacoco.dataFile=target\jacoco-merged.exec jacoco:merge jacoco:report
+        run: |
+          mvn -B -Djacoco.fileset.directory=artifacts \
+            -Djacoco.destFile=target\jacoco-merged.exec \
+            -Djacoco.dataFile=target\jacoco-merged.exec \
+            jacoco:merge \
+            jacoco:report
 
       - name: Sonar Scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -Dsonar.login=$SONAR_TOKEN -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} sonar:sonar
+        run: |
+          mvn -B -Dsonar.login=$SONAR_TOKEN \
+              -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+              -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} \
+              -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} \
+              sonar:sonar
+
+      - name: Set final status
+        if: ${{ always() }}
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: |
+          mvn -B liquibase-sdk:set-commit-status \
+            -Dliquibase.sdk.repo="${{ github.repository }}" \
+            -Dliquibase.sdk.status.context="Scan Code / Sonar Scan" \
+            -Dliquibase.sdk.status.description="Code analysis" \
+            -Dliquibase.sdk.status.url="${{ github.job.html_url }}" \
+            -Dliquibase.sdk.status.commit="${{ github.event.workflow_run.head_commit.id }}" \
+            -Dliquibase.sdk.status.state="${{ job.status  }}"
