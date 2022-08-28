@@ -16,6 +16,17 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
           ref: ${{ github.event.workflow_run.head_commit.id }}
 
+      - name: debug
+        uses: actions/github-script@v6
+        with:
+          script: |
+            console.log("job:");
+            console.log(context.job);  
+            console.log("payload:");
+            console.log(context.payload);        
+            console.log("context:");
+            console.log(context);        
+
       - name: Set pending status
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
