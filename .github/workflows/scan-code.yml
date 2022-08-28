@@ -22,10 +22,14 @@ jobs:
           script: |
             console.log("job:");
             console.log(context.job);  
+            console.log("other job");  
+            console.log("${{ job }}");  
             console.log("payload:");
             console.log(context.payload);        
             console.log("context:");
             console.log(context);        
+            console.log("event:");
+            console.log("${{ github.event.workflow_run.head_commit.id }}");
 
       - name: Set pending status
         env:
