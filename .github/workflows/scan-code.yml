@@ -11,14 +11,6 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
 
     steps:
-      - name: debug
-        uses: actions/github-script@v6
-        with:
-          script: |
-            console.log("other job json");  
-            console.log("${{ toJSON(job) }}");  
-            console.log("github json:");
-            console.log("${{ toJSON(github) }}");
 
       - uses: actions/checkout@v3
         with:
