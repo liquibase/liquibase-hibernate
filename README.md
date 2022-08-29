@@ -1,4 +1,4 @@
-TESTING COMMIT
+TESTING COMMIT 2
 
 # Liquibase Hibernate Integration [![Build and Test Extension](https://github.com/liquibase/liquibase-hibernate/actions/workflows/build.yml/badge.svg)](https://github.com/liquibase/liquibase-hibernate/actions/workflows/build.yml)
 
