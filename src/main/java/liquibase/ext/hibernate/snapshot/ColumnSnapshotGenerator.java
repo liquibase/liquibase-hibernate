@@ -1,5 +1,17 @@
 package liquibase.ext.hibernate.snapshot;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.hibernate.boot.spi.MetadataImplementor;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.PostgreSQLDialect;
+import org.hibernate.id.ExportableColumn;
+import org.hibernate.mapping.SimpleValue;
+
 import liquibase.Scope;
 import liquibase.datatype.DataTypeFactory;
 import liquibase.datatype.core.UnknownType;
@@ -15,17 +27,6 @@ import liquibase.structure.core.Relation;
 import liquibase.structure.core.Table;
 import liquibase.util.SqlUtil;
 import liquibase.util.StringUtil;
-import org.hibernate.boot.Metadata;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.PostgreSQL81Dialect;
-import org.hibernate.id.ExportableColumn;
-import org.hibernate.mapping.SimpleValue;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Columns are snapshotted along with with Tables in {@link TableSnapshotGenerator} but this class needs to be here to keep the default ColumnSnapshotGenerator from running.
@@ -69,9 +70,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 return;
             }
 
-            Iterator columnIterator = hibernateTable.getColumnIterator();
-            while (columnIterator.hasNext()) {
-                org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
+            for (org.hibernate.mapping.Column hibernateColumn: hibernateTable.getColumns()) {
                 Column column = new Column();
                 column.setName(hibernateColumn.getName());
                 column.setRelation((Table) foundObject);
@@ -94,15 +93,13 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         }
 
         Dialect dialect = database.getDialect();
-        Metadata metadata = database.getMetadata();
+        MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
 
-        Iterator columnIterator = hibernateTable.getColumnIterator();
-        while (columnIterator.hasNext()) {
-            org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
+        for (org.hibernate.mapping.Column hibernateColumn: hibernateTable.getColumns()) {
             if (hibernateColumn.getName().equalsIgnoreCase(column.getName())) {
 
                 String defaultValue = null;
-                String hibernateType = hibernateColumn.getSqlType(dialect, metadata);
+                String hibernateType = hibernateColumn.getSqlType(metadata.getTypeConfiguration(), dialect, metadata);
                 Matcher defaultValueMatcher = Pattern.compile("(?i) DEFAULT\\s+(.*)").matcher(hibernateType);
                 if (defaultValueMatcher.find()) {
                     defaultValue = defaultValueMatcher.group(1);
@@ -160,7 +157,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                             identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue() ? ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
 
                             if (("native".equalsIgnoreCase(identifierGeneratorStrategy) || "identity".equalsIgnoreCase(identifierGeneratorStrategy))) {
-                                if (PostgreSQL81Dialect.class.isAssignableFrom(dialect.getClass())) {
+                                if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
                                     column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                                     String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
                                     column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));

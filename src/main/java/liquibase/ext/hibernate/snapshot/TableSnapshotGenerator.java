@@ -4,7 +4,6 @@ import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.ext.hibernate.snapshot.extension.ExtendedSnapshotGenerator;
-import liquibase.ext.hibernate.snapshot.extension.MultipleHiLoPerTableSnapshotGenerator;
 import liquibase.ext.hibernate.snapshot.extension.TableGeneratorSnapshotGenerator;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
@@ -27,7 +26,6 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
     public TableSnapshotGenerator() {
         super(Table.class, new Class[]{Schema.class});
-        tableIdGenerators.add(new MultipleHiLoPerTableSnapshotGenerator());
         tableIdGenerators.add(new TableGeneratorSnapshotGenerator());
     }
 
@@ -84,10 +82,8 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
                         .next();
                 if (!persistentClass.isInherited()) {
                     IdentifierGenerator ig = persistentClass.getIdentifier().createIdentifierGenerator(
-                            metadata.getIdentifierGeneratorFactory(),
+                            metadata.getMetadataBuildingOptions().getIdentifierGeneratorFactory(),
                             database.getDialect(),
-                            null,
-                            null,
                             (RootClass) persistentClass
                     );
                     for (ExtendedSnapshotGenerator<IdentifierGenerator, Table> tableIdGenerator : tableIdGenerators) {

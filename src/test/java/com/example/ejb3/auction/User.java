@@ -1,9 +1,10 @@
 package com.example.ejb3.auction;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
 import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class User extends Persistent {

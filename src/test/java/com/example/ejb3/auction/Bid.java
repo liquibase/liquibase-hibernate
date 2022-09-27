@@ -1,17 +1,17 @@
 package com.example.ejb3.auction;
 
+import java.util.Date;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)

@@ -2,12 +2,11 @@ package liquibase.ext.hibernate.database;
 
 import java.util.Collections;
 
-import javax.persistence.spi.PersistenceUnitInfo;
-
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager;
 
+import jakarta.persistence.spi.PersistenceUnitInfo;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.connection.HibernateDriver;

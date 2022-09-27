@@ -104,7 +104,7 @@ public class HibernateSpringDatabaseTest {
 
         HibernateEjb3DatabaseTest.assertEjb3HibernateMapped(snapshot);
         Table userTable = (Table) snapshot.get(new Table().setName("user").setSchema(new Schema()));
-        assertEquals("nvarchar", userTable.getColumn("userName").getType().getTypeName());
+        assertEquals("varchar", userTable.getColumn("userName").getType().getTypeName());
     }
 
 }
