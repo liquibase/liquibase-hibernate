@@ -25,6 +25,11 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Install liquibase-core 0-SNAPSHOT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B clean liquibase-sdk:install-snapshot -Dliquibase.sdk.branchSearch=master
+
       ## Need to install the snyk CLI and not use the github action because the action runs snyk in a separate docker container which does not have access to the installed sub-modules.
       - name: Install snyk
         env:
