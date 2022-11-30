@@ -250,7 +250,7 @@
                 <configuration>
                     <attach>true</attach>
                     <author>false</author>
-                    <doctitle>Liquibase Hibernate ${version} API</doctitle>
+                    <doctitle>Liquibase Hibernate ${project.version} API</doctitle>
                     <quiet>true</quiet>
                     <doclint>none</doclint>
                     <encoding>UTF-8</encoding>
