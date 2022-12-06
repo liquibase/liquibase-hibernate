@@ -106,7 +106,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hibernate: [ "6.0.2.Final", "6.1.4.Final" ]
+        hibernate: [ "6.0.2.Final", "6.1.5.Final" ]
 
     steps:
       - uses: actions/checkout@v2
