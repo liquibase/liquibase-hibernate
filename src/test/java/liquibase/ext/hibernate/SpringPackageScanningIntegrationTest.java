@@ -15,7 +15,7 @@ import liquibase.diff.output.report.DiffToReport;
 import liquibase.ext.hibernate.database.HibernateSpringPackageDatabase;
 import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import liquibase.resource.FileSystemResourceAccessor;
+import liquibase.resource.DirectoryResourceAccessor;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
 import org.hibernate.dialect.HSQLDialect;
@@ -109,7 +109,7 @@ public class SpringPackageScanningIntegrationTest {
 
         Scope.getCurrentScope().getLog(getClass()).info("Changelog:\n" + changeLogString);
 
-        liquibase = new Liquibase(outFile.toString(), new FileSystemResourceAccessor(File.listRoots()), database);
+        liquibase = new Liquibase(outFile.toString(), new DirectoryResourceAccessor(File.listRoots()[0]), database);
         StringWriter stringWriter = new StringWriter();
         liquibase.update((String) null, stringWriter);
         Scope.getCurrentScope().getLog(getClass()).info(stringWriter.toString());
