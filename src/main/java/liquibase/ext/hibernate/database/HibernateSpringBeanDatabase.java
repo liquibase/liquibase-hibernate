@@ -18,7 +18,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 
 import java.net.URL;
 import java.util.List;

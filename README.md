@@ -8,7 +8,8 @@ These instructions will help you get the extension up and running on your local 
 
 ### Compatiblity
 
-The Liquibase Hibernate extension requires Liquibase 3.0.6+ and Java 1.6+. Use `liquibase-hibernate3.jar` or `liquibase-hibernate4.jar` depending on your Hibernate version.
+The Liquibase Hibernate extension requires Liquibase 4.x and Java 1.8+. Use `liquibase-hibernate5.jar` or `liquibase-hibernate6.jar` depending on your Hibernate version.
+Ideally the extension version should be the same one as Liquibase version.
 
 This extension can be used with any method of running Liquibase (Command line, Gradle, Maven, Ant, and others.)
 
@@ -20,10 +21,8 @@ Download [the latest released Liquibase extension](https://github.com/liquibase/
 
 This extension is available in the maven repository under group __org.liquibase.ext__, artifacts:
 
+* __liquibase-hibernate6__ Hibernate 6.0+ support
 * __liquibase-hibernate5__ Hibernate 5.0+ support
-* __liquibase-hibernate4__ Hibernate 4.3+ support
-* __liquibase-hibernate4.2__ Hibernate 4.0-4.2 support
-* __liquibase-hibernate3__ Hibernate 3.x support
 
 Specify the Liquibase extension in the `<dependency>` section of your POM file by adding the `org.liquibase.ext` dependency for the Liquibase plugin. 
  
@@ -33,7 +32,7 @@ Specify the Liquibase extension in the `<dependency>` section of your POM file b
      include <groupId>, <artifactID>, and <version> elements-->
      <groupId>org.liquibase</groupId>
      <artifactId>liquibase-maven-plugin</artifactId>
-     <version>4.3.2</version>
+     <version>4.19.0</version>
      <configuration>
         <!--set values for Liquibase properties and settings
         for example, the location of a properties file to use-->
@@ -59,14 +58,12 @@ To file a bug, improve documentation, or contribute code, follow our [guidelines
 
 Once you have created a PR for this extension you can find the artifact for your build using the following link: [https://github.com/liquibase/liquibase-hibernate/actions/workflows/build.yml](https://github.com/liquibase/liquibase-hibernate/actions/workflows/build.yml).
 
-## Hibernate 3 vs. Hibernate 4 vs. Hibernate 5
+## Hibernate 5 vs. Hibernate 6
 
-The master branch is Hibernate 5+ compatible.
-The `hibernate4` branch is Hibernate 4.3+ compatible.
-For Hibernate 3 support, use the `hibernate3` release and/or branch.
-For hibernate `4.0-4.2` support, use the `hibernate4.2` release and/or branch.
+The master branch is Hibernate 6+ compatible.
+The `hibernate5` branch is Hibernate 5.6+ compatible.
 
-Ideally changes should go into the `hibernate3` branch and then be merged into master in order to support both Hibernate 3 and 4.
+Ideally changes should go into the `hibernate5` branch and then be merged into master in order to support Hibernate 5 and 6.
 
 ## Documentation
 

@@ -87,7 +87,7 @@ public class HibernateClassicDatabaseTest {
 
         assertPojoHibernateMapped(snapshot);
         Table watcherTable = (Table) snapshot.get(new Table().setName("watcher").setSchema(new Schema()));
-        assertEquals("nvarchar", watcherTable.getColumn("name").getType().getTypeName());
+        assertEquals("varchar", watcherTable.getColumn("name").getType().getTypeName());
     }
 
     public static void assertPojoHibernateMapped(DatabaseSnapshot snapshot) {

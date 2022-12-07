@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.liquibase.ext</groupId>
-    <artifactId>liquibase-hibernate5</artifactId>
+    <artifactId>liquibase-hibernate6</artifactId>
     <version>0-SNAPSHOT</version>
 
     <name>Liquibase Hibernate Integration</name>
@@ -69,9 +69,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hibernate.version>5.6.10.Final</hibernate.version>
-        <spring.version>5.3.22</spring.version>
+        <hibernate.version>6.1.5.Final</hibernate.version>
+        <spring.version>6.0.2</spring.version>
         <liquibase.version>0-SNAPSHOT</liquibase.version>
+        <!--suppress UnresolvedMavenProperty -->
         <liquibase.sdk.github.token>${env.GITHUB_TOKEN}</liquibase.sdk.github.token>
 
         <sonar.organization>liquibase</sonar.organization>
@@ -101,17 +102,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-envers</artifactId>
             <version>${hibernate.version}</version>
         </dependency>
@@ -207,7 +203,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
-                    <release>8</release>
+                    <release>17</release>
                     <optimize>true</optimize>
                     <debug>true</debug>
                     <encoding>${project.build.sourceEncoding}</encoding>

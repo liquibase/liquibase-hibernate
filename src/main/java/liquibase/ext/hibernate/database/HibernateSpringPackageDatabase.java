@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.spi.PersistenceUnitInfo;
-
-import liquibase.Scope;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.envers.configuration.EnversSettings;
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
@@ -17,6 +14,8 @@ import org.springframework.orm.jpa.persistenceunit.DefaultPersistenceUnitManager
 import org.springframework.orm.jpa.persistenceunit.SmartPersistenceUnitInfo;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
+import jakarta.persistence.spi.PersistenceUnitInfo;
+import liquibase.Scope;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
