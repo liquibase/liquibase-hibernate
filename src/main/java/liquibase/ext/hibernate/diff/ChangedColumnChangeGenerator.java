@@ -9,6 +9,7 @@ import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.statement.DatabaseFunction;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Column;
+import liquibase.structure.core.DataType;
 
 import java.util.List;
 
@@ -29,8 +30,26 @@ public class ChangedColumnChangeGenerator extends liquibase.diff.output.changelo
     @Override
     protected void handleTypeDifferences(Column column, ObjectDifferences differences, DiffOutputControl control, List<Change> changes, Database referenceDatabase, Database comparisonDatabase) {
         if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
-            // do nothing, types tend to not match with hibernate
+            handleSizeChange(column, differences, control, changes, referenceDatabase, comparisonDatabase);
         } else {
+            super.handleTypeDifferences(column, differences, control, changes, referenceDatabase, comparisonDatabase);
+        }
+    }
+
+    private void handleSizeChange(Column column, ObjectDifferences differences, DiffOutputControl control, List<Change> changes, Database referenceDatabase, Database comparisonDatabase) {
+        Difference difference = differences.getDifference("type");
+        if (difference != null) {
+            for (Difference d : differences.getDifferences()) {
+                if (!(d.getReferenceValue() instanceof DataType)) {
+                    differences.removeDifference(d.getField());
+                    continue;
+                }
+                int originalSize = ((DataType) d.getReferenceValue()).getColumnSize();
+                int newSize = ((DataType) d.getComparedValue()).getColumnSize();
+                if (newSize == originalSize) {
+                    differences.removeDifference(d.getField());
+                }
+            }
             super.handleTypeDifferences(column, differences, control, changes, referenceDatabase, comparisonDatabase);
         }
     }
@@ -39,14 +58,16 @@ public class ChangedColumnChangeGenerator extends liquibase.diff.output.changelo
     protected void handleDefaultValueDifferences(Column column, ObjectDifferences differences, DiffOutputControl control, List<Change> changes, Database referenceDatabase, Database comparisonDatabase) {
         if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
             Difference difference = differences.getDifference("defaultValue");
+            if (difference != null && difference.getReferenceValue() == null && difference.getComparedValue() instanceof DatabaseFunction) {
+                //database sometimes adds a function default value, like for timestamp columns
+                return;
+            }
+            difference = differences.getDifference("defaultValue");
             if (difference != null) {
-                if (difference.getReferenceValue() == null && difference.getComparedValue() instanceof DatabaseFunction) {
-                    //database sometimes adds a function default value, like for timestamp columns
-                    return;
-                }
+                super.handleDefaultValueDifferences(column, differences, control, changes, referenceDatabase, comparisonDatabase);
             }
             // do nothing, types tend to not match with hibernate
         }
-            super.handleDefaultValueDifferences(column, differences, control, changes, referenceDatabase, comparisonDatabase);
+        super.handleDefaultValueDifferences(column, differences, control, changes, referenceDatabase, comparisonDatabase);
     }
 }
