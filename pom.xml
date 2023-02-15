@@ -70,7 +70,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hibernate.version>6.1.6.Final</hibernate.version>
-        <spring.version>6.0.4</spring.version>
+        <spring.version>6.0.5</spring.version>
         <liquibase.version>0-SNAPSHOT</liquibase.version>
         <!--suppress UnresolvedMavenProperty -->
         <liquibase.sdk.github.token>${env.GITHUB_TOKEN}</liquibase.sdk.github.token>
