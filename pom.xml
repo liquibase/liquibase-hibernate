@@ -69,8 +69,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hibernate.version>5.6.10.Final</hibernate.version>
-        <spring.version>5.3.22</spring.version>
+        <hibernate.version>5.6.15.Final</hibernate.version>
+        <spring.version>5.3.25</spring.version>
         <liquibase.version>0-SNAPSHOT</liquibase.version>
         <liquibase.sdk.github.token>${env.GITHUB_TOKEN}</liquibase.sdk.github.token>
 
@@ -153,7 +153,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.30</version>
+            <version>1.33</version>
             <scope>test</scope>
         </dependency>
         <dependency>
