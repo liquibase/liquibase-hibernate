@@ -62,7 +62,7 @@ jobs:
       - name: Download snapshot build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn -B liquibase-sdk:download-snapshot-artifacts -Dliquibase.sdk.repo=${{ github.repository }} -Dliquibase.sdk.branchSearch=hibernate5 -Dliquibase.sdk.artifactPattern=liquibase-hibernate-artifacts -Dliquibase.sdk.downloadDirectory=original-artifacts
+        run: mvn -B liquibase-sdk:download-snapshot-artifacts -Dliquibase.sdk.repo=${{ github.repository }} -Dliquibase.sdk.branchSearch=${{ github.ref_name }} -Dliquibase.sdk.artifactPattern=liquibase-hibernate-artifacts -Dliquibase.sdk.downloadDirectory=original-artifacts
 
       - name: Re-version Artifacts
         env:
