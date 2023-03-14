@@ -44,9 +44,10 @@ public class ChangedColumnChangeGenerator extends liquibase.diff.output.changelo
                     differences.removeDifference(d.getField());
                     continue;
                 }
-                int originalSize = ((DataType) d.getReferenceValue()).getColumnSize();
-                int newSize = ((DataType) d.getComparedValue()).getColumnSize();
-                if (newSize == originalSize) {
+                Integer originalSize = ((DataType) d.getReferenceValue()).getColumnSize();
+                Integer newSize = ((DataType) d.getComparedValue()).getColumnSize();
+                if ((newSize == null && originalSize == null) ||
+                        (newSize != null && newSize.equals(originalSize))) {
                     differences.removeDifference(d.getField());
                 }
             }
