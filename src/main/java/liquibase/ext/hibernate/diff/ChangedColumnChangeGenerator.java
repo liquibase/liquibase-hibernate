@@ -19,6 +19,8 @@ import java.util.List;
  */
 public class ChangedColumnChangeGenerator extends liquibase.diff.output.changelog.core.ChangedColumnChangeGenerator {
 
+    private static final List<String> TYPES_TO_IGNORE_SIZE = List.of("TIMESTAMP");
+
     @Override
     public int getPriority(Class<? extends DatabaseObject> objectType, Database database) {
         if (Column.class.isAssignableFrom(objectType)) {
@@ -37,6 +39,9 @@ public class ChangedColumnChangeGenerator extends liquibase.diff.output.changelo
     }
 
     private void handleSizeChange(Column column, ObjectDifferences differences, DiffOutputControl control, List<Change> changes, Database referenceDatabase, Database comparisonDatabase) {
+        if (TYPES_TO_IGNORE_SIZE.stream().anyMatch(s -> s.equalsIgnoreCase(column.getType().getTypeName()))) {
+            return;
+        }
         Difference difference = differences.getDifference("type");
         if (difference != null) {
             for (Difference d : differences.getDifferences()) {
