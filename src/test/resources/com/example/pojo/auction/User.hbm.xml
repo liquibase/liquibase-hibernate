@@ -19,11 +19,11 @@
 		
 		<property name="password" 
 				not-null="true"
+				  unique-key="ux-password"
 				length="15"
 				column="password"/>
 		
-		<property name="email"/>
-		
+		<property name="email" unique-key="ux_email"/>
 		<component name="name">
 			<property name="firstName"
 					length="50"
