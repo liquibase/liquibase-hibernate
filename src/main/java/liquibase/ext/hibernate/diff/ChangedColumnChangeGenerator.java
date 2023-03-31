@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Hibernate and database types tend to look different even though they are not.
- * There are enough false positives that it works much better to suppress all column changes based on types.
+ * The only change that we are handling it size change, and even for this one there are exceptions.
  */
 public class ChangedColumnChangeGenerator extends liquibase.diff.output.changelog.core.ChangedColumnChangeGenerator {
 
