@@ -6,4 +6,5 @@ liquibase.ext.hibernate.snapshot.PrimaryKeySnapshotGenerator
 liquibase.ext.hibernate.snapshot.SchemaSnapshotGenerator
 liquibase.ext.hibernate.snapshot.SequenceSnapshotGenerator
 liquibase.ext.hibernate.snapshot.TableSnapshotGenerator
+liquibase.ext.hibernate.snapshot.UniqueConstraintSnapshotGenerator
 liquibase.ext.hibernate.snapshot.ViewSnapshotGenerator
