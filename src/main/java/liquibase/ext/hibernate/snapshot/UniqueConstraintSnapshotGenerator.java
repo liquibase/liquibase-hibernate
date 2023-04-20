@@ -9,6 +9,7 @@ import liquibase.structure.core.Column;
 import liquibase.structure.core.Index;
 import liquibase.structure.core.Table;
 import liquibase.structure.core.UniqueConstraint;
+import liquibase.util.StringUtil;
 import org.hibernate.HibernateException;
 
 import java.math.BigInteger;
@@ -116,7 +117,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         index.setRelation(uniqueConstraint.getRelation());
         index.setColumns(uniqueConstraint.getColumns());
         index.setUnique(true);
-        index.setName(hibernateTable.getName() + "_IX");
+        index.setName(String.format("%s_%s_IX",hibernateTable.getName(), StringUtil.randomIdentifer(4)));
 
         return index;
     }
