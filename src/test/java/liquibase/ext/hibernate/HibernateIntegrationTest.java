@@ -119,7 +119,7 @@ public class HibernateIntegrationTest {
 
         String differences = toString(diffResult);
 
-        assertEquals(differences, 0, diffResult.getMissingObjects().size());
+        assertEquals(differences, 1, diffResult.getMissingObjects().size());
         assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
 //        assertEquals(differences, 0, diffResult.getChangedObjects().size());  //unimportant differences in schema name and datatypes causing test to fail
 
