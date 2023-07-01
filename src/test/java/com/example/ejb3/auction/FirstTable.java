@@ -2,8 +2,6 @@ package com.example.ejb3.auction;
 
 import jakarta.persistence.*;
 
-import java.util.UUID;
-
 @Entity
 @SecondaryTable(name = "second_table", pkJoinColumns = @PrimaryKeyJoinColumn(name = "first_table_id"))
 public class FirstTable {
