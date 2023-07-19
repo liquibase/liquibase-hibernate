@@ -11,7 +11,7 @@ import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Schema;
 import liquibase.structure.core.Table;
 import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.generator.Generator;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.RootClass;
 
@@ -22,7 +22,7 @@ import java.util.List;
 
 public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
-    private List<ExtendedSnapshotGenerator<IdentifierGenerator, Table>> tableIdGenerators = new ArrayList<ExtendedSnapshotGenerator<IdentifierGenerator, Table>>();
+    private List<ExtendedSnapshotGenerator<Generator, Table>> tableIdGenerators = new ArrayList<>();
 
     public TableSnapshotGenerator() {
         super(Table.class, new Class[]{Schema.class});
@@ -78,15 +78,14 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
             Iterator<PersistentClass> classMappings = entityBindings.iterator();
             while (classMappings.hasNext()) {
-                PersistentClass persistentClass = (PersistentClass) classMappings
-                        .next();
+                PersistentClass persistentClass = classMappings.next();
                 if (!persistentClass.isInherited()) {
-                    IdentifierGenerator ig = persistentClass.getIdentifier().createIdentifierGenerator(
+                    Generator ig = persistentClass.getIdentifier().createGenerator(
                             metadata.getMetadataBuildingOptions().getIdentifierGeneratorFactory(),
                             database.getDialect(),
                             (RootClass) persistentClass
                     );
-                    for (ExtendedSnapshotGenerator<IdentifierGenerator, Table> tableIdGenerator : tableIdGenerators) {
+                    for (ExtendedSnapshotGenerator<Generator, Table> tableIdGenerator : tableIdGenerators) {
                         if (tableIdGenerator.supports(ig)) {
                             Table idTable = tableIdGenerator.snapshot(ig);
                             idTable.setSchema(schema);
