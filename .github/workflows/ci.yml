@@ -126,8 +126,11 @@ jobs:
             **/target/**
             ~/.m2/repository/org/liquibase/
 
-      - name: Run Tests
+      - name: Run Compatibility Tests
         run: mvn -B jacoco:prepare-agent surefire:test -Dhibernate.version=${{ matrix.hibernate }}
+
+      - name: Run Tests
+        run: mvn -B jacoco:prepare-agent surefire:test
 
       - name: Archive Test Results
         if: ${{ always() }}
