@@ -1,80 +1,52 @@
 name: Release Extension to Sonatype
 
 on:
+  workflow_dispatch:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release Tag'
-        required: true
 
 jobs:
-  setup:
-    name: Setup
-    runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.collect-data.outputs.tag }}
-      version: ${{ steps.collect-data.outputs.version }}
+  release:
+    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@v0.3.3
+    secrets: inherit
+
+  deploy_xsd:
+    name: Upload xsds
+    runs-on: ubuntu-20.04
     steps:
-      - name: Collect Data
-        id: collect-data
-        uses: actions/github-script@v6
+      - name: Download liquibase mongodb xsd
+        uses: actions/checkout@v3
         with:
-          script: |
-            let tag;
-            if (context.payload.inputs) {
-              tag = context.payload.inputs.tag;
-            } else {
-              tag = context.payload.release.tag_name;
-            }
+          # Relative path under $GITHUB_WORKSPACE to place the repository
+          path: liquibase-mongodb
+          repository: "liquibase/liquibase-mongodb"
 
-            let version = tag.replace(/^v/, "");
-
-            core.setOutput("tag", tag);
-            core.setOutput("version", version);
-
-      - run: |
-          echo "Publishing version ${{ steps.collect-data.outputs.version }} from ${{ steps.collect-data.outputs.tag }}"
-
-  deploy_maven:
-    name: Deploy to Maven
-    needs: [ setup ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Release Artifacts
-        uses: robinraju/release-downloader@v1.4
-        with:
-          tag: "${{ needs.setup.outputs.tag }}"
-          filename: "*"
-          out-file-path: "."
-
-      - name: Set up Java for publishing to Maven Central Repository
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          server-id: sonatype-nexus-staging
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-
-      - name: Publish to Maven Central
+      - name: Upload to s3
         env:
-          MAVEN_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.SONATYPE_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.LIQUIBASEORIGIN_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.LIQUIBASEORIGIN_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        # aws s3 sync syncs directories and S3 prefixes.
         run: |
-          version=${{ needs.setup.outputs.version }}
-
-          unzip *.zip
+          aws s3 sync liquibase-mongodb/src/main/resources/www.liquibase.org/xml/ns/mongodb/ s3://liquibaseorg-origin/xml/ns/mongodb/ --content-type application/octet-stream --only-show-errors
+      - name: Index.htm file upload
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.LIQUIBASEORIGIN_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.LIQUIBASEORIGIN_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        # List all xsd and htm files in repository. Copy index.htm to temporary folder
+        # Add links for all xsd files to index.htm file (except liquibase-mongodb-latest.xsd and index.htm)
+        # Sync index.htm with the s3
+        run: |
+          search_dir=liquibase-mongodb/src/main/resources/www.liquibase.org/xml/ns/mongodb
+          filenames=`ls -1 $search_dir`
+          mkdir index-file
+          cp $search_dir/index.htm index-file/
+          for entry in $filenames
+          do
+            if [[ "$entry" != "liquibase-mongodb-latest.xsd" ]] && [[ "$entry" != "index.htm" ]] ;then
+              sed -ie "s/<\/ul>/  <li><a href=\"\/xml\/ns\/mongodb\/${entry}\">${entry}<\/a><\/li>\n<\/ul>/" index-file/index.htm
+            fi
+          done
           
-          mvn -B org.apache.maven.plugins:maven-deploy-plugin:3.0.0-M1:deploy-file \
-            -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
-            -DrepositoryId=sonatype-nexus-staging \
-            -DpomFile=liquibase-hibernate6-${version}.pom \
-            -DgeneratePom=false \
-            -Dfile=liquibase-hibernate6-${version}.jar \
-            -Dsources=liquibase-hibernate6-${version}-sources.jar \
-            -Djavadoc=liquibase-hibernate6-${version}-javadoc.jar \
-            -Dfiles=liquibase-hibernate6-${version}.jar.asc,liquibase-hibernate6-${version}-sources.jar.asc,liquibase-hibernate6-${version}-javadoc.jar.asc,liquibase-hibernate6-${version}.pom.asc \
-            -Dtypes=jar.asc,jar.asc,jar.asc,pom.asc \
-            -Dclassifiers=,sources,javadoc,
+          aws s3 sync index-file s3://liquibaseorg-origin/xml/ns/mongodb/ --only-show-errors
