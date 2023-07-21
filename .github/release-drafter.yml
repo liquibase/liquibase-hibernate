@@ -1,5 +1,5 @@
 
-name-template: 'Support for Liquibase v$RESOLVED_VERSION'
+name-template: 'Support for Liquibase Hibernate Extension v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 exclude-labels:
   - 'skipReleaseNotes'
