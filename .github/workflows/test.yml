@@ -12,3 +12,42 @@ jobs:
   build-test:
     uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.3.1
     secrets: inherit
+
+  hibernate-test:
+    name: Test Hibernate ${{ matrix.hibernate }}
+    needs: build-test
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        hibernate: [ "6.0.2.Final", "6.1.7.Final" ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 17
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Compatibility Tests
+        run: mvn -qB jacoco:prepare-agent surefire:test -Dhibernate.version=${{ matrix.hibernate }}
+
+      - name: Run Tests
+        run: mvn -qB jacoco:prepare-agent surefire:test
+
+      - name: Archive Test Results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-reports-hibernate-${{ matrix.hibernate }}
+          path: |
+            **/target/surefire-reports
+            **/target/jacoco.exec
+
+  dependabot:
+    uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@main
+    secrets: inherit
