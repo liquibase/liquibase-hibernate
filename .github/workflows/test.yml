@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-test:
-    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.3.1
+    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.3.3
     secrets: inherit
 
   hibernate-test:
