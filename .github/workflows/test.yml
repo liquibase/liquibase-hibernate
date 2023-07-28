@@ -109,10 +109,10 @@ jobs:
           cache: 'maven'
 
       - name: Run Compatibility Tests
-        run: mvn -qB jacoco:prepare-agent surefire:test -Dhibernate.version=${{ matrix.hibernate }}
+        run: mvn -B jacoco:prepare-agent surefire:test -Dhibernate.version=${{ matrix.hibernate }}
 
       - name: Run Tests
-        run: mvn -qB jacoco:prepare-agent surefire:test
+        run: mvn -B jacoco:prepare-agent surefire:test
 
       - name: Archive Test Results
         if: ${{ always() }}
