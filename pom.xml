@@ -87,7 +87,7 @@
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <jupiter.version>5.7.0</jupiter.version>
+        <jupiter.version>5.9.3</jupiter.version>
         <jupiter.surefire.version>1.3.2</jupiter.surefire.version>
         <mockito-core.version>4.11.0</mockito-core.version>
         <mockito-junit-jupiter.version>4.8.0</mockito-junit-jupiter.version>
@@ -123,12 +123,6 @@
             <artifactId>junit-jupiter-params</artifactId>
             <version>${jupiter.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-            <version>4.13.2</version>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
