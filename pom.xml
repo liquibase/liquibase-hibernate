@@ -72,7 +72,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <hibernate.version>6.1.7.Final</hibernate.version>
-        <spring.version>6.0.10</spring.version>
+        <spring.version>6.0.11</spring.version>
         <liquibase.version>4.23.0</liquibase.version>
         <!--suppress UnresolvedMavenProperty -->
         <liquibase.sdk.github.token>${env.GITHUB_TOKEN}</liquibase.sdk.github.token>
@@ -86,16 +86,32 @@
         <jacoco.fileset.directory>target</jacoco.fileset.directory>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
+        <jupiter.version>5.9.3</jupiter.version>
+        <jupiter.version>5.9.3</jupiter.version>
+        <jupiter.surefire.version>1.3.2</jupiter.surefire.version>
+        <mockito-core.version>4.11.0</mockito-core.version>
+        <mockito-junit-jupiter.version>4.8.0</mockito-junit-jupiter.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${jupiter.version}</version>
             <scope>test</scope>
-            <version>4.13.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest</artifactId>
