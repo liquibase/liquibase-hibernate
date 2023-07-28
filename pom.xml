@@ -114,12 +114,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.spockframework</groupId>
-            <artifactId>spock-core</artifactId>
-            <version>2.4-M1-groovy-3.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-test-harness</artifactId>
             <version>1.0.9</version>
@@ -230,19 +224,6 @@
             <artifactId>assertj-core</artifactId>
             <version>${assertj.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.athaydes</groupId>
-            <artifactId>spock-reports</artifactId>
-            <version>2.3.2-groovy-3.0</version>
-            <scope>test</scope>
-            <!-- this avoids affecting your version of Groovy/Spock -->
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 
