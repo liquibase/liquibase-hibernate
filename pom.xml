@@ -30,7 +30,7 @@
     </issueManagement>
 
     <scm>
-        <connection>scm:git:http://github.com/liquibase/liquibase-hibernate.git</connection>
+        <connection>scm:git:https://github.com/liquibase/liquibase-hibernate.git</connection>
         <url>https://github.com/liquibase/liquibase-hibernate</url>
         <tag>HEAD</tag>
     </scm>
