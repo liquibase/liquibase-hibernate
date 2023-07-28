@@ -236,19 +236,23 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.2</version>
                 <configuration>
-<!--                    <skipTests>false</skipTests>-->
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <reportFormat>plain</reportFormat>
+                    <systemPropertyVariables>
+                        <com.athaydes.spockframework.report.outputDir>target/test-results</com.athaydes.spockframework.report.outputDir>
+                        <com.athaydes.spockframework.report.aggregatedJsonReportDir>target/test-results</com.athaydes.spockframework.report.aggregatedJsonReportDir>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>unit-tests</id>
+                        <id>default-test</id>
                         <phase>test</phase>
                         <goals>
                             <goal>test</goal>
                         </goals>
                         <configuration>
                             <includes>
+                                <include>**/*IT.java</include>
                                 <include>**/*Test.java</include>
                             </includes>
                         </configuration>
