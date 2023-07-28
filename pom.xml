@@ -74,7 +74,6 @@
         <liquibase.version>4.23.0</liquibase.version>
         <!--suppress UnresolvedMavenProperty -->
         <liquibase.sdk.github.token>${env.GITHUB_TOKEN}</liquibase.sdk.github.token>
-
         <sonar.organization>liquibase</sonar.organization>
         <sonar.projectKey>${project.artifactId}</sonar.projectKey>
         <sonar.projectName>${project.name}</sonar.projectName>
@@ -85,6 +84,7 @@
         <jacoco.fileset.directory>target</jacoco.fileset.directory>
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
     </properties>
 
     <dependencies>
