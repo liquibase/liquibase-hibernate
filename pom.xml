@@ -87,9 +87,6 @@
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <jupiter.version>5.9.3</jupiter.version>
-        <mockito-core.version>4.11.0</mockito-core.version>
-        <mockito-junit-jupiter.version>4.8.0</mockito-junit-jupiter.version>
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
         <assertj.version>3.24.2</assertj.version>
     </properties>
