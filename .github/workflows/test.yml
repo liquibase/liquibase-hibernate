@@ -88,7 +88,6 @@ jobs:
             **/target/surefire-reports
             **/target/jacoco.exec
 
-
   hibernate-test:
     name: Test Hibernate ${{ matrix.hibernate }}
     needs: build
