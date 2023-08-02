@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+  pull-requests: write
+  
 jobs:
   create-release:
     uses: liquibase/build-logic/.github/workflows/create-release.yml@v0.3.5

@@ -8,6 +8,10 @@ on:
       - reopened
       - synchronize
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   build:
     # This extension can not execute hibernete tests on Java 8/11. This needs to be fixed and then uncomment the following 2 lines and remove the build and unit-test logic from here
@@ -123,6 +127,6 @@ jobs:
             **/target/surefire-reports
             **/target/jacoco.exec
 
-  # dependabot:
-  #   uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@v0.3.5
-  #   secrets: inherit
+  dependabot:
+    uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@v0.3.5
+    secrets: inherit
