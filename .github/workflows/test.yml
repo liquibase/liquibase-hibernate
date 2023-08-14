@@ -128,5 +128,5 @@ jobs:
             **/target/jacoco.exec
 
   dependabot:
-    uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@v0.3.5
+    uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@v0.3.8
     secrets: inherit
