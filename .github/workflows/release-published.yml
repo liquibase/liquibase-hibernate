@@ -11,5 +11,5 @@ permissions:
   
 jobs:
   release:
-    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@v0.4.0
+    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@v0.4.1
     secrets: inherit
