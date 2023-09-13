@@ -128,5 +128,6 @@ jobs:
             **/target/jacoco.exec
 
   dependabot:
+    needs: hibernate-test
     uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@v0.4.1
     secrets: inherit
