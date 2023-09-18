@@ -20,7 +20,7 @@ jobs:
     name: Build & Package
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -63,17 +63,17 @@ jobs:
         java: [ 17, 19 ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
           cache: 'maven'
 
       - name: Build Cache
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           key: build-${{ github.run_number }}-${{ github.run_attempt }}
           path: |
@@ -85,7 +85,7 @@ jobs:
 
       - name: Archive Test Results
         if: ${{ always() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-reports-jdk-${{ matrix.java }}
           path: |
@@ -103,10 +103,10 @@ jobs:
         hibernate: [ "6.0.2.Final", "6.1.7.Final" ]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: 17
           distribution: 'temurin'
@@ -120,7 +120,7 @@ jobs:
 
       - name: Archive Test Results
         if: ${{ always() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test-reports-hibernate-${{ matrix.hibernate }}
           path: |
@@ -128,5 +128,6 @@ jobs:
             **/target/jacoco.exec
 
   dependabot:
-    uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@v0.3.5
+    needs: hibernate-test
+    uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@v0.4.2
     secrets: inherit
