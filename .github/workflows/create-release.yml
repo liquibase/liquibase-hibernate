@@ -11,5 +11,5 @@ permissions:
   
 jobs:
   create-release:
-    uses: liquibase/build-logic/.github/workflows/create-release.yml@v0.4.2
+    uses: liquibase/build-logic/.github/workflows/create-release.yml@v0.4.3
     secrets: inherit
