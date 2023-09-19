@@ -68,7 +68,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hibernate.version>6.2.7.Final</hibernate.version>
+        <hibernate.version>6.3.1.Final</hibernate.version>
         <spring.version>6.0.12</spring.version>
         <liquibase.version>4.23.2</liquibase.version>
         <!--suppress UnresolvedMavenProperty -->
