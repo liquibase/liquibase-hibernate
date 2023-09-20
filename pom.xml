@@ -211,7 +211,10 @@
                     <optimize>true</optimize>
                     <debug>true</debug>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
+
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
