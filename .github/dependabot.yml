@@ -9,6 +9,6 @@ updates:
       - "sdou"
 
 - package-ecosystem: "github-actions"
-        directory: "/"
-        schedule:
-          interval: "daily"
+  directory: "/"
+  schedule:
+    interval: "daily"

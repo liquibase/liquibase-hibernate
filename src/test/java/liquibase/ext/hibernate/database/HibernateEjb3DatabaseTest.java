@@ -55,7 +55,9 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("AuditedItem")),
                 hasProperty("name", is("AuditedItem_AUD")),
                 hasProperty("name", is("REVINFO")),
-                hasProperty("name", is("WatcherSeqTable"))));
+                hasProperty("name", is("WatcherSeqTable")),
+                hasProperty("name", is("FirstTable")),
+                hasProperty("name", is("second_table"))));
 
 
         Table bidTable = (Table) snapshot.get(new Table().setName("bid").setSchema(new Schema()));
@@ -90,5 +92,12 @@ public class HibernateEjb3DatabaseTest {
                         hasProperty("primaryKeyTable", hasProperty("name", is("User")))
                 )
         ));
+
+        Table secondTable = (Table) snapshot.get(new Table().setName("second_table").setSchema(new Schema()));
+        assertThat(secondTable.getColumns(), containsInAnyOrder(
+                hasProperty("name", is("first_table_id")),
+                hasProperty("name", is("secondName"))
+        ));
+        assertThat(secondTable.getPrimaryKey().getColumnNames(), is("first_table_id"));
     }
 }
