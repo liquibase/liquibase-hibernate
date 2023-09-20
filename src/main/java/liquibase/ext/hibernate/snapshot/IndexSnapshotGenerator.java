@@ -7,7 +7,7 @@ import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
 
-import java.util.Iterator;
+import java.util.Map;
 
 public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
 
@@ -29,16 +29,13 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         if (hibernateTable == null) {
             return example;
         }
-        Iterator<org.hibernate.mapping.Index> indexIterator = hibernateTable.getIndexIterator();
-        while (indexIterator.hasNext()) {
-            org.hibernate.mapping.Index hibernateIndex = indexIterator.next();
+        Map<String, org.hibernate.mapping.Index> indexes = hibernateTable.getIndexes();
+        for (org.hibernate.mapping.Index  hibernateIndex : indexes.values()) {
             Index index = new Index();
             index.setRelation(table);
             index.setName(hibernateIndex.getName());
             index.setUnique(isUniqueIndex(hibernateIndex));
-            Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
-            while (columnIterator.hasNext()) {
-                org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
+            for (var hibernateColumn : hibernateIndex.getColumns()) {
                 String hibernateOrder = hibernateIndex.getColumnOrderMap().get(hibernateColumn);
                 Boolean descending = HIBERNATE_ORDER_ASC.equals(hibernateOrder)
                         ? Boolean.FALSE
@@ -67,16 +64,13 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             if (hibernateTable == null) {
                 return;
             }
-            Iterator<org.hibernate.mapping.Index> indexIterator = hibernateTable.getIndexIterator();
-            while (indexIterator.hasNext()) {
-                org.hibernate.mapping.Index hibernateIndex =  indexIterator.next();
+            for (var hibernateIndex : hibernateTable.getIndexes().values()) {
                 Index index = new Index();
                 index.setRelation(table);
                 index.setName(hibernateIndex.getName());
                 index.setUnique(isUniqueIndex(hibernateIndex));
-                Iterator<org.hibernate.mapping.Column> columnIterator = hibernateIndex.getColumnIterator();
-                while (columnIterator.hasNext()) {
-                    org.hibernate.mapping.Column hibernateColumn = columnIterator.next();
+
+                for (var hibernateColumn : hibernateIndex.getColumns()) {
                     String hibernateOrder = hibernateIndex.getColumnOrderMap().get(hibernateColumn);
                     Boolean descending = HIBERNATE_ORDER_ASC.equals(hibernateOrder)
                             ? Boolean.FALSE
@@ -95,7 +89,7 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         actual diff in certain non-unique indexes
         */
         if (hibernateIndex.getColumnSpan() == 1) {
-            org.hibernate.mapping.Column col = hibernateIndex.getColumnIterator().next();
+            var col = hibernateIndex.getColumns().get(0);
             return col.isUnique();
         } else {
             /*

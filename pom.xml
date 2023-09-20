@@ -68,7 +68,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hibernate.version>6.3.0.Final</hibernate.version>
+        <hibernate.version>6.3.1.Final</hibernate.version>
         <spring.version>6.0.12</spring.version>
         <liquibase.version>4.23.2</liquibase.version>
         <!--suppress UnresolvedMavenProperty -->
@@ -226,23 +226,6 @@
                 <artifactId>build-helper-maven-plugin</artifactId>
                 <version>3.4.0</version>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.gmavenplus</groupId>-->
-<!--                <artifactId>gmavenplus-plugin</artifactId>-->
-<!--                <version>1.13.1</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <goals>-->
-<!--                            <goal>addSources</goal>-->
-<!--                            <goal>addTestSources</goal>-->
-<!--                            <goal>compile</goal>-->
-<!--                            <goal>compileTests</goal>-->
-<!--                            <goal>removeStubs</goal>-->
-<!--                            <goal>removeTestStubs</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -256,7 +239,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>1.8</version>
+                                    <version>11</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
