@@ -7,8 +7,6 @@ import liquibase.snapshot.InvalidExampleException;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.*;
 
-import java.util.Map;
-
 public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
 
     private static final String HIBERNATE_ORDER_ASC = "asc";
@@ -25,24 +23,12 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             return example;
         }
         Relation table = ((Index) example).getRelation();
-        org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+        var hibernateTable = findHibernateTable(table, snapshot);
         if (hibernateTable == null) {
             return example;
         }
-        Map<String, org.hibernate.mapping.Index> indexes = hibernateTable.getIndexes();
-        for (org.hibernate.mapping.Index  hibernateIndex : indexes.values()) {
-            Index index = new Index();
-            index.setRelation(table);
-            index.setName(hibernateIndex.getName());
-            index.setUnique(isUniqueIndex(hibernateIndex));
-            for (var hibernateColumn : hibernateIndex.getColumns()) {
-                String hibernateOrder = hibernateIndex.getColumnOrderMap().get(hibernateColumn);
-                Boolean descending = HIBERNATE_ORDER_ASC.equals(hibernateOrder)
-                        ? Boolean.FALSE
-                        : (HIBERNATE_ORDER_DESC.equals(hibernateOrder) ? Boolean.TRUE : null);
-                index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table).setDescending(descending));
-            }
-
+        for (var hibernateIndex : hibernateTable.getIndexes().values()) {
+            Index index = handleHibernateIndex(table, hibernateIndex);
             if (index.getColumnNames().equalsIgnoreCase(((Index) example).getColumnNames())) {
                 Scope.getCurrentScope().getLog(getClass()).info("Found index " + index.getName());
                 table.getIndexes().add(index);
@@ -65,22 +51,26 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
                 return;
             }
             for (var hibernateIndex : hibernateTable.getIndexes().values()) {
-                Index index = new Index();
-                index.setRelation(table);
-                index.setName(hibernateIndex.getName());
-                index.setUnique(isUniqueIndex(hibernateIndex));
-
-                for (var hibernateColumn : hibernateIndex.getColumns()) {
-                    String hibernateOrder = hibernateIndex.getColumnOrderMap().get(hibernateColumn);
-                    Boolean descending = HIBERNATE_ORDER_ASC.equals(hibernateOrder)
-                            ? Boolean.FALSE
-                            : (HIBERNATE_ORDER_DESC.equals(hibernateOrder) ? Boolean.TRUE : null);
-                    index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table).setDescending(descending));
-                }
+                Index index = handleHibernateIndex(table, hibernateIndex);
                 Scope.getCurrentScope().getLog(getClass()).info("Found index " + index.getName());
                 table.getIndexes().add(index);
             }
         }
+    }
+
+    private Index handleHibernateIndex(Relation table, org.hibernate.mapping.Index hibernateIndex) {
+        Index index = new Index();
+        index.setRelation(table);
+        index.setName(hibernateIndex.getName());
+        index.setUnique(isUniqueIndex(hibernateIndex));
+        for (var hibernateColumn : hibernateIndex.getColumns()) {
+            String hibernateOrder = hibernateIndex.getColumnOrderMap().get(hibernateColumn);
+            Boolean descending = HIBERNATE_ORDER_ASC.equals(hibernateOrder)
+                    ? Boolean.FALSE
+                    : (HIBERNATE_ORDER_DESC.equals(hibernateOrder) ? Boolean.TRUE : null);
+            index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table).setDescending(descending));
+        }
+        return index;
     }
 
     private Boolean isUniqueIndex(org.hibernate.mapping.Index hibernateIndex) {
