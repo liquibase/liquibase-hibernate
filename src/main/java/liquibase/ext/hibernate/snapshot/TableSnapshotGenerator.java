@@ -11,9 +11,9 @@ import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Schema;
 import liquibase.structure.core.Table;
 import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.id.IdentifierGenerator;
-import org.hibernate.mapping.Join;
 import org.hibernate.generator.Generator;
+import org.hibernate.mapping.Component;
+import org.hibernate.mapping.Join;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.RootClass;
 
@@ -85,8 +85,9 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             Iterator<PersistentClass> classMappings = entityBindings.iterator();
             while (classMappings.hasNext()) {
                 PersistentClass persistentClass = classMappings.next();
-                if (!persistentClass.isInherited()) {
-                    Generator ig = persistentClass.getIdentifier().createGenerator(
+                if (!persistentClass.isInherited() && persistentClass.getIdentifier() instanceof Component) {
+                    var component =  (Component) persistentClass.getIdentifier();
+                    Generator ig = component.createGenerator(
                             metadata.getMetadataBuildingOptions().getIdentifierGeneratorFactory(),
                             database.getDialect(),
                             (RootClass) persistentClass
