@@ -40,20 +40,15 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
             if (hibernateTable == null) {
                 return;
             }
-            Iterator uniqueIterator = hibernateTable.getUniqueKeyIterator();
-            while (uniqueIterator.hasNext()) {
-                org.hibernate.mapping.UniqueKey hibernateUnique = (org.hibernate.mapping.UniqueKey) uniqueIterator.next();
-
+            for (var hibernateUnique : hibernateTable.getUniqueKeys().values()) {
                 UniqueConstraint uniqueConstraint = new UniqueConstraint();
                 uniqueConstraint.setName(hibernateUnique.getName());
                 uniqueConstraint.setRelation(table);
                 uniqueConstraint.setClustered(false); // No way to set true via Hibernate
-                Iterator columnIterator = hibernateUnique.getColumnIterator();
+
                 int i = 0;
-                while (columnIterator.hasNext()) {
-                    org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) columnIterator.next();
-                    uniqueConstraint.addColumn(i, new Column(hibernateColumn.getName()).setRelation(table));
-                    i++;
+                for (var hibernateColumn : hibernateUnique.getColumns()) {
+                    uniqueConstraint.addColumn(i++, new Column(hibernateColumn.getName()).setRelation(table));
                 }
 
                 Index index = getBackingIndex(uniqueConstraint, hibernateTable, snapshot);
@@ -62,9 +57,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 Scope.getCurrentScope().getLog(getClass()).info("Found unique constraint " + uniqueConstraint.toString());
                 table.getUniqueConstraints().add(uniqueConstraint);
             }
-            Iterator columnIterator = hibernateTable.getColumnIterator();
-            while (columnIterator.hasNext()) {
-                org.hibernate.mapping.Column column = (org.hibernate.mapping.Column) columnIterator.next();
+            for (var column : hibernateTable.getColumns()) {
                 if (column.isUnique()) {
                     UniqueConstraint uniqueConstraint = new UniqueConstraint();
                     uniqueConstraint.setRelation(table);
@@ -84,9 +77,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 }
             }
 
-            Iterator<UniqueConstraint> ucIter = table.getUniqueConstraints().iterator();
-            while (ucIter.hasNext()) {
-                UniqueConstraint uc = ucIter.next();
+            for (UniqueConstraint uc : table.getUniqueConstraints()) {
                 if (uc.getName() == null || uc.getName().isEmpty()) {
                     String name = table.getName() + uc.getColumnNames();
                     name = "UCIDX" + hashedName(name);

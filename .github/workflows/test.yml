@@ -60,7 +60,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ 17, 19 ]
+        java: [ 17, 20 ]
 
     steps:
       - uses: actions/checkout@v4
@@ -100,7 +100,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hibernate: [ "6.0.2.Final", "6.1.7.Final" ]
+        hibernate: [ "6.0.2.Final", "6.1.7.Final", "6.2.7.Final", "6.3.1.Final" ]
 
     steps:
       - uses: actions/checkout@v4
