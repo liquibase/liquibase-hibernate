@@ -55,7 +55,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                     i++;
                 }
 
-                Index index = getBackingIndex(uniqueConstraint, hibernateTable, snapshot);
+                Index index = getBackingIndex(uniqueConstraint, snapshot);
                 uniqueConstraint.setBackingIndex(index);
 
                 Scope.getCurrentScope().getLog(getClass()).info("Found unique constraint " + uniqueConstraint.toString());
@@ -77,7 +77,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                     Scope.getCurrentScope().getLog(getClass()).info("Found unique constraint " + uniqueConstraint.toString());
                     table.getUniqueConstraints().add(uniqueConstraint);
 
-                    Index index = getBackingIndex(uniqueConstraint, hibernateTable, snapshot);
+                    Index index = getBackingIndex(uniqueConstraint, snapshot);
                     uniqueConstraint.setBackingIndex(index);
 
                 }
@@ -111,12 +111,12 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         }
     }
 
-    protected Index getBackingIndex(UniqueConstraint uniqueConstraint, org.hibernate.mapping.Table hibernateTable, DatabaseSnapshot snapshot) {
+    protected Index getBackingIndex(UniqueConstraint uniqueConstraint, DatabaseSnapshot snapshot) {
         Index index = new Index();
         index.setRelation(uniqueConstraint.getRelation());
         index.setColumns(uniqueConstraint.getColumns());
         index.setUnique(true);
-        index.setName(hibernateTable.getName() + "_IX");
+        index.setName(uniqueConstraint.getName() + "_IX");
 
         return index;
     }

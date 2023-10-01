@@ -12,6 +12,9 @@ public class Item {
     @Column(unique = true)
     private String name;
 
+    @Column(unique = true)
+    private String key;
+
     public long getId() {
         return id;
     }
@@ -28,4 +31,7 @@ public class Item {
         this.name = name;
     }
 
+    public String getKey() { return key; }
+
+    public void setKey(String key) { this.key = key; }
 }
