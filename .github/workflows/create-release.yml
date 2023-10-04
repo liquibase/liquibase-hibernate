@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     branches:
-      - hibernate5*
+      - hibernate5
 
 permissions:
   contents: write
