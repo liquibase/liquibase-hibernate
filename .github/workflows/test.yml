@@ -17,7 +17,7 @@ jobs:
     uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.4.6
     secrets: inherit
     with:
-      java: '[11, 17, 18]'
+      java: '[17, 18]'
       os: '["ubuntu-latest", "windows-latest"]'
 
   hibernate-test:
