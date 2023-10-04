@@ -4,7 +4,7 @@
 
     <groupId>org.liquibase.ext</groupId>
     <artifactId>liquibase-hibernate6</artifactId>
-    <version>4.24.2-SNAPSHOT</version>
+    <version>4.24.2</version>
 
     <name>Liquibase Hibernate Integration</name>
     <description>Liquibase extension for hibernate integration including generating changesets based on changed
@@ -31,7 +31,7 @@
     <scm>
         <connection>scm:git:https://github.com/liquibase/liquibase-hibernate.git</connection>
         <url>https://github.com/liquibase/liquibase-hibernate</url>
-        <tag>HEAD</tag>
+        <tag>liquibase-hibernate6-4.24.2</tag>
     </scm>
 
     <developers>
