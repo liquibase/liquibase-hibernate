@@ -82,6 +82,7 @@
         <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
 
         <jacoco.fileset.directory>target</jacoco.fileset.directory>
+        <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
     </properties>
 
