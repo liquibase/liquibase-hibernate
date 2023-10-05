@@ -10,6 +10,14 @@ permissions:
   pull-requests: write
   
 jobs:
-  release:
-    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@v0.4.6
+  release-hibernate6:
+    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@DAT-16025
+    with:
+      branch: ${{ github.ref }}
+    secrets: inherit
+
+  release-hibernate5:
+    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@DAT-16025
+    with:
+      branch: 'refs/heads/hibernate5'
     secrets: inherit
