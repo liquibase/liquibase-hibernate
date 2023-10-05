@@ -78,6 +78,8 @@ jobs:
       - name: Prepare Maven Release
         run: |
           git reset --hard HEAD~1
+          version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          git tag -d liquibase-${{ matrix.artifact.name }}-${version}
           mvn -B build-helper:parse-version versions:set release:clean release:prepare \
           -Dusername=liquibot -Dpassword=$GITHUB_TOKEN \
           -Darguments="-Dmaven.javadoc.skip=true -Dmaven.test.skipTests=true -Dmaven.test.skip=true -Dmaven.deploy.skip=true" \
