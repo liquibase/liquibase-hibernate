@@ -54,7 +54,7 @@ jobs:
         uses: robinraju/release-downloader@v1.8
         with:
           tag: "${{ github.event.release.tag_name }}"
-          filename: "liquibase-${{ matrix.artifact.name }}-artifacts"
+          filename: "liquibase-${{ matrix.artifact.name }}-*"
           out-file-path: "."
 
       - name: Publish to Maven Central
