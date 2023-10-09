@@ -60,8 +60,8 @@ Once you have created a PR for this extension you can find the artifact for your
 
 ## Hibernate 5 vs. Hibernate 6
 
-The master branch is Hibernate 6+ compatible.
-The `hibernate5` branch is Hibernate 5.6+ compatible.
+The master branch is compatible with Hibernate 6+.
+The `hibernate5` branch is compatible with Hibernate 5.6+
 
 Ideally changes should go into the `hibernate5` branch and then be merged into master in order to support Hibernate 5 and 6.
 
