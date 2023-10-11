@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.liquibase</groupId>
         <artifactId>liquibase-parent-pom</artifactId>
-        <version>0.2.0</version> <!-- Replace with the desired version -->
+        <version>0.2.2</version> <!-- Replace with the desired version -->
     </parent>
 
     <groupId>org.liquibase.ext</groupId>
@@ -53,7 +53,7 @@
     <properties>
         <hibernate.version>5.6.15.Final</hibernate.version>
         <spring.version>5.3.30</spring.version>
-        <liquibase.version>4.23.2</liquibase.version>
+        <liquibase.version>4.24.0</liquibase.version>
     </properties>
 
     <dependencies>
