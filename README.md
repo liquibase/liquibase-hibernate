@@ -54,7 +54,7 @@ Specify the Liquibase extension in the `<dependency>` section of your POM file b
 
 To file a bug, improve documentation, or contribute code, follow our [guidelines for contributing](https://www.liquibase.org/community). 
 
-[This step-by-step instructions](https://www.liquibase.org/community/contribute/code) will help you contribute code for the extension. 
+[This step-by-step instructions](https://www.liquibase.org/community-contributors/community-developers) will help you contribute code for the extension. 
 
 Once you have created a PR for this extension you can find the artifact for your build using the following link: [https://github.com/liquibase/liquibase-hibernate/actions/workflows/build.yml](https://github.com/liquibase/liquibase-hibernate/actions/workflows/build.yml).
 
