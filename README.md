@@ -6,7 +6,7 @@ This is a Liquibase extension for connecting to Hibernate. The extension lets yo
 
 These instructions will help you get the extension up and running on your local machine for development and testing purposes. This extension has a prerequisite of Liquibase core in order to use it. Liquibase core can be found at https://www.liquibase.org/download.
 
-### Compatiblity
+### Compatibility
 
 The Liquibase Hibernate extension requires Liquibase 4.x and Java 1.8+. Use `liquibase-hibernate5.jar` or `liquibase-hibernate6.jar` depending on your Hibernate version.
 Ideally the extension version should be the same one as Liquibase version.
