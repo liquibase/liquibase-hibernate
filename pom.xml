@@ -58,6 +58,13 @@
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
+    <scm>
+        <connection>scm:git:${project.scm.url}</connection>
+        <developerConnection>scm:git:${project.scm.url}</developerConnection>
+		<url>https://github.com/liquibase/liquibase-hibernate.git</url>
+		<tag>HEAD</tag>
+	</scm>
+
     <dependencies>
         <dependency>
             <groupId>org.hibernate.orm</groupId>
