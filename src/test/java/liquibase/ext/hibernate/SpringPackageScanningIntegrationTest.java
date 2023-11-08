@@ -124,6 +124,7 @@ public class SpringPackageScanningIntegrationTest {
 
         assertEquals(differences, 0, diffResult.getMissingObjects().size());
         assertEquals(differences, 0, diffResult.getUnexpectedObjects().size());
+        assertEquals(differences, 0, diffResult.getChangedObjects(UniqueConstraint.class).size());
 //        assertEquals(differences, 0, diffResult.getChangedObjects().size()); //unimportant differences in schema name and datatypes causing test to fail
 
     }
