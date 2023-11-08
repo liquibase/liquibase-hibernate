@@ -12,6 +12,7 @@
     <class>com.example.ejb3.auction.Watcher</class>
     <class>com.example.ejb3.auction.Item</class>
     <class>com.example.ejb3.auction.AuditedItem</class>
+    <class>com.example.ejb3.auction.FirstTable</class>
     <properties>
       <property name="hibernate.cache.use_second_level_cache" value="false"/>
       <property name="hibernate.archive.autodetection" value="false"/>
