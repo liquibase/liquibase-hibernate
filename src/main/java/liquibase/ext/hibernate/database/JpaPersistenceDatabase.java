@@ -1,6 +1,6 @@
 package liquibase.ext.hibernate.database;
 
-import java.util.Collections;
+import java.util.Map;
 
 import org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl;
 import org.hibernate.jpa.boot.spi.Bootstrap;
@@ -50,7 +50,8 @@ public class JpaPersistenceDatabase extends HibernateEjb3Database {
         internalPersistenceUnitManager.preparePersistenceUnitInfos();
         PersistenceUnitInfo persistenceUnitInfo = internalPersistenceUnitManager.obtainDefaultPersistenceUnitInfo();
 
-        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, Collections.emptyMap());
+        EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfo, Map.of(
+                HibernateDatabase.HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS, Boolean.FALSE.toString()));
         return builder;
     }
 
