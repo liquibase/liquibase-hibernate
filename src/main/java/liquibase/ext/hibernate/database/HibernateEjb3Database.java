@@ -77,6 +77,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
         MyHibernatePersistenceProvider persistenceProvider = new MyHibernatePersistenceProvider();
 
         Map<String, Object> properties = new HashMap<>();
+        properties.put(HibernateDatabase.HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS, Boolean.FALSE.toString());
         properties.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, Boolean.FALSE.toString());
         properties.put(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA, getProperty(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA));
 
