@@ -7,6 +7,9 @@ on:
       - opened
       - reopened
       - synchronize
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
