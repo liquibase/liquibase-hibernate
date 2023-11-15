@@ -37,7 +37,6 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     private boolean indexesForForeignKeys = false;
     public static final String DEFAULT_SCHEMA = "HIBERNATE";
-    public static final String HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS = "hibernate.temp.use_jdbc_metadata_defaults";
 
     public HibernateDatabase() {
         setDefaultCatalogName(DEFAULT_SCHEMA);
@@ -187,7 +186,6 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
         ServiceRegistry standardRegistry = new StandardServiceRegistryBuilder()
                 .applySetting(AvailableSettings.DIALECT, dialect)
-                .applySetting(HibernateDatabase.HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS, Boolean.FALSE.toString())
                 .addService(ConnectionProvider.class, new NoOpConnectionProvider())
                 .addService(MultiTenantConnectionProvider.class, new NoOpConnectionProvider())
                 .build();
