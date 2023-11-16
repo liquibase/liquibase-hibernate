@@ -56,7 +56,6 @@ public class HibernateEjb3DatabaseTest {
                 hasProperty("name", is("AuditedItem_AUD")),
                 hasProperty("name", is("REVINFO")),
                 hasProperty("name", is("WatcherSeqTable")),
-                hasProperty("name", is("WatcherSeqTable")),
                 hasProperty("name", is("FirstTable")),
                 hasProperty("name", is("second_table"))));
 
