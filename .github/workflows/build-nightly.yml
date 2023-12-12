@@ -1,0 +1,51 @@
+# This workflow will build the extension against the latest Liquibase artifact
+name: "Nightly build"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 7 * * 1-5'
+
+jobs:
+    nightly-build:
+      uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.5.8
+      with:
+        nightly: true
+        java: '[17, 21]'
+        os: '["ubuntu-latest"]'
+      secrets: inherit
+
+    hibernate-test:
+      name: Test Hibernate ${{ matrix.hibernate }}
+      needs: nightly-build
+      runs-on: ubuntu-latest
+  
+      strategy:
+        fail-fast: false
+        matrix:
+          hibernate: [ "6.0.2.Final", "6.1.7.Final", "6.2.7.Final", "6.3.1.Final" ]
+  
+      steps:
+        - uses: actions/checkout@v4
+  
+        - name: Set up JDK
+          uses: actions/setup-java@v3
+          with:
+            java-version: 17
+            distribution: 'temurin'
+            cache: 'maven'
+  
+        - name: Run Compatibility Tests
+          run: mvn -B jacoco:prepare-agent surefire:test -Dhibernate.version=${{ matrix.hibernate }}
+  
+        - name: Run Tests
+          run: mvn -B jacoco:prepare-agent surefire:test
+  
+        - name: Archive Test Results
+          if: ${{ always() }}
+          uses: actions/upload-artifact@v3
+          with:
+            name: test-reports-hibernate-${{ matrix.hibernate }}
+            path: |
+              **/target/surefire-reports
+              **/target/jacoco.exec
