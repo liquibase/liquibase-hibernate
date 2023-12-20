@@ -4,9 +4,12 @@ on:
   pull_request:
     types:
       - closed
+  push:
+    branches:
+      - main
 
 jobs:
 
   attach-artifact-to-release:
-    uses: liquibase/build-logic/.github/workflows/extension-attach-artifact-release.yml@v0.5.5
+    uses: liquibase/build-logic/.github/workflows/extension-attach-artifact-release.yml@v0.5.9
     secrets: inherit

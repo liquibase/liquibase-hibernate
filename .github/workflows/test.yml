@@ -7,6 +7,9 @@ on:
       - opened
       - reopened
       - synchronize
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -14,11 +17,11 @@ permissions:
 
 jobs:
   build-test:
-    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.5.5
+    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.5.9
     secrets: inherit
     with:
-      java: '[17, 18]'
-      os: '["ubuntu-latest", "windows-latest"]'
+      java: '[17, 21]'
+      os: '["ubuntu-latest"]'
 
   hibernate-test:
     name: Test Hibernate ${{ matrix.hibernate }}
@@ -48,7 +51,7 @@ jobs:
 
       - name: Archive Test Results
         if: ${{ always() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-reports-hibernate-${{ matrix.hibernate }}
           path: |
@@ -57,5 +60,5 @@ jobs:
 
   dependabot:
     needs: hibernate-test
-    uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@v0.5.5
+    uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@v0.5.9
     secrets: inherit
