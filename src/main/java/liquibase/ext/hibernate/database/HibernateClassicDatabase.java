@@ -44,7 +44,7 @@ public class HibernateClassicDatabase extends HibernateDatabase {
         Configuration config = new Configuration(sources);
         config.configure(getHibernateConnection().getPath());
 
-        config.setProperty("hibernate.temp.use_jdbc_metadata_defaults", "false");
+        config.setProperty(HibernateDatabase.HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS, Boolean.FALSE.toString());
         config.setProperty("hibernate.cache.use_second_level_cache", "false");
 
         ServiceRegistry standardRegistry = configuration.getStandardServiceRegistryBuilder()
