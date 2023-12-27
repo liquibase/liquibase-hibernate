@@ -16,7 +16,15 @@ permissions:
   pull-requests: write
 
 jobs:
+
+  authorize:
+    environment: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && 'external' || 'internal' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: true
+
   build-test:
+    needs: authorize
     uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@v0.5.9
     secrets: inherit
     with:
