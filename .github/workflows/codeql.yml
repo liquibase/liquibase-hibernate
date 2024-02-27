@@ -12,7 +12,7 @@ on:
 
 jobs:
   codeql:
-    uses: liquibase/build-logic/.github/workflows/codeql.yml@v0.6.2
+    uses: liquibase/build-logic/.github/workflows/codeql.yml@v0.6.3
     secrets: inherit
     with:
       languages: '["java"]'
