@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class ChangedColumnChangeGenerator extends liquibase.diff.output.changelog.core.ChangedColumnChangeGenerator {
 
-    private static final List<String> TYPES_TO_IGNORE_SIZE = List.of("TIMESTAMP");
+    private static final List<String> TYPES_TO_IGNORE_SIZE = List.of("TIMESTAMP", "TIME");
 
     @Override
     public int getPriority(Class<? extends DatabaseObject> objectType, Database database) {
