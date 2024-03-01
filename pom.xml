@@ -18,6 +18,11 @@
     </description>
     <url>https://github.com/liquibase/liquibase-hibernate/wiki</url>
 
+    <organization>
+        <name>Liquibase.org</name>
+        <url>http://www.liquibase.org</url>
+    </organization>
+
     <developers>
         <developer>
             <id>nvoxland</id>
@@ -49,6 +54,21 @@
             </roles>
         </developer>
     </developers>
+
+    <licenses>
+        <license>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <name>Apache License, Version 2.0</name>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <url>https://github.com/liquibase/liquibase-hibernate/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <url>https://github.com/liquibase/liquibase-hibernate/actions</url>
+    </ciManagement>
 
     <properties>
         <hibernate.version>6.3.1.Final</hibernate.version>
