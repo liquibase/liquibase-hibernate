@@ -10,7 +10,7 @@
 
     <groupId>org.liquibase.ext</groupId>
     <artifactId>liquibase-hibernate5</artifactId>
-    <version>4.26.0-SNAPSHOT</version>
+    <version>4.27.0-SNAPSHOT</version>
 
     <name>Liquibase Hibernate Integration</name>
     <description>Liquibase extension for hibernate integration including generating changesets based on changed
@@ -58,7 +58,7 @@
     <properties>
         <hibernate.version>5.6.15.Final</hibernate.version>
         <spring.version>5.3.33</spring.version>
-        <liquibase.version>4.26.0</liquibase.version>
+        <liquibase.version>4.27.0</liquibase.version>
     </properties>
 
     <dependencies>
