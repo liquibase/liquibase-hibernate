@@ -51,7 +51,7 @@ jobs:
         run: echo "artifact_id=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_ENV
 
       - name: Download Release Artifacts
-        uses: robinraju/release-downloader@v1.9
+        uses: robinraju/release-downloader@v1.10
         with:
           tag: "${{ github.event.release.tag_name }}"
           filename: "liquibase-${{ matrix.artifact.name }}-*"
