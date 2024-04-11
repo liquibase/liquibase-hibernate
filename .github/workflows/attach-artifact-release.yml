@@ -11,5 +11,5 @@ on:
 jobs:
 
   attach-artifact-to-release:
-    uses: liquibase/build-logic/.github/workflows/extension-attach-artifact-release.yml@v0.6.9
+    uses: liquibase/build-logic/.github/workflows/extension-attach-artifact-release.yml@v0.7.0
     secrets: inherit
