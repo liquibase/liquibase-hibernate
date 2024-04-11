@@ -15,7 +15,6 @@ import org.hibernate.HibernateException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 
 public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerator {
 
@@ -107,7 +106,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         Index index = new Index();
         index.setRelation(uniqueConstraint.getRelation());
         index.setColumns(uniqueConstraint.getColumns());
-        index.setUnique(true);
+        index.setUnique(false);
         index.setName(String.format("%s_%s_IX",hibernateTable.getName(), StringUtil.randomIdentifer(4)));
 
         return index;
