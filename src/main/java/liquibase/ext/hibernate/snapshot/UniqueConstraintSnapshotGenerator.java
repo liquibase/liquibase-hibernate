@@ -24,6 +24,10 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
 
     @Override
     protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
+        UniqueConstraint exampleUniqueConstraint = (UniqueConstraint) example;
+        if (exampleUniqueConstraint.getBackingIndex() != null) {
+            exampleUniqueConstraint.getBackingIndex().setUnique(true);
+        }
         return example;
     }
 
@@ -106,7 +110,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         Index index = new Index();
         index.setRelation(uniqueConstraint.getRelation());
         index.setColumns(uniqueConstraint.getColumns());
-        index.setUnique(false);
+        index.setUnique(true);
         index.setName(String.format("%s_%s_IX",hibernateTable.getName(), StringUtil.randomIdentifer(4)));
 
         return index;
