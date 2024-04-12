@@ -102,7 +102,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         }
     }
 
-    protected Index getBackingIndex(UniqueConstraint uniqueConstraint, org.hibernate.mapping.Table hibernateTable) {
+    protected Index getBackingIndex(UniqueConstraint uniqueConstraint, org.hibernate.mapping.Table hibernateTable, DatabaseSnapshot snapshot) {
         Index index = new Index();
         index.setRelation(uniqueConstraint.getRelation());
         index.setColumns(uniqueConstraint.getColumns());
