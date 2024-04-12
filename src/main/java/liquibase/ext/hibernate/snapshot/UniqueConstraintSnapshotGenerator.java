@@ -14,7 +14,7 @@ import org.hibernate.HibernateException;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchAlgorithmException;=
 
 public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerator {
 
@@ -24,10 +24,6 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
 
     @Override
     protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        UniqueConstraint exampleUniqueConstraint = (UniqueConstraint) example;
-        if (exampleUniqueConstraint.getBackingIndex() != null) {
-            exampleUniqueConstraint.getBackingIndex().setUnique(true);
-        }
         return example;
     }
 
