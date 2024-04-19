@@ -53,7 +53,31 @@ public class ChangedSequenceChangeGenerator extends liquibase.diff.output.change
                 .filter(differenceField ->  !HIBERNATE_SEQUENCE_FIELDS.contains(differenceField))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         ignoredDifferenceFields.forEach(differences::removeDifference);
+        this.advancedIgnoredDifferenceFields(differences, referenceDatabase, comparisonDatabase);
         return super.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase, chain);
+    }
+
+    private void advancedIgnoredDifferenceFields(ObjectDifferences differences, Database referenceDatabase, Database comparisonDatabase) {
+        Set<String> ignoredDifferenceFields = new HashSet<>();
+        for (Difference difference : differences.getDifferences()) {
+            String field = difference.getField();
+            String refValue = difference.getReferenceValue() != null ? difference.getReferenceValue().toString() : null;
+            String comparedValue = difference.getComparedValue() != null ? difference.getComparedValue().toString() : null;
+
+            // if the name field case is different and the databases are case insensitive, we can ignore the difference
+            boolean isNameField = field.equals("name");
+            boolean isCaseInsensitive = !referenceDatabase.isCaseSensitive() || !comparisonDatabase.isCaseSensitive();
+
+            // if the startValue or incrementBy fields are 1 and the other is null, we can ignore the difference
+            boolean isStartOrIncrementField = field.equals("startValue") || field.equals("incrementBy");
+            boolean isOneAndNull = "1".equals(refValue) && comparedValue == null || refValue == null && "1".equals(comparedValue);
+
+            if ((isNameField && isCaseInsensitive && refValue != null && refValue.equalsIgnoreCase(comparedValue)) ||
+                    (isStartOrIncrementField && isOneAndNull)) {
+                ignoredDifferenceFields.add(field);
+            }
+        }
+        ignoredDifferenceFields.forEach(differences::removeDifference);
     }
 
 }
