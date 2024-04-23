@@ -57,6 +57,11 @@ public class ChangedSequenceChangeGenerator extends liquibase.diff.output.change
         return super.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase, chain);
     }
 
+
+    /**
+     * In some cases a value that was 1 can be null in the database, or the name field can be different only by case.
+     * This method removes these differences from the list of differences so we don't generate a change for them.
+     */
     private void advancedIgnoredDifferenceFields(ObjectDifferences differences, Database referenceDatabase, Database comparisonDatabase) {
         Set<String> ignoredDifferenceFields = new HashSet<>();
         for (Difference difference : differences.getDifferences()) {
@@ -64,7 +69,7 @@ public class ChangedSequenceChangeGenerator extends liquibase.diff.output.change
             String refValue = difference.getReferenceValue() != null ? difference.getReferenceValue().toString() : null;
             String comparedValue = difference.getComparedValue() != null ? difference.getComparedValue().toString() : null;
 
-            // if the name field case is different and the databases are case insensitive, we can ignore the difference
+            // if the name field case is different and the databases are case-insensitive, we can ignore the difference
             boolean isNameField = field.equals("name");
             boolean isCaseInsensitive = !referenceDatabase.isCaseSensitive() || !comparisonDatabase.isCaseSensitive();
 
