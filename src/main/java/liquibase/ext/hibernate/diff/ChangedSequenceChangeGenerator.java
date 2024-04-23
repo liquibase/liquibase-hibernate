@@ -74,11 +74,14 @@ public class ChangedSequenceChangeGenerator extends liquibase.diff.output.change
             boolean isCaseInsensitive = !referenceDatabase.isCaseSensitive() || !comparisonDatabase.isCaseSensitive();
 
             // if the startValue or incrementBy fields are 1 and the other is null, we can ignore the difference
+            // Or 50, as it is the default value for hibernate for allocationSize:
+            // https://github.com/hibernate/hibernate-orm/blob/bda95dfbe75c68f5c1b77a2f21c403cbe08548a2/hibernate-core/src/main/java/org/hibernate/boot/model/IdentifierGeneratorDefinition.java#L252
             boolean isStartOrIncrementField = field.equals("startValue") || field.equals("incrementBy");
-            boolean isOneAndNull = "1".equals(refValue) && comparedValue == null || refValue == null && "1".equals(comparedValue);
+            boolean isOneOrFiftyAndNull = "1".equals(refValue) && comparedValue == null || refValue == null && "1".equals(comparedValue) ||
+                    "50".equals(refValue) && comparedValue == null || refValue == null && "50".equals(comparedValue);
 
             if ((isNameField && isCaseInsensitive && refValue != null && refValue.equalsIgnoreCase(comparedValue)) ||
-                    (isStartOrIncrementField && isOneAndNull)) {
+                    (isStartOrIncrementField && isOneOrFiftyAndNull)) {
                 ignoredDifferenceFields.add(field);
             }
         }
