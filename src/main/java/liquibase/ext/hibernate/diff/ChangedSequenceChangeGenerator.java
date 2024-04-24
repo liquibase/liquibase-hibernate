@@ -53,7 +53,39 @@ public class ChangedSequenceChangeGenerator extends liquibase.diff.output.change
                 .filter(differenceField ->  !HIBERNATE_SEQUENCE_FIELDS.contains(differenceField))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         ignoredDifferenceFields.forEach(differences::removeDifference);
+        this.advancedIgnoredDifferenceFields(differences, referenceDatabase, comparisonDatabase);
         return super.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase, chain);
+    }
+
+
+    /**
+     * In some cases a value that was 1 can be null in the database, or the name field can be different only by case.
+     * This method removes these differences from the list of differences so we don't generate a change for them.
+     */
+    private void advancedIgnoredDifferenceFields(ObjectDifferences differences, Database referenceDatabase, Database comparisonDatabase) {
+        Set<String> ignoredDifferenceFields = new HashSet<>();
+        for (Difference difference : differences.getDifferences()) {
+            String field = difference.getField();
+            String refValue = difference.getReferenceValue() != null ? difference.getReferenceValue().toString() : null;
+            String comparedValue = difference.getComparedValue() != null ? difference.getComparedValue().toString() : null;
+
+            // if the name field case is different and the databases are case-insensitive, we can ignore the difference
+            boolean isNameField = field.equals("name");
+            boolean isCaseInsensitive = !referenceDatabase.isCaseSensitive() || !comparisonDatabase.isCaseSensitive();
+
+            // if the startValue or incrementBy fields are 1 and the other is null, we can ignore the difference
+            // Or 50, as it is the default value for hibernate for allocationSize:
+            // https://github.com/hibernate/hibernate-orm/blob/bda95dfbe75c68f5c1b77a2f21c403cbe08548a2/hibernate-core/src/main/java/org/hibernate/boot/model/IdentifierGeneratorDefinition.java#L252
+            boolean isStartOrIncrementField = field.equals("startValue") || field.equals("incrementBy");
+            boolean isOneOrFiftyAndNull = "1".equals(refValue) && comparedValue == null || refValue == null && "1".equals(comparedValue) ||
+                    "50".equals(refValue) && comparedValue == null || refValue == null && "50".equals(comparedValue);
+
+            if ((isNameField && isCaseInsensitive && refValue != null && refValue.equalsIgnoreCase(comparedValue)) ||
+                    (isStartOrIncrementField && isOneOrFiftyAndNull)) {
+                ignoredDifferenceFields.add(field);
+            }
+        }
+        ignoredDifferenceFields.forEach(differences::removeDifference);
     }
 
 }

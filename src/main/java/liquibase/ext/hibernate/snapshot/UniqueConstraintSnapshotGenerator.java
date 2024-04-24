@@ -15,7 +15,6 @@ import org.hibernate.HibernateException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 
 public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerator {
 
@@ -54,7 +53,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                 Index index = getBackingIndex(uniqueConstraint, hibernateTable, snapshot);
                 uniqueConstraint.setBackingIndex(index);
 
-                Scope.getCurrentScope().getLog(getClass()).info("Found unique constraint " + uniqueConstraint.toString());
+                Scope.getCurrentScope().getLog(getClass()).info("Found unique constraint " + uniqueConstraint);
                 table.getUniqueConstraints().add(uniqueConstraint);
             }
             for (var column : hibernateTable.getColumns()) {
@@ -68,7 +67,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
                     }
                     uniqueConstraint.addColumn(0, new Column(column.getName()).setRelation(table));
                     uniqueConstraint.setName(name);
-                    Scope.getCurrentScope().getLog(getClass()).info("Found unique constraint " + uniqueConstraint.toString());
+                    Scope.getCurrentScope().getLog(getClass()).info("Found unique constraint " + uniqueConstraint);
                     table.getUniqueConstraints().add(uniqueConstraint);
 
                     Index index = getBackingIndex(uniqueConstraint, hibernateTable, snapshot);
