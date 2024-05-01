@@ -12,8 +12,8 @@ on:
 
 jobs:
   codeql:
-    uses: liquibase/build-logic/.github/workflows/codeql.yml@v0.7.6
+    uses: liquibase/build-logic/.github/workflows/codeql.yml@fix/DAT-17435
     secrets: inherit
     with:
       languages: '["java"]'
-      buildCiommand: 'mvn clean install'
+      buildCommand: 'mvn clean install'
