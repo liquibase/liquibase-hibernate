@@ -331,7 +331,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     @Override
     public boolean supportsCatalogs() {
-        return false;
+        return true;
     }
 
     /**
