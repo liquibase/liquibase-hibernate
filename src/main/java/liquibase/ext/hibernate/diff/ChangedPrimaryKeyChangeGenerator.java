@@ -27,6 +27,7 @@ public class ChangedPrimaryKeyChangeGenerator extends liquibase.diff.output.chan
     public Change[] fixChanged(DatabaseObject changedObject, ObjectDifferences differences, DiffOutputControl control, Database referenceDatabase, Database comparisonDatabase, ChangeGeneratorChain chain) {
         if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
             differences.removeDifference("unique");
+            differences.removeDifference("validate");
             if (!differences.hasDifferences()) {
                 return null;
             }
