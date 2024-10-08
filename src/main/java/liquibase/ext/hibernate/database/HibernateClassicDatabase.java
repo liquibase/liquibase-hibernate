@@ -50,7 +50,7 @@ public class HibernateClassicDatabase extends HibernateDatabase {
         ServiceRegistry standardRegistry = configuration.getStandardServiceRegistryBuilder()
                 .applySettings(config.getProperties())
                 .addService(ConnectionProvider.class, new NoOpConnectionProvider())
-                .addService(MultiTenantConnectionProvider.class, new NoOpConnectionProvider())
+                .addService(MultiTenantConnectionProvider.class, new NoOpMultiTenantConnectionProvider())
                 .build();
 
         config.buildSessionFactory(standardRegistry);
