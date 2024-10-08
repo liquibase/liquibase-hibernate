@@ -19,6 +19,7 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.engine.jdbc.connections.spi.DatabaseConnectionInfo;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.hibernate.service.ServiceRegistry;
 
@@ -355,6 +356,11 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         }
 
         @Override
+        public DatabaseConnectionInfo getDatabaseConnectionInfo(Dialect dialect) {
+            return ConnectionProvider.super.getDatabaseConnectionInfo(dialect);
+        }
+
+        @Override
         public boolean isUnwrappableAs(Class unwrapType) {
             return false;
         }
@@ -375,12 +381,12 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         }
 
         @Override
-        public Connection getConnection(String tenantIdentifier) throws SQLException {
+        public Connection getConnection(Object o) throws SQLException {
             return getConnection();
         }
 
         @Override
-        public void releaseConnection(String tenantIdentifier, Connection connection) throws SQLException {
+        public void releaseConnection(Object tenantIdentifier, Connection connection) throws SQLException {
 
         }
     }
