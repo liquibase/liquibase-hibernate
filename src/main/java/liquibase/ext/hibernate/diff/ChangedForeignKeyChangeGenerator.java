@@ -28,6 +28,7 @@ public class ChangedForeignKeyChangeGenerator extends liquibase.diff.output.chan
         if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
             differences.removeDifference("deleteRule");
             differences.removeDifference("updateRule");
+            differences.removeDifference("validate");
             if (!differences.hasDifferences()) {
                 return null;
             }
