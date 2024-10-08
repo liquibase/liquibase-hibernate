@@ -19,12 +19,9 @@ import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
-import org.hibernate.engine.jdbc.connections.spi.DatabaseConnectionInfo;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.hibernate.service.ServiceRegistry;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -190,7 +187,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
                 .applySetting(AvailableSettings.DIALECT, dialect)
                 .applySetting(HibernateDatabase.HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS, Boolean.FALSE.toString())
                 .addService(ConnectionProvider.class, new NoOpConnectionProvider())
-                .addService(MultiTenantConnectionProvider.class, new NoOpConnectionProvider())
+                .addService(MultiTenantConnectionProvider.class, new NoOpMultiTenantConnectionProvider())
                 .build();
 
         return new MetadataSources(standardRegistry);
@@ -335,59 +332,4 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         return true;
     }
 
-    /**
-     * Used by hibernate to ensure no database access is performed.
-     */
-    static class NoOpConnectionProvider implements ConnectionProvider, MultiTenantConnectionProvider {
-
-        @Override
-        public Connection getConnection() throws SQLException {
-            throw new SQLException("No connection");
-        }
-
-        @Override
-        public void closeConnection(Connection conn) throws SQLException {
-
-        }
-
-        @Override
-        public boolean supportsAggressiveRelease() {
-            return false;
-        }
-
-        @Override
-        public DatabaseConnectionInfo getDatabaseConnectionInfo(Dialect dialect) {
-            return ConnectionProvider.super.getDatabaseConnectionInfo(dialect);
-        }
-
-        @Override
-        public boolean isUnwrappableAs(Class unwrapType) {
-            return false;
-        }
-
-        @Override
-        public <T> T unwrap(Class<T> unwrapType) {
-            return null;
-        }
-
-        @Override
-        public Connection getAnyConnection() throws SQLException {
-            return getConnection();
-        }
-
-        @Override
-        public void releaseAnyConnection(Connection connection) throws SQLException {
-
-        }
-
-        @Override
-        public Connection getConnection(Object o) throws SQLException {
-            return getConnection();
-        }
-
-        @Override
-        public void releaseConnection(Object tenantIdentifier, Connection connection) throws SQLException {
-
-        }
-    }
 }
