@@ -36,13 +36,11 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     protected Dialect dialect;
 
     private boolean indexesForForeignKeys = false;
-    public static final String DEFAULT_SCHEMA = "HIBERNATE";
+    public static final String DEFAULT_DEFAULT_CATALOG_NAME = "HIBERNATE";
+    public static final String DEFAULT_DEFAULT_SCHEMA_NAME = "HIBERNATE";
     public static final String HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS = "hibernate.temp.use_jdbc_metadata_defaults";
 
-    public HibernateDatabase() {
-        setDefaultCatalogName(DEFAULT_SCHEMA);
-        setDefaultSchemaName(DEFAULT_SCHEMA);
-    }
+    public HibernateDatabase() { }
 
     public boolean requiresPassword() {
         return false;
@@ -295,23 +293,28 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     }
 
     @Override
-    protected String getConnectionCatalogName() throws DatabaseException {
-        return getDefaultCatalogName();
+    protected String getConnectionCatalogName() {
+        return DEFAULT_DEFAULT_CATALOG_NAME;
     }
 
     @Override
     protected String getConnectionSchemaName() {
-        return getDefaultSchemaName();
+       return DEFAULT_DEFAULT_SCHEMA_NAME;
     }
 
     @Override
     public String getDefaultSchemaName() {
-        return DEFAULT_SCHEMA;
+        final String defaultSchemaName = super.getDefaultSchemaName();
+        if (defaultSchemaName != null) {
+            return defaultSchemaName;
+        }
+
+        return DEFAULT_DEFAULT_SCHEMA_NAME;
     }
 
     @Override
     public String getDefaultCatalogName() {
-        return DEFAULT_SCHEMA;
+        return DEFAULT_DEFAULT_CATALOG_NAME;
     }
 
     @Override
@@ -333,6 +336,9 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     public boolean supportsCatalogs() {
         return true;
     }
+
+    @Override
+    public void setDefaultCatalogName(String defaultCatalogName) { }
 
     /**
      * Used by hibernate to ensure no database access is performed.
