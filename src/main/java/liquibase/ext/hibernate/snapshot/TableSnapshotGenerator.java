@@ -12,7 +12,10 @@ import liquibase.structure.core.Schema;
 import liquibase.structure.core.Table;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.generator.Generator;
-import org.hibernate.mapping.*;
+import org.hibernate.mapping.Join;
+import org.hibernate.mapping.PersistentClass;
+import org.hibernate.mapping.RootClass;
+import org.hibernate.mapping.SimpleValue;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,13 +41,21 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             return example;
         }
 
-        Table table = new Table().setName(hibernateTable.getName());
-        Scope.getCurrentScope().getLog(getClass()).info("Found table " + table.getName());
+        boolean schemaMatches = (example.getSchema().getName() != null && example.getSchema().getName().equalsIgnoreCase(hibernateTable.getSchema()))
+                || (example.getSchema().isDefault() && hibernateTable.getSchema() == null);
+        if (!schemaMatches) {
+            Scope.getCurrentScope().getLog(getClass()).info("Skipping table " + hibernateTable.getName() + " for schema " + example.getSchema().getName() + ", because it is part of another one.");
+            return null;
+        }
+
+        Table table = new Table();
+        table.setName(hibernateTable.getName());
         table.setSchema(example.getSchema());
         if (hibernateTable.getComment() != null && !hibernateTable.getComment().isEmpty()) {
             table.setRemarks(hibernateTable.getComment());
         }
 
+        Scope.getCurrentScope().getLog(getClass()).info("Found table " + example.getSchema().getName() + "." + table.getName());
         return table;
     }
 
@@ -115,7 +126,6 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
     private void addDatabaseObjectToSchema(org.hibernate.mapping.Table join, Schema schema, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
         Table joinTable = new Table().setName(join.getName());
         joinTable.setSchema(schema);
-        Scope.getCurrentScope().getLog(getClass()).info("Found table " + joinTable.getName());
         schema.addDatabaseObject(snapshotObject(joinTable, snapshot));
     }
 }
