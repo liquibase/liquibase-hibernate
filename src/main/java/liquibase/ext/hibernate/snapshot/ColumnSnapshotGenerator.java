@@ -183,7 +183,11 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         if (!matcher.matches()) {
             return null;
         }
-        DataType dataType = new DataType(matcher.group(1));
+        String typeName = matcher.group(1);
+        if (hibernateType.endsWith("with time zone")) {
+            typeName += " with timezone";
+        }
+        DataType dataType = new DataType(typeName);
         if (matcher.group(3).isEmpty()) {
             if (!matcher.group(2).isEmpty()) {
                 dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
@@ -199,6 +203,8 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 dataType.setColumnSizeUnit(DataType.ColumnSizeUnit.CHAR);
             }
         }
+
+        Scope.getCurrentScope().getLog(getClass()).info("Converted column data type - hibernate type: " + hibernateType + ", SQL type: " + sqlTypeCode + ", type name: " + typeName);
 
         dataType.setDataTypeId(sqlTypeCode);
         return dataType;
