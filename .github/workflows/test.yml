@@ -1,4 +1,4 @@
-name: Build and Test
+  name: Build and Test
 
 on:
   workflow_dispatch:
@@ -52,10 +52,10 @@ jobs:
           cache: 'maven'
 
       - name: Run Compatibility Tests
-        run: mvn -B jacoco:prepare-agent surefire:test -Dhibernate.version=${{ matrix.hibernate }}
+        run: mvn -B clean test -Dhibernate.version=${{ matrix.hibernate }} verify
 
       - name: Run Tests
-        run: mvn -B jacoco:prepare-agent surefire:test
+        run: mvn -B clean test verify
 
       - name: Archive Test Results
         if: ${{ always() }}
