@@ -40,7 +40,6 @@ jobs:
       fail-fast: false
       matrix:
         hibernate: [ "6.2.7.Final", "6.3.1.Final" ]
-        #Removing test support for versions "6.0.2.Final" and "6.1.7.Final" since they are not compatible with current liquibase version
 
     steps:
       - uses: actions/checkout@v4
