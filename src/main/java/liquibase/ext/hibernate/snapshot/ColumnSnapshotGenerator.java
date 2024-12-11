@@ -34,6 +34,9 @@ import liquibase.util.StringUtil;
  */
 public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
 
+    private static final String SQL_TIMEZONE_SUFFIX = "with time zone";
+    private static final String LIQUIBASE_TIMEZONE_SUFFIX = "with timezone";
+
     private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
 
     public ColumnSnapshotGenerator() {
@@ -183,10 +186,23 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         if (!matcher.matches()) {
             return null;
         }
+
         String typeName = matcher.group(1);
-        if (hibernateType.endsWith("with time zone")) {
-            typeName += " with timezone";
+
+        // Liquibase seems to use 'with timezone' instead of 'with time zone',
+        // so we remove any 'with time zone' suffixes here.
+        // The corresponding 'with timezone' suffix will then be added below,
+        // because in that case hibernateType also ends with 'with time zone'.
+        if (typeName.toLowerCase().endsWith(SQL_TIMEZONE_SUFFIX)) {
+            typeName = typeName.substring(0, typeName.length() - SQL_TIMEZONE_SUFFIX.length()).stripTrailing();
         }
+
+        // If hibernateType ends with 'with time zone' we need to add the corresponding
+        // 'with timezone' suffix to the Liquibase type.
+        if (hibernateType.toLowerCase().endsWith(SQL_TIMEZONE_SUFFIX)) {
+            typeName += (" " + LIQUIBASE_TIMEZONE_SUFFIX);
+        }
+
         DataType dataType = new DataType(typeName);
         if (matcher.group(3).isEmpty()) {
             if (!matcher.group(2).isEmpty()) {
