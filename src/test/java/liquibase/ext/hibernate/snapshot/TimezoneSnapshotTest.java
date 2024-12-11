@@ -28,22 +28,22 @@ public class TimezoneSnapshotTest {
         assertThat(
                 snapshot.get(Column.class),
                 hasItems(
-                        // Instant colum should result in 'timestamp with timezone' type
+                        // Instant column should result in 'timestamp with timezone' type
                         allOf(
                                 hasProperty("name", equalTo("timestamp1")),
                                 hasDatabaseAttribute("type", DataType.class, hasProperty("typeName", equalTo("timestamp with timezone")))
                         ),
-                        // LocalDateTime colum should result in 'timestamp' type
+                        // LocalDateTime column should result in 'timestamp' type
                         allOf(
                                 hasProperty("name", equalTo("timestamp2")),
                                 hasDatabaseAttribute("type", DataType.class, hasProperty("typeName", equalTo("timestamp")))
                         ),
-                        // Colum with explicit definition
+                        // Instant column with explicit definition 'timestamp' should result in 'timestamp' type
                         allOf(
                                 hasProperty("name", equalTo("timestamp3")),
                                 hasDatabaseAttribute("type", DataType.class, hasProperty("typeName", equalTo("timestamp")))
                         ),
-                        // Colum with explicit definition
+                        // LocalDateTime Colum with explicit definition 'TIMESTAMP WITH TIME ZONE' should result in 'TIMESTAMP with timezone' type
                         allOf(
                                 hasProperty("name", equalTo("timestamp4")),
                                 hasDatabaseAttribute("type", DataType.class, hasProperty("typeName", equalToIgnoringCase("timestamp with timezone")))
