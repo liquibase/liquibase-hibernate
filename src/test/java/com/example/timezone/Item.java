@@ -48,4 +48,20 @@ public class Item {
         this.timestamp2 = timestamp2;
     }
 
+    public Instant getTimestamp3() {
+        return timestamp3;
+    }
+
+    public void setTimestamp3(Instant timestamp3) {
+        this.timestamp3 = timestamp3;
+    }
+
+    public LocalDateTime getTimestamp4() {
+        return timestamp4;
+    }
+
+    public void setTimestamp4(LocalDateTime timestamp4) {
+        this.timestamp4 = timestamp4;
+    }
+
 }
