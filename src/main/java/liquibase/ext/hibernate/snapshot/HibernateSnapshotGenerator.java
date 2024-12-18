@@ -3,14 +3,13 @@ package liquibase.ext.hibernate.snapshot;
 import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
-import liquibase.logging.LogFactory;
-import liquibase.logging.LogService;
-import liquibase.logging.Logger;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.snapshot.SnapshotGenerator;
 import liquibase.snapshot.SnapshotGeneratorChain;
 import liquibase.structure.DatabaseObject;
+import liquibase.structure.core.Schema;
+import org.hibernate.boot.model.relational.Namespace;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.mapping.Table;
 
@@ -107,4 +106,27 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
         }
         return null;
     }
+
+    protected static boolean schemaMatchesTable(
+            DatabaseObject example,
+            Table hibernateTable
+    ) {
+        if (example.getSchema().getName() != null && example.getSchema().getName().equalsIgnoreCase(hibernateTable.getSchema())) {
+            return true;
+        }
+
+        return example.getSchema().isDefault() && hibernateTable.getSchema() == null;
+    }
+
+    protected static boolean schemaMatchesNamespace(
+            Schema schema,
+            Namespace hibernateNamespace
+    ) {
+        if (hibernateNamespace.getName().getSchema() != null && hibernateNamespace.getName().getSchema().matches(schema.getName())) {
+            return true;
+        }
+
+        return hibernateNamespace.getName().getSchema() == null && schema.isDefault();
+    }
+
 }
