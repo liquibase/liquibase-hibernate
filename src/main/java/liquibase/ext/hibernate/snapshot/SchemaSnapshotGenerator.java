@@ -1,5 +1,6 @@
 package liquibase.ext.hibernate.snapshot;
 
+import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
@@ -18,7 +19,12 @@ public class SchemaSnapshotGenerator extends HibernateSnapshotGenerator {
 
     @Override
     protected DatabaseObject snapshotObject(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
-        return new Schema(snapshot.getDatabase().getDefaultCatalogName(), snapshot.getDatabase().getDefaultSchemaName()).setDefault(true);
+        Schema schema = new Schema(example.getSchema().getCatalog(), example.getSchema().getName());
+        if (snapshot.getDatabase().getDefaultSchemaName() != null && snapshot.getDatabase().getDefaultSchemaName().equalsIgnoreCase(schema.getName())) {
+            schema.setDefault(true);
+        }
+
+        return schema;
     }
 
     @Override
