@@ -8,25 +8,35 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 public class AuctionItem extends Persistent {
+    @Column(length = 1000)
+    @Getter
+    @Setter
     private String description;
+    @Column(length = 200)
+    @Getter
+    @Setter
     private String shortDescription;
+    @Setter
     private List<Bid> bids;
+    @Setter
     private Bid successfulBid;
+    @Setter
     private User seller;
+    @Getter
+    @Setter
     private Date ends;
+    @Getter
+    @Setter
     private int condition;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     public List<Bid> getBids() {
         return bids;
-    }
-
-    @Column(length = 1000)
-    public String getDescription() {
-        return description;
     }
 
     @ManyToOne
@@ -39,51 +49,9 @@ public class AuctionItem extends Persistent {
         return successfulBid;
     }
 
-    public void setBids(List<Bid> bids) {
-        this.bids = bids;
-    }
-
-    public void setDescription(String string) {
-        description = string;
-    }
-
-    public void setSeller(User user) {
-        seller = user;
-    }
-
-    public void setSuccessfulBid(Bid bid) {
-        successfulBid = bid;
-    }
-
-    public Date getEnds() {
-        return ends;
-    }
-
-    public void setEnds(Date date) {
-        ends = date;
-    }
-
-    public int getCondition() {
-        return condition;
-    }
-
-    public void setCondition(int i) {
-        condition = i;
-    }
-
     public String toString() {
         return shortDescription + " (" + description + ": " + condition
                 + "/10)";
     }
-
-    @Column(length = 200)
-    public String getShortDescription() {
-        return shortDescription;
-    }
-
-    public void setShortDescription(String shortDescription) {
-        this.shortDescription = shortDescription;
-    }
-
 
 }

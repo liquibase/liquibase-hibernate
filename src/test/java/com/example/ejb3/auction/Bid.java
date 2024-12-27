@@ -2,6 +2,8 @@ package com.example.ejb3.auction;
 
 import java.util.Date;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -18,9 +20,14 @@ import jakarta.persistence.Transient;
 @DiscriminatorValue("Y")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Bid extends Persistent {
+    @Setter
     private AuctionItem item;
+    @Setter
+    @Getter
     private float amount;
+    @Setter
     private Date datetime;
+    @Setter
     private User bidder;
 
     @ManyToOne
@@ -28,34 +35,14 @@ public class Bid extends Persistent {
         return item;
     }
 
-    public void setItem(AuctionItem item) {
-        this.item = item;
-    }
-
-    public float getAmount() {
-        return amount;
-    }
-
     @Column(nullable = false, name = "datetime")
     public Date getDatetime() {
         return datetime;
     }
 
-    public void setAmount(float f) {
-        amount = f;
-    }
-
-    public void setDatetime(Date date) {
-        datetime = date;
-    }
-
     @ManyToOne(optional = false)
     public User getBidder() {
         return bidder;
-    }
-
-    public void setBidder(User user) {
-        bidder = user;
     }
 
     public String toString() {
