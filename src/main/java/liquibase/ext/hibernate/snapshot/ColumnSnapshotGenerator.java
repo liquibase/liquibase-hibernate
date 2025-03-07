@@ -1,6 +1,7 @@
 package liquibase.ext.hibernate.snapshot;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,6 +12,7 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
 import org.hibernate.id.ExportableColumn;
 import org.hibernate.mapping.SimpleValue;
+import org.hibernate.type.SqlTypes;
 
 import liquibase.Scope;
 import liquibase.datatype.DataTypeFactory;
@@ -28,8 +30,9 @@ import liquibase.structure.core.Table;
 import liquibase.util.SqlUtil;
 import liquibase.util.StringUtil;
 
+
 /**
- * Columns are snapshotted along with with Tables in {@link TableSnapshotGenerator} but this class needs to be here to keep the default ColumnSnapshotGenerator from running.
+ * Columns are snapshotted along with Tables in {@link TableSnapshotGenerator} but this class needs to be here to keep the default ColumnSnapshotGenerator from running.
  * Ideally the column logic would be moved out of the TableSnapshotGenerator to better work in situations where the object types to snapshot are being controlled, but that is not the case yet.
  */
 public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
@@ -102,7 +105,8 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             if (hibernateColumn.getName().equalsIgnoreCase(column.getName())) {
 
                 String defaultValue = null;
-                String hibernateType = hibernateColumn.getSqlType(metadata.getTypeConfiguration(), dialect, metadata);
+                String hibernateType = hibernateColumn.getSqlType(metadata);
+
                 Matcher defaultValueMatcher = Pattern.compile("(?i) DEFAULT\\s+(.*)").matcher(hibernateType);
                 if (defaultValueMatcher.find()) {
                     defaultValue = defaultValueMatcher.group(1);
@@ -118,7 +122,15 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 Scope.getCurrentScope().getLog(getClass()).info("Found column " + column.getName() + " " + column.getType().toString());
 
                 column.setRemarks(hibernateColumn.getComment());
-                if (hibernateColumn.getValue() instanceof SimpleValue) {
+
+                // DataTypeFactory.from and SqlUtil.parseValue rely on the database type however,
+                // the liquibase-core does not know about the fake hibernate database so not all conditions
+                // are handled correctly for enums.
+                boolean isEnumType =  Optional.ofNullable(dataType.getDataTypeId())
+                        .map(SqlTypes::isEnumType)
+                        .orElse(false);
+
+                if (!isEnumType && hibernateColumn.getValue() instanceof SimpleValue) {
                     DataType parseType;
                     if (DataTypeFactory.getInstance().from(dataType, database) instanceof UnknownType) {
                         parseType = new DataType(((SimpleValue) hibernateColumn.getValue()).getTypeName());
@@ -181,46 +193,53 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         }
     }
 
-    protected DataType toDataType(String hibernateType, Integer sqlTypeCode) throws DatabaseException {
+    protected DataType toDataType(String hibernateType, Integer sqlTypeCode) {
         Matcher matcher = pattern.matcher(hibernateType);
         if (!matcher.matches()) {
             return null;
         }
 
-        String typeName = matcher.group(1);
+        DataType dataType;
 
-        // Liquibase seems to use 'with timezone' instead of 'with time zone',
-        // so we remove any 'with time zone' suffixes here.
-        // The corresponding 'with timezone' suffix will then be added below,
-        // because in that case hibernateType also ends with 'with time zone'.
-        if (typeName.toLowerCase().endsWith(SQL_TIMEZONE_SUFFIX)) {
-            typeName = typeName.substring(0, typeName.length() - SQL_TIMEZONE_SUFFIX.length()).stripTrailing();
-        }
-
-        // If hibernateType ends with 'with time zone' we need to add the corresponding
-        // 'with timezone' suffix to the Liquibase type.
-        if (hibernateType.toLowerCase().endsWith(SQL_TIMEZONE_SUFFIX)) {
-            typeName += (" " + LIQUIBASE_TIMEZONE_SUFFIX);
-        }
-
-        DataType dataType = new DataType(typeName);
-        if (matcher.group(3).isEmpty()) {
-            if (!matcher.group(2).isEmpty()) {
-                dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
-            }
+        // Small hack for enums until DataType adds support for them
+        if (Optional.ofNullable(sqlTypeCode).map(SqlTypes::isEnumType).orElse(false)) {
+            dataType = new DataType(hibernateType);
         } else {
-            dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
-            dataType.setDecimalDigits(Integer.parseInt(matcher.group(3)));
-        }
+            String typeName = matcher.group(1);
 
-        String extra = StringUtil.trimToNull(matcher.group(4));
-        if (extra != null) {
-            if (extra.equalsIgnoreCase("char")) {
-                dataType.setColumnSizeUnit(DataType.ColumnSizeUnit.CHAR);
+            // Liquibase seems to use 'with timezone' instead of 'with time zone',
+            // so we remove any 'with time zone' suffixes here.
+            // The corresponding 'with timezone' suffix will then be added below,
+            // because in that case hibernateType also ends with 'with time zone'.
+            if (typeName.toLowerCase().endsWith(SQL_TIMEZONE_SUFFIX)) {
+                typeName = typeName.substring(0, typeName.length() - SQL_TIMEZONE_SUFFIX.length()).stripTrailing();
+            }
+
+            // If hibernateType ends with 'with time zone' we need to add the corresponding
+            // 'with timezone' suffix to the Liquibase type.
+            if (hibernateType.toLowerCase().endsWith(SQL_TIMEZONE_SUFFIX)) {
+                typeName += (" " + LIQUIBASE_TIMEZONE_SUFFIX);
+            }
+
+            dataType = new DataType(typeName);
+            if (matcher.group(3).isEmpty()) {
+                if (!matcher.group(2).isEmpty()) {
+                    dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
+                }
+            } else {
+                dataType.setColumnSize(Integer.parseInt(matcher.group(2)));
+                dataType.setDecimalDigits(Integer.parseInt(matcher.group(3)));
+            }
+
+            String extra = StringUtil.trimToNull(matcher.group(4));
+            if (extra != null) {
+                if (extra.equalsIgnoreCase("char")) {
+                    dataType.setColumnSizeUnit(DataType.ColumnSizeUnit.CHAR);
+                }
             }
         }
 
-        Scope.getCurrentScope().getLog(getClass()).info("Converted column data type - hibernate type: " + hibernateType + ", SQL type: " + sqlTypeCode + ", type name: " + typeName);
+        Scope.getCurrentScope().getLog(getClass()).info("Converted column data type - hibernate type: " + hibernateType + ", SQL type: " + sqlTypeCode + ", type name: " + dataType.getTypeName());
 
         dataType.setDataTypeId(sqlTypeCode);
         return dataType;
