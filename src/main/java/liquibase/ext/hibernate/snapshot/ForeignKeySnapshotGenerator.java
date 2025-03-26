@@ -5,6 +5,7 @@ import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
+import liquibase.snapshot.SnapshotGenerator;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Table;
@@ -83,6 +84,11 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
                 }
             }
         }
+    }
+
+    @Override
+    public Class<? extends SnapshotGenerator>[] replaces() {
+        return new Class[]{ liquibase.snapshot.jvm.ForeignKeySnapshotGenerator.class };
     }
 
 }

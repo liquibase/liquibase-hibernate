@@ -3,6 +3,7 @@ package liquibase.ext.hibernate.snapshot;
 import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
+import liquibase.snapshot.SnapshotGenerator;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Schema;
 import liquibase.structure.core.View;
@@ -24,7 +25,11 @@ public class ViewSnapshotGenerator extends HibernateSnapshotGenerator {
     @Override
     protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
         // No views in Hibernate mapping
+    }
 
+    @Override
+    public Class<? extends SnapshotGenerator>[] replaces() {
+        return new Class[]{ liquibase.snapshot.jvm.ViewSnapshotGenerator.class };
     }
 
 }

@@ -4,6 +4,7 @@ import liquibase.Scope;
 import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
+import liquibase.snapshot.SnapshotGenerator;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Column;
 import liquibase.structure.core.Index;
@@ -65,6 +66,11 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
                 table.getIndexes().add(index);
             }
         }
+    }
+
+    @Override
+    public Class<? extends SnapshotGenerator>[] replaces() {
+        return new Class[]{liquibase.snapshot.jvm.PrimaryKeySnapshotGenerator.class};
     }
 
 }

@@ -7,6 +7,7 @@ import liquibase.ext.hibernate.snapshot.extension.ExtendedSnapshotGenerator;
 import liquibase.ext.hibernate.snapshot.extension.TableGeneratorSnapshotGenerator;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
+import liquibase.snapshot.SnapshotGenerator;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Schema;
 import liquibase.structure.core.Table;
@@ -117,5 +118,10 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
         joinTable.setSchema(schema);
         Scope.getCurrentScope().getLog(getClass()).info("Found table " + joinTable.getName());
         schema.addDatabaseObject(snapshotObject(joinTable, snapshot));
+    }
+
+    @Override
+    public Class<? extends SnapshotGenerator>[] replaces() {
+        return new Class[]{liquibase.snapshot.jvm.TableSnapshotGenerator.class};
     }
 }
