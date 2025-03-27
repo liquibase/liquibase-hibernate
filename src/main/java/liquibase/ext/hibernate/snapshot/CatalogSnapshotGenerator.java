@@ -3,6 +3,7 @@ package liquibase.ext.hibernate.snapshot;
 import liquibase.exception.DatabaseException;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
+import liquibase.snapshot.SnapshotGenerator;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Catalog;
 
@@ -26,4 +27,8 @@ public class CatalogSnapshotGenerator extends HibernateSnapshotGenerator {
         // Nothing to add to
     }
 
+    @Override
+    public Class<? extends SnapshotGenerator>[] replaces() {
+        return new Class[]{liquibase.snapshot.jvm.CatalogSnapshotGenerator.class};
+    }
 }
