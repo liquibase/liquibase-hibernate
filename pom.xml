@@ -71,7 +71,7 @@
     </ciManagement>
 
     <properties>
-        <hibernate.version>6.6.11.Final</hibernate.version>
+        <hibernate.version>6.6.12.Final</hibernate.version>
         <spring.version>6.2.5</spring.version>
         <liquibase.version>4.31.1</liquibase.version>
         <maven.compiler.source>11</maven.compiler.source>
