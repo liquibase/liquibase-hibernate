@@ -21,11 +21,21 @@ jobs:
     outputs:
       dry_run_release_id: ${{ steps.get_draft_release_id.outputs.release_id }}
     steps:
+
+      - name: Get GitHub App token
+        id: get-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.LIQUIBASE_GITHUB_APP_ID }}
+          private-key: ${{ secrets.LIQUIBASE_GITHUB_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          permission-contents: read
+
       - name: Get Draft Release ID 
         id: get_draft_release_id
         run: |
           release_name="v0.0.${{ github.run_number }}"
-          response=$(curl -s -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
+          response=$(curl -s -H "Authorization: token ${{ steps.get-token.outputs.token }}" \
                           -H "Accept: application/vnd.github.v3+json" \
                           "https://api.github.com/repos/${{ github.repository }}/releases")
           draft_release=$(echo "$response" | jq -r --arg name "$release_name" '.[] | select(.name == $name and .draft == true)')
@@ -52,9 +62,22 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     needs: [ dry-run-get-draft-release, dry-run-release-published ]
+    permissions:
+      contents: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout liquibase
         uses: actions/checkout@v4
+
+      - name: Get GitHub App token
+        id: get-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.LIQUIBASE_GITHUB_APP_ID }}
+          private-key: ${{ secrets.LIQUIBASE_GITHUB_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          permission-contents: read
 
       - name: Set up Git
         run: |
@@ -64,13 +87,14 @@ jobs:
       - name: Delete liquibase dry-run tag
         if: always()
         run: |
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
           git push origin --delete refs/tags/v0.0.${{ github.run_number }}
           echo "Remote tag v0.0.${{ github.run_number }} deleted"
 
       - name: Delete the dry-run draft release
         if: always()
         run: |
-          curl -X DELETE -H "Authorization: token ${{ secrets.BOT_TOKEN }}" \
+          curl -X DELETE -H "Authorization: token ${{ steps.get-token.outputs.token }}" \
                 -H "Accept: application/vnd.github.v3+json" \
                 "https://api.github.com/repos/${{ github.repository }}/releases/${{ needs.dry-run-get-draft-release.outputs.dry_run_release_id }}"
                 
