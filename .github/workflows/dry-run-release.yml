@@ -6,22 +6,25 @@ on:
     # Trigger weekly on Wednesday at midnight Austin time (Standard Time)
     - cron: "0 6 * * 3"
 
-jobs:
+permissions:
+  contents: write
+  actions: read
+  packages: write
 
-   dry-run-attach-artifact-to-release:
+jobs:
+  dry-run-attach-artifact-to-release:
     uses: liquibase/build-logic/.github/workflows/extension-attach-artifact-release.yml@main
     secrets: inherit
     with:
       dry_run: true
       dry_run_version: "0.0.${{ github.run_number }}"
 
-   dry-run-get-draft-release:
+  dry-run-get-draft-release:
     needs: dry-run-attach-artifact-to-release
     runs-on: ubuntu-latest
     outputs:
       dry_run_release_id: ${{ steps.get_draft_release_id.outputs.release_id }}
     steps:
-
       - name: Get GitHub App token
         id: get-token
         uses: actions/create-github-app-token@v2
@@ -31,7 +34,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           permission-contents: read
 
-      - name: Get Draft Release ID 
+      - name: Get Draft Release ID
         id: get_draft_release_id
         run: |
           release_name="v0.0.${{ github.run_number }}"
@@ -48,7 +51,7 @@ jobs:
             echo "release_id=$release_id" >> $GITHUB_OUTPUT
           fi
 
-   dry-run-release-published:
+  dry-run-release-published:
     needs: dry-run-get-draft-release
     uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@main
     secrets: inherit
@@ -58,10 +61,10 @@ jobs:
       dry_run_release_id: ${{ needs.dry-run-get-draft-release.outputs.dry_run_release_id }}
       deployToMavenCentral: false
 
-   cleanup:
+  cleanup:
     runs-on: ubuntu-latest
     if: always()
-    needs: [ dry-run-get-draft-release, dry-run-release-published ]
+    needs: [dry-run-get-draft-release, dry-run-release-published]
     permissions:
       contents: write
     env:
@@ -97,11 +100,17 @@ jobs:
           curl -X DELETE -H "Authorization: token ${{ steps.get-token.outputs.token }}" \
                 -H "Accept: application/vnd.github.v3+json" \
                 "https://api.github.com/repos/${{ github.repository }}/releases/${{ needs.dry-run-get-draft-release.outputs.dry_run_release_id }}"
-                
-   notify:
+
+  notify:
     if: failure()
     runs-on: ubuntu-latest
-    needs: [ dry-run-attach-artifact-to-release, dry-run-get-draft-release, dry-run-release-published, cleanup ]
+    needs:
+      [
+        dry-run-attach-artifact-to-release,
+        dry-run-get-draft-release,
+        dry-run-release-published,
+        cleanup,
+      ]
     steps:
       - name: Notify Slack on Build Failure
         uses: rtCamp/action-slack-notify@v2
