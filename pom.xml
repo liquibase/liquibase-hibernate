@@ -10,7 +10,7 @@
 
     <groupId>org.liquibase.ext</groupId>
     <artifactId>liquibase-hibernate6</artifactId>
-    <version>4.32.0</version>
+    <version>4.33.0-SNAPSHOT</version>
 
     <name>Liquibase Hibernate Integration</name>
     <description>Liquibase extension for hibernate integration including generating changesets based on changed
@@ -82,7 +82,7 @@
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
 		<url>https://github.com/liquibase/liquibase-hibernate.git</url>
-		<tag>temp</tag>
+		<tag>HEAD</tag>
 	</scm>
 
     <dependencies>
