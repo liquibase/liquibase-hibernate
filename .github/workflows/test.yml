@@ -1,30 +1,64 @@
 name: Build and Test
 
 on:
+  workflow_dispatch:
   pull_request_target:
     types:
       - opened
       - reopened
       - synchronize
 
-permissions:
-  contents: write
-  pull-requests: write
-  packages: read
-
 jobs:
+
   authorize:
     environment: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name != github.repository && 'external' || 'internal' }}
     runs-on: ubuntu-latest
     steps:
-      - run: true
+      - run: "true"
 
   build-test:
     needs: authorize
     uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@main
     secrets: inherit
+    with:
+      java: '[17, 21]'
+      os: '["ubuntu-latest"]'
 
-  dependabot:
+  hibernate-test:
+    name: Test Hibernate ${{ matrix.hibernate }}
     needs: build-test
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        hibernate: [ "6.2.7.Final", "6.3.1.Final", "6.6.1.Final" ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run Compatibility Tests
+        run: mvn -B clean test -Dhibernate.version=${{ matrix.hibernate }} verify
+
+      - name: Run Tests
+        run: mvn -B clean test verify
+
+      - name: Archive Test Results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-hibernate-${{ matrix.hibernate }}
+          path: |
+            **/target/surefire-reports
+            **/target/jacoco.exec
+  dependabot:
+    needs: hibernate-test
     uses: liquibase/build-logic/.github/workflows/dependabot-automerge.yml@main
     secrets: inherit
