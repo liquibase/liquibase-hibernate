@@ -2,6 +2,7 @@ package liquibase.ext.hibernate.snapshot;
 
 import liquibase.exception.DatabaseException;
 import liquibase.structure.core.DataType;
+import org.hibernate.type.SqlTypes;
 import org.junit.Test;
 
 import java.sql.Types;
@@ -27,5 +28,11 @@ public class ColumnSnapshotGeneratorTest {
         assertEquals(30, varcharChar.getColumnSize().intValue());
         assertEquals(DataType.ColumnSizeUnit.CHAR, varcharChar.getColumnSizeUnit());
 
+
+        DataType enumType = columnSnapshotGenerator.toDataType("enum ('a', 'b', 'c')", SqlTypes.ENUM);
+        assertEquals("enum ('a', 'b', 'c')", enumType.getTypeName());
+        assertNull(enumType.getColumnSize());
+        assertEquals(SqlTypes.ENUM, enumType.getDataTypeId().intValue());
+        assertNull(enumType.getColumnSizeUnit());
     }
 }
