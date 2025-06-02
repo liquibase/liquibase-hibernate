@@ -30,12 +30,6 @@ The workflow separates Unit Test from Integration Tests and runs them at separat
 Any tests that require a JDBC connection to a running database are integration tests and should be in the `IT.java` files.
 
 ## Repository Configuration
-The automation requires the below secrets and configuration in order to run.
-### BOT TOKEN
-Github secret named: `BOT_TOKEN`
-
-Github Actions bot cannot trigger events, so a liquibase robot user is needed to trigger automated events. An access token belonging to the liquibase robot user should be added to the repository secrets and named `BOT_TOKEN`. 
-
 ### GPG SECRET
 Github secret named: `GPG_SECRET`
 
