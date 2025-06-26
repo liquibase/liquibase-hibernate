@@ -33,8 +33,7 @@ jobs:
           app-id: ${{ secrets.LIQUIBASE_GITHUB_APP_ID }}
           private-key: ${{ secrets.LIQUIBASE_GITHUB_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
-          permission-contents: read
-
+          
       - name: Get Draft Release ID
         id: get_draft_release_id
         run: |
@@ -56,6 +55,11 @@ jobs:
     needs: dry-run-get-draft-release
     uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@main
     secrets: inherit
+    permissions:
+      id-token: write
+      contents: write
+      packages: write
+      pull-requests: write
     with:
       dry_run: true
       dry_run_version: "0.0.${{ github.run_number }}"
