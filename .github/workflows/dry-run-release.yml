@@ -11,6 +11,7 @@ permissions:
   actions: read
   packages: write
   pull-requests: write
+  id-token: write
 
 jobs:
   dry-run-attach-artifact-to-release:
