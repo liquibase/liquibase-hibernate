@@ -172,7 +172,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>11</version>
+                                    <version>17</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -222,7 +222,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
-                    <source>1.8</source>
+                    <source>17</source>
                     <author>false</author>
                     <doctitle>Liquibase ${project.name} ${project.version} API</doctitle>
                     <quiet>true</quiet>
