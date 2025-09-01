@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        hibernate: [ "6.3.1.Final", "6.6.1.Final" ]
+        hibernate: [ "6.3.1.Final", "6.6.15.Final" ]
 
     steps:
       - uses: actions/checkout@v4
