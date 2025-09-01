@@ -1,8 +1,8 @@
 import liquibase.harness.config.TestConfig
-import liquibase.harness.diff.DiffCommandTest
+import liquibase.harness.diff.DiffCommandTestHelper
 
-class HibernateDiffCommandTest { //extends DiffCommandTest {
-//    static {
-//        TestConfig.instance.initDB = false
-//    }
+class HibernateDiffCommandTest extends DiffCommandTestHelper {
+    static {
+        TestConfig.instance.initDB = false
+    }
 }
