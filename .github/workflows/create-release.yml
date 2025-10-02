@@ -1,14 +1,19 @@
 name: Create Release
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-      - hibernate5
 
 permissions:
   contents: write
-  pull-requests: write
+  pull-requests: read
+  issues: read
+  statuses: read
+  actions: read
+  security-events: write
+  id-token: write
   
 jobs:
   create-release:

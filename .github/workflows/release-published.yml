@@ -8,91 +8,10 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  
+  packages: write
+  id-token: write
+
 jobs:
   release:
-    name: "Release ${{ matrix.artifact.name }}" 
-    strategy:
-      fail-fast: false
-      matrix:
-        artifact: [ 
-          {name: hibernate6, branch: main},
-          {name: hibernate5, branch: hibernate5},
-          ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ matrix.artifact.branch }}
-
-      - name: Set up Java for publishing to Maven Central Repository
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-          server-id: sonatype-nexus-staging
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-
-      - name: Configure Git
-        run: |
-          git config user.name "liquibot"
-          git config user.email "liquibot@liquibase.org"
-
-      - name: Build release artifacts
-        id: build-release-artifacts
-        run: |
-          mvn -B release:clean release:prepare -Dusername=liquibot -Dpassword=$GITHUB_TOKEN -Darguments="-Dmaven.javadoc.skip=true -Dmaven.test.skipTests=true -Dmaven.test.skip=true -Dmaven.deploy.skip=true" -DreleaseVersion=${{ github.event.inputs.liquibaseVersion }} -DpushChanges=false
-          git reset --hard HEAD~1 
-
-      - name: Get Artifact ID
-        id: get-artifact-id
-        run: echo "artifact_id=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_ENV
-
-      - name: Download Release Artifacts
-        uses: robinraju/release-downloader@v1.12
-        with:
-          tag: "${{ github.event.release.tag_name }}"
-          filename: "liquibase-${{ matrix.artifact.name }}-*"
-          out-file-path: "."
-
-      - name: Publish to Maven Central
-        env:
-          MAVEN_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.SONATYPE_TOKEN }}
-        run: |
-          version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)          
-          mvn -B org.apache.maven.plugins:maven-deploy-plugin:3.0.0-M1:deploy-file \
-                      -Durl=https://oss.sonatype.org/service/local/staging/deploy/maven2/ \
-                      -DrepositoryId=sonatype-nexus-staging \
-                      -DpomFile=${{ env.artifact_id }}-${version}.pom \
-                      -DgeneratePom=false \
-                      -Dfile=${{ env.artifact_id }}-${version}.jar \
-                      -Dsources=${{ env.artifact_id }}-${version}-sources.jar \
-                      -Djavadoc=${{ env.artifact_id }}-${version}-javadoc.jar \
-                      -Dfiles=${{ env.artifact_id }}-${version}.jar.asc,${{ env.artifact_id }}-${version}-sources.jar.asc,${{ env.artifact_id }}-${version}-javadoc.jar.asc,${{ env.artifact_id }}-${version}.pom.asc \
-                      -Dtypes=jar.asc,jar.asc,jar.asc,pom.asc \
-                      -Dclassifiers=,sources,javadoc,
-
-      - name: Prepare Maven Release
-        run: |
-          version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          git reset --hard HEAD~1
-          git tag -d liquibase-${{ matrix.artifact.name }}-${version}
-          mvn -B build-helper:parse-version versions:set release:clean release:prepare \
-          -Dusername=liquibot -Dpassword=$GITHUB_TOKEN \
-          -Darguments="-Dmaven.javadoc.skip=true -Dmaven.test.skipTests=true -Dmaven.test.skip=true -Dmaven.deploy.skip=true" \
-          -DdevelopmentVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0-SNAPSHOT -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.\${parsedVersion.incrementalVersion} \
-          -DcheckModificationExcludeList=pom.xml
-
-      - name: Release Rollback
-        if: failure()
-        run: |
-          mvn -B release:rollback \
-          -Dusername=liquibot -Dpassword=$GITHUB_TOKEN \
-          -Darguments="-Dmaven.javadoc.skip=true -Dmaven.test.skipTests=true -Dmaven.test.skip=true -Dmaven.deploy.skip=true" \
-          -DdevelopmentVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.\${parsedVersion.incrementalVersion}-SNAPSHOT -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.\${parsedVersion.incrementalVersion} \
-          -DconnectionUrl=scm:git:https://github.com/${{ github.repository }}.git -Dtag=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.\${parsedVersion.incrementalVersion} \
-          -DcheckModificationExcludeList=pom.xml
-
+    uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@main
+    secrets: inherit

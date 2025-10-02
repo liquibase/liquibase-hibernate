@@ -1,6 +1,7 @@
 name: Attach Artifact to Release
 
 on:
+  workflow_dispatch:
   pull_request:
     types:
       - closed
@@ -8,8 +9,13 @@ on:
     branches:
       - main
 
-jobs:
+permissions:
+  contents: write
+  actions: read
+  packages: write
+  id-token: write
 
+jobs:
   attach-artifact-to-release:
     uses: liquibase/build-logic/.github/workflows/extension-attach-artifact-release.yml@main
     secrets: inherit
