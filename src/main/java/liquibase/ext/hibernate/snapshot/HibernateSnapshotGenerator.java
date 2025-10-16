@@ -107,6 +107,14 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
         return null;
     }
 
+    /**
+     * Checks if a database object's schema matches a Hibernate table's schema.
+     * Used to filter tables by their declared schemas during snapshot generation.
+     *
+     * @param example the database object being examined
+     * @param hibernateTable the Hibernate table mapping
+     * @return true if schemas match, false otherwise
+     */
     protected static boolean schemaMatchesTable(
             DatabaseObject example,
             Table hibernateTable
@@ -118,6 +126,14 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
         return example.getSchema().isDefault() && hibernateTable.getSchema() == null;
     }
 
+    /**
+     * Checks if a Liquibase schema matches a Hibernate namespace.
+     * Used to filter sequences and other namespace-scoped objects during snapshot generation.
+     *
+     * @param schema the Liquibase schema
+     * @param hibernateNamespace the Hibernate namespace
+     * @return true if schemas match (including regex matching), false otherwise
+     */
     protected static boolean schemaMatchesNamespace(
             Schema schema,
             Namespace hibernateNamespace
