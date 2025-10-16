@@ -42,10 +42,10 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             return example;
         }
 
-        boolean schemaMatches = (example.getSchema().getName() != null && example.getSchema().getName().equalsIgnoreCase(hibernateTable.getSchema()))
-                || (example.getSchema().isDefault() && hibernateTable.getSchema() == null);
+        boolean schemaMatches = example.getSchema() != null && ((example.getSchema().getName() != null && example.getSchema().getName().equalsIgnoreCase(hibernateTable.getSchema()))
+                || (example.getSchema().isDefault() && hibernateTable.getSchema() == null));
         if (!schemaMatches) {
-            Scope.getCurrentScope().getLog(getClass()).info("Skipping table " + hibernateTable.getName() + " for schema " + example.getSchema().getName() + ", because it is part of another one.");
+            Scope.getCurrentScope().getLog(getClass()).info("Skipping table " + hibernateTable.getName() + " for schema " + example.getSchema().getName() + ", because it belongs to a different schema.");
             return null;
         }
 

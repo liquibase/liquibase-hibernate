@@ -2,18 +2,19 @@ package com.example.multischema.auction;
 
 import jakarta.persistence.*;
 
+/**
+ * Test entity with explicit PUBLIC schema.
+ * Used to verify that entities with schema annotations are correctly placed in their specified schema.
+ */
 @Entity
-@Table(schema = "PUBLIC")
-@SecondaryTable(name = "second_table", pkJoinColumns = @PrimaryKeyJoinColumn(name = "first_table_id"))
+@Table(name = "first_table", schema = "PUBLIC")
 public class FirstTable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name")
     private String name;
-
-    @Embedded
-    private SecondTable secondTable;
 
     public Long getId() {
         return id;
@@ -29,13 +30,5 @@ public class FirstTable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public SecondTable getSecondTable() {
-        return secondTable;
-    }
-
-    public void setSecondTable(SecondTable secondTable) {
-        this.secondTable = secondTable;
     }
 }
