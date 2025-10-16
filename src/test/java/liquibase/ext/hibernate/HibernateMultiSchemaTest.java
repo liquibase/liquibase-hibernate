@@ -48,6 +48,7 @@ public class HibernateMultiSchemaTest {
         final File changelogFile = File.createTempFile("diffChangeLog-test", ".yaml");
         changelogFile.deleteOnExit();
 
+        //we don't ship jansi, so we know we can disable it without having to do the slow class checking
         System.setProperty("org.fusesource.jansi.Ansi.disable", "true");
         final LiquibaseCommandLine cli = new LiquibaseCommandLine();
 

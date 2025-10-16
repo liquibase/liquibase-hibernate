@@ -37,8 +37,8 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     protected Dialect dialect;
 
     private boolean indexesForForeignKeys = false;
-    public static final String DEFAULT_DEFAULT_CATALOG_NAME = "HIBERNATE";
-    public static final String DEFAULT_DEFAULT_SCHEMA_NAME = "HIBERNATE";
+    public static final String DEFAULT_CATALOG_NAME = "HIBERNATE";
+    public static final String DEFAULT_SCHEMA_NAME = "HIBERNATE";
     public static final String HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS = "hibernate.temp.use_jdbc_metadata_defaults";
 
     public HibernateDatabase() { }
@@ -295,12 +295,12 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     @Override
     protected String getConnectionCatalogName() {
-        return DEFAULT_DEFAULT_CATALOG_NAME;
+        return DEFAULT_CATALOG_NAME;
     }
 
     @Override
     protected String getConnectionSchemaName() {
-       return DEFAULT_DEFAULT_SCHEMA_NAME;
+       return DEFAULT_SCHEMA_NAME;
     }
 
     @Override
@@ -310,12 +310,12 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
             return defaultSchemaName;
         }
 
-        return DEFAULT_DEFAULT_SCHEMA_NAME;
+        return DEFAULT_SCHEMA_NAME;
     }
 
     @Override
     public String getDefaultCatalogName() {
-        return DEFAULT_DEFAULT_CATALOG_NAME;
+        return DEFAULT_CATALOG_NAME;
     }
 
     @Override
