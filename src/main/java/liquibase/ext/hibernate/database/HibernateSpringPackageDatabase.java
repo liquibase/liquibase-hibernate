@@ -106,6 +106,11 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
         map.put(EnversSettings.REVISION_TYPE_FIELD_NAME,getHibernateConnection().getProperties().getProperty(EnversSettings.REVISION_TYPE_FIELD_NAME,"REVTYPE"));
         map.put(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA, getProperty(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA));
         map.put(AvailableSettings.TIMEZONE_DEFAULT_STORAGE, getProperty(AvailableSettings.TIMEZONE_DEFAULT_STORAGE));
+        entityManagerFactory.getProperties().forEach((k, v) -> {
+            if (v instanceof String) {
+                map.put(k, (String) v);
+            }
+        });
         PersistenceUnitInfoDescriptor persistenceUnitInfoDescriptor = createPersistenceUnitInfoDescriptor(persistenceUnitInfo);
         EntityManagerFactoryBuilderImpl builder = (EntityManagerFactoryBuilderImpl) Bootstrap.getEntityManagerFactoryBuilder(persistenceUnitInfoDescriptor, map);
         
