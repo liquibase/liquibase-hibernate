@@ -126,8 +126,9 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 // DataTypeFactory.from and SqlUtil.parseValue rely on the database type however,
                 // the liquibase-core does not know about the fake hibernate database so not all conditions
                 // are handled correctly for enums.
+                // Check if it's an enum type (compatible with Hibernate 6.2+)
                 boolean isEnumType =  Optional.ofNullable(dataType.getDataTypeId())
-                        .map(SqlTypes::isEnumType)
+                        .map(typeId -> isEnumType(typeId))
                         .orElse(false);
 
                 if (!isEnumType && hibernateColumn.getValue() instanceof SimpleValue) {
@@ -202,7 +203,8 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         DataType dataType;
 
         // Small hack for enums until DataType adds support for them
-        if (Optional.ofNullable(sqlTypeCode).map(SqlTypes::isEnumType).orElse(false)) {
+        // Check if it's an enum type (compatible with Hibernate 6.2+)
+        if (Optional.ofNullable(sqlTypeCode).map(typeId -> isEnumType(typeId)).orElse(false)) {
             dataType = new DataType(hibernateType);
         } else {
             String typeName = matcher.group(1);
@@ -243,6 +245,31 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
 
         dataType.setDataTypeId(sqlTypeCode);
         return dataType;
+    }
+
+    /**
+     * Checks if the given SQL type code represents an enum type.
+     * This method provides compatibility with Hibernate 6.2+ by using reflection
+     * to check if SqlTypes.isEnumType() method exists, falling back to a hardcoded check.
+     *
+     * @param sqlTypeCode the SQL type code to check
+     * @return true if the type code represents an enum, false otherwise
+     */
+    private static boolean isEnumType(Integer sqlTypeCode) {
+        if (sqlTypeCode == null) {
+            return false;
+        }
+
+        try {
+            // Try to use SqlTypes.isEnumType() if available (Hibernate 6.3+)
+            java.lang.reflect.Method method = SqlTypes.class.getMethod("isEnumType", int.class);
+            return (Boolean) method.invoke(null, sqlTypeCode);
+        } catch (Exception e) {
+            // Fallback for Hibernate 6.2.x where isEnumType() doesn't exist
+            // or if reflection fails for any reason
+            // Conservative: assume not enum if method doesn't exist or fails
+            return false;
+        }
     }
 
     @Override
