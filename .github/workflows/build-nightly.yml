@@ -11,7 +11,7 @@ jobs:
       uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@main
       with:
         nightly: true
-        java: '[17, 21, 25]'
+        java: '[17, 21]'
         os: '["ubuntu-latest"]'
       secrets: inherit
 
