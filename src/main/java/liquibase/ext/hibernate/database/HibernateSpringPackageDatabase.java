@@ -99,6 +99,7 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
         map.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, Boolean.FALSE.toString());
         map.put(AvailableSettings.PHYSICAL_NAMING_STRATEGY, getHibernateConnection().getProperties().getProperty(AvailableSettings.PHYSICAL_NAMING_STRATEGY));
         map.put(AvailableSettings.IMPLICIT_NAMING_STRATEGY, getHibernateConnection().getProperties().getProperty(AvailableSettings.IMPLICIT_NAMING_STRATEGY));
+        map.put(AvailableSettings.DEFAULT_SCHEMA, getHibernateConnection().getProperties().getProperty(AvailableSettings.DEFAULT_SCHEMA));
         map.put(AvailableSettings.SCANNER_DISCOVERY, "");	// disable scanning of all classes and hbm.xml files. Only scan speficied packages
         map.put(EnversSettings.AUDIT_TABLE_PREFIX,getHibernateConnection().getProperties().getProperty(EnversSettings.AUDIT_TABLE_PREFIX,""));
         map.put(EnversSettings.AUDIT_TABLE_SUFFIX,getHibernateConnection().getProperties().getProperty(EnversSettings.AUDIT_TABLE_SUFFIX,"_AUD"));
