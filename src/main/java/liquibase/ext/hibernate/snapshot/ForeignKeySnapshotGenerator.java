@@ -38,8 +38,8 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
             Collection<org.hibernate.mapping.Table> tmapp = metadata.collectTableMappings();
             Iterator<org.hibernate.mapping.Table> tableMappings = tmapp.iterator();
             while (tableMappings.hasNext()) {
-                org.hibernate.mapping.Table hibernateTable = (org.hibernate.mapping.Table) tableMappings.next();
-                Iterator fkIterator = hibernateTable.getForeignKeyIterator();
+                org.hibernate.mapping.Table hibernateTable = tableMappings.next();
+                Iterator fkIterator = hibernateTable.getForeignKeyCollection().iterator();
                 while (fkIterator.hasNext()) {
                     org.hibernate.mapping.ForeignKey hibernateForeignKey = (org.hibernate.mapping.ForeignKey) fkIterator.next();
                     Table currentTable = new Table().setName(hibernateTable.getName());
