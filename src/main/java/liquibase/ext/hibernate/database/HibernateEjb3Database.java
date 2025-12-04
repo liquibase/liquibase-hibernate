@@ -1,11 +1,10 @@
 package liquibase.ext.hibernate.database;
 
 import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.persistence.PersistenceUnitTransactionType;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.cfg.AvailableSettings;
@@ -17,7 +16,6 @@ import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.metamodel.ManagedType;
-import jakarta.persistence.spi.PersistenceUnitTransactionType;
 import liquibase.Scope;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
@@ -135,21 +133,15 @@ public class HibernateEjb3Database extends HibernateDatabase {
             final Field declaredField;
 
             declaredField = obj.getClass().getDeclaredField(fieldName);
-            AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                @Override
-                public Object run() {
-                    boolean wasAccessible = declaredField.isAccessible();
-                    try {
-                        declaredField.setAccessible(true);
-                        declaredField.set(obj, value);
-                        return null;
-                    } catch (Exception ex) {
-                        throw new IllegalStateException("Cannot invoke method get", ex);
-                    } finally {
-                        declaredField.setAccessible(wasAccessible);
-                    }
-                }
-            });
+            boolean wasAccessible = declaredField.canAccess(obj);
+            try {
+                declaredField.setAccessible(true);
+                declaredField.set(obj, value);
+            } catch (Exception ex) {
+                throw new IllegalStateException("Cannot invoke method get", ex);
+            } finally {
+                declaredField.setAccessible(wasAccessible);
+            }
         }
 
         @Override
