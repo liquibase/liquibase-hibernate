@@ -71,8 +71,8 @@
     </ciManagement>
 
     <properties>
-        <hibernate.version>6.6.15.Final</hibernate.version>
-        <spring.version>6.2.10</spring.version>
+        <hibernate.version>7.1.11.Final</hibernate.version>
+        <spring.version>7.0.1</spring.version>
         <liquibase.version>5.0.1</liquibase.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -81,9 +81,9 @@
     <scm>
         <connection>scm:git:${project.scm.url}</connection>
         <developerConnection>scm:git:${project.scm.url}</developerConnection>
-		<url>https://github.com/liquibase/liquibase-hibernate.git</url>
-		<tag>HEAD</tag>
-	</scm>
+        <url>https://github.com/liquibase/liquibase-hibernate.git</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -192,11 +192,11 @@
                 <dependencies>
                     <!-- Force using the latest JUnit 47 provider -->
                     <dependency>
-                      <groupId>org.apache.maven.surefire</groupId>
-                      <artifactId>surefire-junit47</artifactId>
-                      <version>${maven-surefire-plugin.version}</version>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>${maven-surefire-plugin.version}</version>
                     </dependency>
-                  </dependencies>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -211,11 +211,11 @@
                 <dependencies>
                     <!-- Force using the latest JUnit 47 provider -->
                     <dependency>
-                      <groupId>org.apache.maven.surefire</groupId>
-                      <artifactId>surefire-junit47</artifactId>
-                      <version>${maven-surefire-plugin.version}</version>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>${maven-surefire-plugin.version}</version>
                     </dependency>
-                  </dependencies>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

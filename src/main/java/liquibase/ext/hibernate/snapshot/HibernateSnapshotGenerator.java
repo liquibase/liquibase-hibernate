@@ -3,9 +3,6 @@ package liquibase.ext.hibernate.snapshot;
 import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
-import liquibase.logging.LogFactory;
-import liquibase.logging.LogService;
-import liquibase.logging.Logger;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.snapshot.SnapshotGenerator;
@@ -15,7 +12,6 @@ import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.mapping.Table;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Base class for all Hibernate SnapshotGenerators
@@ -78,9 +74,7 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
         if (addsTo() != null) {
             for (Class<? extends DatabaseObject> addType : addsTo()) {
                 if (addType.isAssignableFrom(example.getClass())) {
-                    if (chainResponse != null) {
-                        addTo(chainResponse, snapshot);
-                    }
+                    addTo(chainResponse, snapshot);
                 }
             }
         }
@@ -92,15 +86,13 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
 
     protected abstract void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException;
 
-    protected org.hibernate.mapping.Table findHibernateTable(DatabaseObject example, DatabaseSnapshot snapshot) throws DatabaseException {
+    protected org.hibernate.mapping.Table findHibernateTable(DatabaseObject example, DatabaseSnapshot snapshot) {
         HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
         MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
 
         Collection<Table> tmapp = metadata.collectTableMappings();
-        Iterator<Table> tableMappings = tmapp.iterator();
 
-        while (tableMappings.hasNext()) {
-            org.hibernate.mapping.Table hibernateTable = tableMappings.next();
+        for (Table hibernateTable : tmapp) {
             if (hibernateTable.getName().equalsIgnoreCase(example.getName())) {
                 return hibernateTable;
             }

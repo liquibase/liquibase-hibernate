@@ -34,8 +34,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
             return;
         }
 
-        if (foundObject instanceof Table) {
-            Table table = (Table) foundObject;
+        if (foundObject instanceof Table table) {
             org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
             if (hibernateTable == null) {
                 return;
@@ -108,7 +107,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         index.setRelation(uniqueConstraint.getRelation());
         index.setColumns(uniqueConstraint.getColumns());
         index.setUnique(true);
-        index.setName(String.format("%s_%s_IX",hibernateTable.getName(), StringUtil.randomIdentifer(4)));
+        index.setName(String.format("%s_%s_IX",hibernateTable.getName(), StringUtil.randomIdentifier(4)));
 
         return index;
     }

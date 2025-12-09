@@ -8,6 +8,7 @@ import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -82,12 +83,12 @@ public class HibernateSpringBeanDatabase extends HibernateDatabase {
             throw new IllegalStateException("A 'bean' name is required, definition in '" + connection.getPath() + "'.");
         }
 
-        beanDefinition = registry.getBeanDefinition(beanName);
-        if (beanDefinition == null) {
+        try {
+            beanDefinition = registry.getBeanDefinition(beanName);
+            beanDefinitionProperties = (ManagedProperties) beanDefinition.getPropertyValues().getPropertyValue("hibernateProperties").getValue();
+        } catch (NoSuchBeanDefinitionException e) {
             throw new IllegalStateException("A bean named '" + beanName + "' could not be found in '" + connection.getPath() + "'.");
         }
-
-        beanDefinitionProperties = (ManagedProperties) beanDefinition.getPropertyValues().getPropertyValue("hibernateProperties").getValue();
     }
 
     @Override
@@ -116,8 +117,8 @@ public class HibernateSpringBeanDatabase extends HibernateDatabase {
                     for (TypedStringValue mappingLocation : mappingLocations) {
                         Scope.getCurrentScope().getLog(getClass()).info("Found mappingLocation " + mappingLocation.getValue());
                         Resource[] resources = resourcePatternResolver.getResources(mappingLocation.getValue());
-                        for (int i = 0; i < resources.length; i++) {
-                            URL url = resources[i].getURL();
+                        for (Resource resource : resources) {
+                            URL url = resource.getURL();
                             Scope.getCurrentScope().getLog(getClass()).info("Adding resource  " + url);
                             sources.addURL(url);
                         }

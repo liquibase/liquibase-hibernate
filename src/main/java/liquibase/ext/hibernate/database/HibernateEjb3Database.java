@@ -60,7 +60,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
         String dialectString = findDialectName();
         if (dialectString != null) {
             try {
-                dialect = (Dialect) Class.forName(dialectString).newInstance();
+                dialect = (Dialect) Class.forName(dialectString).getDeclaredConstructor().newInstance();
                 Scope.getCurrentScope().getLog(getClass()).info("Using dialect " + dialectString);
             } catch (Exception e) {
                 throw new DatabaseException(e);

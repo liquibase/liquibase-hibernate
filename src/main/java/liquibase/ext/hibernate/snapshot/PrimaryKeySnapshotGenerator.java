@@ -32,8 +32,7 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
         if (!snapshot.getSnapshotControl().shouldInclude(PrimaryKey.class)) {
             return;
         }
-        if (foundObject instanceof Table) {
-            Table table = (Table) foundObject;
+        if (foundObject instanceof Table table) {
             org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
             if (hibernateTable == null) {
                 return;

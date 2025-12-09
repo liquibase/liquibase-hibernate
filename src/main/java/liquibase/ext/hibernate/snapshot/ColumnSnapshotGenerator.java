@@ -1,16 +1,19 @@
 package liquibase.ext.hibernate.snapshot;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import liquibase.snapshot.SnapshotGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
-import org.hibernate.id.ExportableColumn;
+import org.hibernate.generator.Generator;
+import org.hibernate.id.IdentityGenerator;
+import org.hibernate.id.NativeGenerator;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
+import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.SimpleValue;
 import org.hibernate.type.SqlTypes;
 
@@ -28,7 +31,6 @@ import liquibase.structure.core.DataType;
 import liquibase.structure.core.Relation;
 import liquibase.structure.core.Table;
 import liquibase.util.SqlUtil;
-import liquibase.util.StringUtil;
 
 
 /**
@@ -40,7 +42,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
     private static final String SQL_TIMEZONE_SUFFIX = "with time zone";
     private static final String LIQUIBASE_TIMEZONE_SUFFIX = "with timezone";
 
-    private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
+    private final static Pattern pattern = Pattern.compile("([^(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^(]*?)\\)?");
 
     public ColumnSnapshotGenerator() {
         super(Column.class, new Class[]{Table.class});
@@ -155,7 +157,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 org.hibernate.mapping.PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
                 if (hibernatePrimaryKey != null) {
                     boolean isPrimaryKeyColumn = false;
-                    for (org.hibernate.mapping.Column pkColumn : (List<org.hibernate.mapping.Column>) hibernatePrimaryKey.getColumns()) {
+                    for (org.hibernate.mapping.Column pkColumn : hibernatePrimaryKey.getColumns()) {
                         if (pkColumn.getName().equalsIgnoreCase(hibernateColumn.getName())) {
                             isPrimaryKeyColumn = true;
                             break;
@@ -163,26 +165,23 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                     }
 
                     if (isPrimaryKeyColumn) {
-                        String identifierGeneratorStrategy;
-
-                        if (hibernateColumn instanceof ExportableColumn) {
-                            //nothing
-                        } else {
-
-                            identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue() ? ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
-
-                            if (("native".equalsIgnoreCase(identifierGeneratorStrategy) || "identity".equalsIgnoreCase(identifierGeneratorStrategy))) {
-                                if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                                    String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
-                                    column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
-                                } else if (database.supportsAutoIncrement()) {
+                        // todo exportable
+                        if (hibernateColumn.getValue() instanceof SimpleValue simpleValue) {
+                            PersistentClass persistentClass = findPersistentClass(metadata, hibernateTable);
+                            if (persistentClass != null) {
+                                Generator ig = simpleValue.createGenerator(dialect, persistentClass.getRootClass());
+                                if (ig instanceof NativeGenerator || ig instanceof IdentityGenerator) {
+                                    if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
+                                        column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                        String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
+                                        column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+                                    } else if (database.supportsAutoIncrement()) {
+                                        column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                    }
+                                }
+                                if (ig instanceof SequenceStyleGenerator) {
                                     column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                                 }
-                            } else if ("org.hibernate.id.enhanced.SequenceStyleGenerator".equals(identifierGeneratorStrategy)) {
-                                Properties prop = ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorProperties();
-                                if (prop.get("sequence_name") == null)
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                             }
                         }
                         column.setNullable(false);
@@ -231,7 +230,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 dataType.setDecimalDigits(Integer.parseInt(matcher.group(3)));
             }
 
-            String extra = StringUtil.trimToNull(matcher.group(4));
+            String extra = StringUtils.trimToNull(matcher.group(4));
             if (extra != null) {
                 if (extra.equalsIgnoreCase("char")) {
                     dataType.setColumnSizeUnit(DataType.ColumnSizeUnit.CHAR);
@@ -250,4 +249,12 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         return new Class[]{liquibase.snapshot.jvm.ColumnSnapshotGenerator.class};
     }
 
+    private PersistentClass findPersistentClass(MetadataImplementor metadata, org.hibernate.mapping.Table hibernateTable) {
+        for (PersistentClass entityBinding : metadata.getEntityBindings()) {
+            if (entityBinding.getTable().equals(hibernateTable)) {
+                return entityBinding;
+            }
+        }
+        return null;
+    }
 }

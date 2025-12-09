@@ -17,12 +17,11 @@ import org.hibernate.mapping.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
-    private List<ExtendedSnapshotGenerator<Generator, Table>> tableIdGenerators = new ArrayList<>();
+    private final List<ExtendedSnapshotGenerator<Generator, Table>> tableIdGenerators = new ArrayList<>();
 
     public TableSnapshotGenerator() {
         super(Table.class, new Class[]{Schema.class});
@@ -55,40 +54,30 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             return;
         }
 
-        if (foundObject instanceof Schema) {
+        if (foundObject instanceof Schema schema) {
 
-            Schema schema = (Schema) foundObject;
             HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
             MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
 
             Collection<PersistentClass> entityBindings = metadata.getEntityBindings();
-            Iterator<PersistentClass> tableMappings = entityBindings.iterator();
 
-            while (tableMappings.hasNext()) {
-                PersistentClass pc = tableMappings.next();
-
+            for (PersistentClass pc : entityBindings) {
                 org.hibernate.mapping.Table hibernateTable = pc.getTable();
                 if (hibernateTable.isPhysicalTable()) {
                     addDatabaseObjectToSchema(hibernateTable, schema, snapshot);
 
                     Collection<Join> joins = pc.getJoins();
-                    Iterator<Join> joinMappings = joins.iterator();
-                    while (joinMappings.hasNext()) {
-                        Join join = joinMappings.next();
+                    for (Join join : joins) {
                         addDatabaseObjectToSchema(join.getTable(), schema, snapshot);
                     }
                 }
             }
 
-            Iterator<PersistentClass> classMappings = entityBindings.iterator();
-            while (classMappings.hasNext()) {
-                PersistentClass persistentClass = classMappings.next();
-                if (!persistentClass.isInherited() && persistentClass.getIdentifier() instanceof SimpleValue) {
-                    var simpleValue =  (SimpleValue) persistentClass.getIdentifier();
+            for (PersistentClass persistentClass : entityBindings) {
+                if (!persistentClass.isInherited() && persistentClass.getIdentifier() instanceof SimpleValue simpleValue) {
                     Generator ig = simpleValue.createGenerator(
-                            metadata.getMetadataBuildingOptions().getIdentifierGeneratorFactory(),
-                            database.getDialect(),
-                            (RootClass) persistentClass
+                        database.getDialect(),
+                        persistentClass.getRootClass()
                     );
                     for (ExtendedSnapshotGenerator<Generator, Table> tableIdGenerator : tableIdGenerators) {
                         if (tableIdGenerator.supports(ig)) {
@@ -102,9 +91,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             }
 
             Collection<org.hibernate.mapping.Collection> collectionBindings = metadata.getCollectionBindings();
-            Iterator<org.hibernate.mapping.Collection> collIter = collectionBindings.iterator();
-            while (collIter.hasNext()) {
-                org.hibernate.mapping.Collection coll = collIter.next();
+            for (org.hibernate.mapping.Collection coll : collectionBindings) {
                 org.hibernate.mapping.Table hTable = coll.getCollectionTable();
                 if (hTable.isPhysicalTable()) {
                     addDatabaseObjectToSchema(hTable, schema, snapshot);
