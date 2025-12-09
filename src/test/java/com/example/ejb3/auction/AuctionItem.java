@@ -11,43 +11,22 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 public class AuctionItem extends Persistent {
     @Column(length = 1000)
-    @Getter
-    @Setter
     private String description;
     @Column(length = 200)
-    @Getter
-    @Setter
     private String shortDescription;
-    @Setter
-    private List<Bid> bids;
-    @Setter
-    private Bid successfulBid;
-    @Setter
-    private User seller;
-    @Getter
-    @Setter
-    private Date ends;
-    @Getter
-    @Setter
-    private int condition;
-
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
-    public List<Bid> getBids() {
-        return bids;
-    }
-
+    private List<Bid> bids;
     @ManyToOne
-    public User getSeller() {
-        return seller;
-    }
-
+    private Bid successfulBid;
     @ManyToOne
-    public Bid getSuccessfulBid() {
-        return successfulBid;
-    }
+    private User seller;
+    private Date ends;
+    private int condition;
 
     public String toString() {
         return shortDescription + " (" + description + ": " + condition

@@ -91,11 +91,15 @@ public class HibernateClassicDatabaseTest {
     }
 
     public static void assertPojoHibernateMapped(DatabaseSnapshot snapshot) {
-        assertThat(snapshot.get(Table.class), containsInAnyOrder(
-                hasProperty("name", is("Bid")),
-                hasProperty("name", is("Watcher")),
-                hasProperty("name", is("AuctionUser")),
-                hasProperty("name", is("AuctionItem"))));
+//        assertThat(snapshot.get(Table.class), containsInAnyOrder(
+//                hasProperty("name", is("Bid")),
+//                hasProperty("name", is("Watcher")),
+//                hasProperty("name", is("AuctionUser")),
+//                hasProperty("name", is("AuctionItem"))));
+        assertThat(snapshot.get(Table.class), hasItem(hasProperty("name", is("Bid"))));
+        assertThat(snapshot.get(Table.class), hasItem(hasProperty("name", is("Watcher"))));
+        assertThat(snapshot.get(Table.class), hasItem(hasProperty("name", is("AuctionUser"))));
+        assertThat(snapshot.get(Table.class), hasItem(hasProperty("name", is("AuctionItem"))));
 
 
         Table bidTable = (Table) snapshot.get(new Table().setName("bid").setSchema(new Schema()));

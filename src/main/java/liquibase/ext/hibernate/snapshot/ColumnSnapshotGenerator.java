@@ -12,7 +12,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.SequenceGenerator;
 import liquibase.snapshot.SnapshotGenerator;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.NativeGenerator;
 import org.hibernate.boot.models.annotations.internal.GeneratedValueJpaAnnotation;
+import org.hibernate.boot.models.annotations.internal.NativeGeneratorAnnotation;
 import org.hibernate.boot.models.annotations.internal.SequenceGeneratorJpaAnnotation;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.dialect.Dialect;
@@ -171,7 +174,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                         }
                     }
 
-                    if (isPrimaryKeyColumn) {
+                    if (isPrimaryKeyColumn && hibernateColumn.getValue() instanceof BasicValue) {
                         GeneratorCreator generatorCreator = ((BasicValue) hibernateColumn.getValue()).getCustomIdGeneratorCreator();
                         SequenceGeneratorJpaAnnotation sequenceGeneratorJpaAnnotation = null;
                         boolean isAutoIncrement = false;
@@ -180,32 +183,52 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                         Field[] fields = clazz.getDeclaredFields();
 
                         for (Field field : fields) {
+                            boolean canAccess = field.canAccess(generatorCreator);
                             field.setAccessible(true);
                             try {
                                 Object value = field.get(generatorCreator);
-                                if (database.supportsAutoIncrement()) {
-                                    if (value instanceof JdkFieldDetails) {
-                                        for (Map.Entry<Class<? extends Annotation>, ? extends Annotation> entry : ((JdkFieldDetails) value).getUsageMap().entrySet()) {
-                                            Class<? extends Annotation> key = entry.getKey();
-                                            if (database.supportsAutoIncrement()) {
-                                                if (key == GeneratedValue.class) {
-                                                    if (entry.getValue() instanceof GeneratedValueJpaAnnotation annotation &&
-                                                            (annotation.strategy() == GenerationType.AUTO || annotation.strategy() == GenerationType.IDENTITY)) {
+                                if (value instanceof JdkFieldDetails) {
+                                    for (Map.Entry<Class<? extends Annotation>, ? extends Annotation> entry : ((JdkFieldDetails) value).getUsageMap().entrySet()) {
+                                        Class<? extends Annotation> key = entry.getKey();
+                                        if (database.supportsAutoIncrement()) {
+                                            if (key == GeneratedValue.class) {
+                                                if (entry.getValue() instanceof GeneratedValueJpaAnnotation annotation) {
+                                                    if ((annotation.strategy() == GenerationType.AUTO || annotation.strategy() == GenerationType.IDENTITY)) {
                                                         isAutoIncrement = true;
                                                     }
                                                 }
                                             }
-                                            if (database.supportsSequences()) {
-                                                if (key == SequenceGenerator.class) {
-                                                    if (entry.getValue() instanceof SequenceGeneratorJpaAnnotation) {
-                                                        sequenceGeneratorJpaAnnotation = (SequenceGeneratorJpaAnnotation) entry.getValue();
-                                                    }
+                                        }
+                                        if (database.supportsSequences()) {
+                                            if (key == SequenceGenerator.class) {
+                                                if (entry.getValue() instanceof SequenceGeneratorJpaAnnotation) {
+                                                    sequenceGeneratorJpaAnnotation = (SequenceGeneratorJpaAnnotation) entry.getValue();
+                                                }
+                                            }
+                                            if (key == NativeGenerator.class) {
+                                                if (entry.getValue() instanceof NativeGeneratorAnnotation nativeGenerator
+                                                        && StringUtils.isNotBlank(nativeGenerator.sequenceForm().sequenceName())) {
+                                                    sequenceGeneratorJpaAnnotation = new SequenceGeneratorJpaAnnotation(nativeGenerator.sequenceForm(), null);
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            } catch (IllegalAccessException ignored) {
+                                if (value instanceof String arg) {
+                                    if (("native".equalsIgnoreCase(arg) || "identity".equalsIgnoreCase(arg))) {
+                                        if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
+                                            column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                            String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
+                                            column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+                                        } else if (database.supportsAutoIncrement()) {
+                                            column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                        }
+                                    }
+                                }
+                            } catch (IllegalAccessException e) {
+                                Scope.getCurrentScope().getLog(ColumnSnapshotGenerator.class).info(e.getLocalizedMessage(), e);
+                            } finally {
+                                field.setAccessible(canAccess);
                             }
                         }
 
