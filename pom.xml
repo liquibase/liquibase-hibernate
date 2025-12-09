@@ -189,7 +189,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <redirectTestOutputToFile>false</redirectTestOutputToFile>
                     <reportFormat>plain</reportFormat>
                     <systemPropertyVariables>
                         <com.athaydes.spockframework.report.outputDir>${project.build.directory}/spock-reports</com.athaydes.spockframework.report.outputDir>
