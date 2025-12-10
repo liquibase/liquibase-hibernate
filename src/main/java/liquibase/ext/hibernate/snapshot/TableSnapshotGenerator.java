@@ -55,7 +55,7 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
             HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
             MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
 
-            Collection<PersistentClass> entityBindings = metadata.getEntityBindings();
+//            Collection<PersistentClass> entityBindings = metadata.getEntityBindings();
 //            Iterator<PersistentClass> tableMappings = entityBindings.iterator();
 //
 //            while (tableMappings.hasNext()) {
@@ -74,6 +74,8 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 //                }
 //            }
 
+            // After upgrading to Hibernate 7, when using strategy = GenerationType.TABLE, the table cannot be obtained in getEntityBindings,
+            // which results in missing tables. We changed it to retrieve the table information from namespaces instead.
             for (Namespace namespace : metadata.getDatabase().getNamespaces()) {
                 for (org.hibernate.mapping.Table hibernateTable : namespace.getTables()) {
                     if (hibernateTable.isPhysicalTable()) {

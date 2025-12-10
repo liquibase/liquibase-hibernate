@@ -176,6 +176,9 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
 
                     if (isPrimaryKeyColumn && hibernateColumn.getValue() instanceof BasicValue) {
                         GeneratorCreator generatorCreator = ((BasicValue) hibernateColumn.getValue()).getCustomIdGeneratorCreator();
+                        if (generatorCreator != null) {
+                            continue;
+                        }
                         SequenceGeneratorJpaAnnotation sequenceGeneratorJpaAnnotation = null;
                         boolean isAutoIncrement = false;
                         Class<?> clazz = generatorCreator.getClass();
