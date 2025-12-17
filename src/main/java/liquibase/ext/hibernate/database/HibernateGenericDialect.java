@@ -8,6 +8,6 @@ import org.hibernate.dialect.Dialect;
  */
 public class HibernateGenericDialect extends Dialect {
     public HibernateGenericDialect() {
-        super(DatabaseVersion.make( 7, 1 ));
+        super(DatabaseVersion.make( 7, 2 ));
     }
 }

@@ -1,8 +1,6 @@
 package liquibase.ext.hibernate.database;
 
 import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -132,24 +130,16 @@ public class HibernateEjb3Database extends HibernateDatabase {
     private static class MyHibernatePersistenceProvider extends HibernatePersistenceProvider {
 
         private void setField(final Object obj, String fieldName, final Object value) throws Exception {
-            final Field declaredField;
-
-            declaredField = obj.getClass().getDeclaredField(fieldName);
-            AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                @Override
-                public Object run() {
-                    boolean wasAccessible = declaredField.isAccessible();
-                    try {
-                        declaredField.setAccessible(true);
-                        declaredField.set(obj, value);
-                        return null;
-                    } catch (Exception ex) {
-                        throw new IllegalStateException("Cannot invoke method get", ex);
-                    } finally {
-                        declaredField.setAccessible(wasAccessible);
-                    }
-                }
-            });
+            final Field declaredField = obj.getClass().getDeclaredField(fieldName);
+            boolean wasAccessible = declaredField.canAccess(obj);
+            try {
+                declaredField.setAccessible(true);
+                declaredField.set(obj, value);
+            } catch (Exception ex) {
+                throw new IllegalStateException("Cannot invoke method get", ex);
+            } finally {
+                declaredField.setAccessible(wasAccessible);
+            }
         }
 
         @Override
