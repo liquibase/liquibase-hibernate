@@ -15,7 +15,7 @@ import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.metamodel.ManagedType;
-import jakarta.persistence.spi.PersistenceUnitTransactionType;
+import jakarta.persistence.PersistenceUnitTransactionType;
 import liquibase.Scope;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
@@ -112,7 +112,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
      * Adds sources based on what is in the saved entityManagerFactory
      */
     @Override
-    protected void configureSources(MetadataSources sources) throws DatabaseException {
+    protected void configureSources(MetadataSources sources) {
         for (ManagedType<?> managedType : entityManagerFactory.getMetamodel().getManagedTypes()) {
             Class<?> javaType = managedType.getJavaType();
             if (javaType == null) {
