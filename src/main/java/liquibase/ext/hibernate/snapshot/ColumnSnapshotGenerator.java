@@ -24,7 +24,7 @@ import org.hibernate.id.NativeGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.SimpleValue;
-import org.hibernate.models.internal.jdk.JdkFieldDetails;
+import org.hibernate.models.spi.MemberDetails;
 import org.hibernate.type.SqlTypes;
 
 import java.lang.annotation.Annotation;
@@ -268,9 +268,9 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             declaredField.setAccessible(true);
             try {
                 var value = declaredField.get(customIdGeneratorCreator);
-                if (value instanceof JdkFieldDetails jdkFieldDetails) {
-                    if (jdkFieldDetails.hasDirectAnnotationUsage(annotation)) {
-                        return jdkFieldDetails.getDirectAnnotationUsage(annotation);
+                if (value instanceof MemberDetails memberDetails) {
+                    if (memberDetails.hasDirectAnnotationUsage(annotation)) {
+                        return memberDetails.getDirectAnnotationUsage(annotation);
                     }
                 }
             } catch (IllegalAccessException e) {
