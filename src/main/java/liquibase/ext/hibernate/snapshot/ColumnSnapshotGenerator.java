@@ -1,22 +1,5 @@
 package liquibase.ext.hibernate.snapshot;
 
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import liquibase.snapshot.SnapshotGenerator;
-import org.apache.commons.lang3.StringUtils;
-import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.PostgreSQLDialect;
-import org.hibernate.generator.Generator;
-import org.hibernate.id.IdentityGenerator;
-import org.hibernate.id.NativeGenerator;
-import org.hibernate.id.enhanced.SequenceStyleGenerator;
-import org.hibernate.mapping.PersistentClass;
-import org.hibernate.mapping.SimpleValue;
-import org.hibernate.type.SqlTypes;
-
 import liquibase.Scope;
 import liquibase.datatype.DataTypeFactory;
 import liquibase.datatype.core.UnknownType;
@@ -24,6 +7,7 @@ import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
+import liquibase.snapshot.SnapshotGenerator;
 import liquibase.statement.DatabaseFunction;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Column;
@@ -31,6 +15,21 @@ import liquibase.structure.core.DataType;
 import liquibase.structure.core.Relation;
 import liquibase.structure.core.Table;
 import liquibase.util.SqlUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.boot.models.annotations.internal.SequenceGeneratorJpaAnnotation;
+import org.hibernate.boot.spi.MetadataImplementor;
+import org.hibernate.dialect.PostgreSQLDialect;
+import org.hibernate.id.IdentityGenerator;
+import org.hibernate.id.NativeGenerator;
+import org.hibernate.id.enhanced.SequenceStyleGenerator;
+import org.hibernate.mapping.PersistentClass;
+import org.hibernate.mapping.SimpleValue;
+import org.hibernate.type.SqlTypes;
+
+import java.lang.reflect.Field;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -73,41 +72,39 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
     @Override
     protected void addTo(DatabaseObject foundObject, DatabaseSnapshot snapshot) throws DatabaseException, InvalidExampleException {
         if (foundObject instanceof Table) {
-            org.hibernate.mapping.Table hibernateTable = findHibernateTable(foundObject, snapshot);
+            var hibernateTable = findHibernateTable(foundObject, snapshot);
             if (hibernateTable == null) {
                 return;
             }
 
-            for (org.hibernate.mapping.Column hibernateColumn: hibernateTable.getColumns()) {
+            for (var hibernateColumn : hibernateTable.getColumns()) {
                 Column column = new Column();
                 column.setName(hibernateColumn.getName());
                 column.setRelation((Table) foundObject);
 
                 snapshotColumn(column, snapshot);
 
-
                 ((Table) foundObject).getColumns().add(column);
-
             }
         }
     }
 
     protected void snapshotColumn(Column column, DatabaseSnapshot snapshot) throws DatabaseException {
-        HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
+        var database = (HibernateDatabase) snapshot.getDatabase();
 
-        org.hibernate.mapping.Table hibernateTable = findHibernateTable(column.getRelation(), snapshot);
+        var hibernateTable = findHibernateTable(column.getRelation(), snapshot);
         if (hibernateTable == null) {
             return;
         }
 
-        Dialect dialect = database.getDialect();
-        MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
+        var dialect = database.getDialect();
+        var metadata = (MetadataImplementor) database.getMetadata();
 
-        for (org.hibernate.mapping.Column hibernateColumn: hibernateTable.getColumns()) {
+        for (var hibernateColumn : hibernateTable.getColumns()) {
             if (hibernateColumn.getName().equalsIgnoreCase(column.getName())) {
 
                 String defaultValue = null;
-                String hibernateType = hibernateColumn.getSqlType(metadata);
+                var hibernateType = hibernateColumn.getSqlType(metadata);
 
                 Matcher defaultValueMatcher = Pattern.compile("(?i) DEFAULT\\s+(.*)").matcher(hibernateType);
                 if (defaultValueMatcher.find()) {
@@ -115,7 +112,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                     hibernateType = hibernateType.replace(defaultValueMatcher.group(0), "");
                 }
 
-                DataType dataType = toDataType(hibernateType, hibernateColumn.getSqlTypeCode());
+                var dataType = toDataType(hibernateType, hibernateColumn.getSqlTypeCode());
                 if (dataType == null) {
                     throw new DatabaseException("Unable to find column data type for column " + hibernateColumn.getName());
                 }
@@ -128,9 +125,9 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 // DataTypeFactory.from and SqlUtil.parseValue rely on the database type however,
                 // the liquibase-core does not know about the fake hibernate database so not all conditions
                 // are handled correctly for enums.
-                boolean isEnumType =  Optional.ofNullable(dataType.getDataTypeId())
-                        .map(SqlTypes::isEnumType)
-                        .orElse(false);
+                boolean isEnumType = Optional.ofNullable(dataType.getDataTypeId())
+                    .map(SqlTypes::isEnumType)
+                    .orElse(false);
 
                 if (!isEnumType && hibernateColumn.getValue() instanceof SimpleValue) {
                     DataType parseType;
@@ -145,16 +142,16 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                     }
 
                     column.setDefaultValue(SqlUtil.parseValue(
-                            snapshot.getDatabase(),
-                            defaultValue,
-                            parseType));
+                        snapshot.getDatabase(),
+                        defaultValue,
+                        parseType));
                 } else {
                     column.setDefaultValue(hibernateColumn.getDefaultValue());
                 }
                 column.setNullable(hibernateColumn.isNullable());
                 column.setCertainDataType(false);
 
-                org.hibernate.mapping.PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
+                var hibernatePrimaryKey = hibernateTable.getPrimaryKey();
                 if (hibernatePrimaryKey != null) {
                     boolean isPrimaryKeyColumn = false;
                     for (org.hibernate.mapping.Column pkColumn : hibernatePrimaryKey.getColumns()) {
@@ -165,12 +162,12 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                     }
 
                     if (isPrimaryKeyColumn) {
-                        // todo exportable
+                        // todo do we need to handle exportable as before?
                         if (hibernateColumn.getValue() instanceof SimpleValue simpleValue) {
-                            PersistentClass persistentClass = findPersistentClass(metadata, hibernateTable);
+                            var persistentClass = findPersistentClass(metadata, hibernateTable);
                             if (persistentClass != null) {
-                                Generator ig = simpleValue.createGenerator(dialect, persistentClass.getRootClass());
-                                if (ig instanceof NativeGenerator || ig instanceof IdentityGenerator) {
+                                var generator = simpleValue.createGenerator(dialect, persistentClass.getRootClass());
+                                if (generator instanceof NativeGenerator || generator instanceof IdentityGenerator) {
                                     if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
                                         column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                                         String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
@@ -179,8 +176,11 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                                         column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                                     }
                                 }
-                                if (ig instanceof SequenceStyleGenerator) {
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                if (generator instanceof SequenceStyleGenerator) {
+                                    var sequenceGeneratorJpaAnnotation = findSequenceGeneratorJpaAnnotation(simpleValue);
+                                    if (sequenceGeneratorJpaAnnotation == null) {
+                                        column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                    }
                                 }
                             }
                         }
@@ -193,7 +193,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
     }
 
     protected DataType toDataType(String hibernateType, Integer sqlTypeCode) {
-        Matcher matcher = pattern.matcher(hibernateType);
+        var matcher = pattern.matcher(hibernateType);
         if (!matcher.matches()) {
             return null;
         }
@@ -253,6 +253,27 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         for (PersistentClass entityBinding : metadata.getEntityBindings()) {
             if (entityBinding.getTable().equals(hibernateTable)) {
                 return entityBinding;
+            }
+        }
+        return null;
+    }
+
+    private SequenceGeneratorJpaAnnotation findSequenceGeneratorJpaAnnotation(SimpleValue simpleValue) {
+        var customIdGeneratorCreator = simpleValue.getCustomIdGeneratorCreator();
+        var customIdGeneratorCreatorClass = customIdGeneratorCreator.getClass();
+        for (Field declaredField : customIdGeneratorCreatorClass.getDeclaredFields()) {
+            var canAccess = declaredField.canAccess(customIdGeneratorCreator);
+            declaredField.setAccessible(true);
+            try {
+                var value = declaredField.get(customIdGeneratorCreator);
+                if (value instanceof SequenceGeneratorJpaAnnotation sequenceGeneratorJpaAnnotation) {
+                    return sequenceGeneratorJpaAnnotation;
+                }
+            } catch (IllegalAccessException e) {
+                // should not happen since we set Accessible to true above
+                Scope.getCurrentScope().getLog(ColumnSnapshotGenerator.class).info(e.getLocalizedMessage(), e);
+            } finally {
+                declaredField.setAccessible(canAccess);
             }
         }
         return null;
