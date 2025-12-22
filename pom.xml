@@ -73,6 +73,7 @@
     <properties>
         <hibernate.version>7.2.0.Final</hibernate.version>
         <spring.version>7.0.2</spring.version>
+        <hibernate.models.version>1.0.1</hibernate.models.version>
         <liquibase.version>5.0.1</liquibase.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -95,6 +96,11 @@
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-envers</artifactId>
             <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.models</groupId>
+            <artifactId>hibernate-models</artifactId>
+            <version>${hibernate.models.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

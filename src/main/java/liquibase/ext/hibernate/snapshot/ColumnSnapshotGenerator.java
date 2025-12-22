@@ -1,5 +1,6 @@
 package liquibase.ext.hibernate.snapshot;
 
+import jakarta.persistence.SequenceGenerator;
 import liquibase.Scope;
 import liquibase.datatype.DataTypeFactory;
 import liquibase.datatype.core.UnknownType;
@@ -16,7 +17,6 @@ import liquibase.structure.core.Relation;
 import liquibase.structure.core.Table;
 import liquibase.util.SqlUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.boot.models.annotations.internal.SequenceGeneratorJpaAnnotation;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.dialect.PostgreSQLDialect;
 import org.hibernate.id.IdentityGenerator;
@@ -24,8 +24,10 @@ import org.hibernate.id.NativeGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.SimpleValue;
+import org.hibernate.models.internal.jdk.JdkFieldDetails;
 import org.hibernate.type.SqlTypes;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -177,8 +179,8 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                                     }
                                 }
                                 if (generator instanceof SequenceStyleGenerator) {
-                                    var sequenceGeneratorJpaAnnotation = findSequenceGeneratorJpaAnnotation(simpleValue);
-                                    if (sequenceGeneratorJpaAnnotation == null) {
+                                    var sequenceGenerator = findGeneratorAnnotation(simpleValue, SequenceGenerator.class);
+                                    if (sequenceGenerator == null) {
                                         column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                                     }
                                 }
@@ -258,7 +260,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         return null;
     }
 
-    private SequenceGeneratorJpaAnnotation findSequenceGeneratorJpaAnnotation(SimpleValue simpleValue) {
+    private <A extends Annotation> A findGeneratorAnnotation(SimpleValue simpleValue, Class<A> annotation) {
         var customIdGeneratorCreator = simpleValue.getCustomIdGeneratorCreator();
         var customIdGeneratorCreatorClass = customIdGeneratorCreator.getClass();
         for (Field declaredField : customIdGeneratorCreatorClass.getDeclaredFields()) {
@@ -266,8 +268,10 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             declaredField.setAccessible(true);
             try {
                 var value = declaredField.get(customIdGeneratorCreator);
-                if (value instanceof SequenceGeneratorJpaAnnotation sequenceGeneratorJpaAnnotation) {
-                    return sequenceGeneratorJpaAnnotation;
+                if (value instanceof JdkFieldDetails jdkFieldDetails) {
+                    if (jdkFieldDetails.hasDirectAnnotationUsage(annotation)) {
+                        return jdkFieldDetails.getDirectAnnotationUsage(annotation);
+                    }
                 }
             } catch (IllegalAccessException e) {
                 // should not happen since we set Accessible to true above
@@ -276,6 +280,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 declaredField.setAccessible(canAccess);
             }
         }
+        Scope.getCurrentScope().getLog(ColumnSnapshotGenerator.class).info("Generator annotation not found for %s".formatted(simpleValue.getTable().getName()));
         return null;
     }
 }
