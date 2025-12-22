@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.dialect.PostgreSQLDialect;
 import org.hibernate.id.IdentityGenerator;
-import org.hibernate.id.NativeGenerator;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.SimpleValue;
@@ -169,7 +168,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                             var persistentClass = findPersistentClass(metadata, hibernateTable);
                             if (persistentClass != null) {
                                 var generator = simpleValue.createGenerator(dialect, persistentClass.getRootClass());
-                                if (generator instanceof NativeGenerator || generator instanceof IdentityGenerator) {
+                                if (generator instanceof IdentityGenerator) {
                                     if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
                                         column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                                         String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
@@ -274,7 +273,6 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                     }
                 }
             } catch (IllegalAccessException e) {
-                // should not happen since we set Accessible to true above
                 Scope.getCurrentScope().getLog(ColumnSnapshotGenerator.class).info(e.getLocalizedMessage(), e);
             } finally {
                 declaredField.setAccessible(canAccess);
