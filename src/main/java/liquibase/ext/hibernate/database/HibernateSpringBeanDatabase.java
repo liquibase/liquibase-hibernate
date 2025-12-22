@@ -126,11 +126,7 @@ public class HibernateSpringBeanDatabase extends HibernateDatabase {
                 }
             }
         } catch (Exception e) {
-            if (e instanceof DatabaseException) {
-                throw (DatabaseException) e;
-            } else {
-                throw new DatabaseException(e);
-            }
+            throw new DatabaseException(e);
         }
     }
 

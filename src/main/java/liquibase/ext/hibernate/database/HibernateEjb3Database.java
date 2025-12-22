@@ -112,7 +112,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
      * Adds sources based on what is in the saved entityManagerFactory
      */
     @Override
-    protected void configureSources(MetadataSources sources) {
+    protected void configureSources(MetadataSources sources) throws DatabaseException {
         for (ManagedType<?> managedType : entityManagerFactory.getMetamodel().getManagedTypes()) {
             Class<?> javaType = managedType.getJavaType();
             if (javaType == null) {
