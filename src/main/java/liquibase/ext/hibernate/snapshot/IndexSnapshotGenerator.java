@@ -46,12 +46,12 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
             return;
         }
         if (foundObject instanceof Table table) {
-            org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+            var hibernateTable = findHibernateTable(table, snapshot);
             if (hibernateTable == null) {
                 return;
             }
             for (var hibernateIndex : hibernateTable.getIndexes().values()) {
-                Index index = handleHibernateIndex(table, hibernateIndex);
+                var index = handleHibernateIndex(table, hibernateIndex);
                 Scope.getCurrentScope().getLog(getClass()).info("Found index " + index.getName());
                 table.getIndexes().add(index);
             }

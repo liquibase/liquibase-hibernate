@@ -33,12 +33,12 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
         if (example.getSnapshotId() != null) {
             return example;
         }
-        org.hibernate.mapping.Table hibernateTable = findHibernateTable(example, snapshot);
+        var hibernateTable = findHibernateTable(example, snapshot);
         if (hibernateTable == null) {
             return example;
         }
 
-        Table table = new Table().setName(hibernateTable.getName());
+        var table = new Table().setName(hibernateTable.getName());
         Scope.getCurrentScope().getLog(getClass()).info("Found table " + table.getName());
         table.setSchema(example.getSchema());
         if (hibernateTable.getComment() != null && !hibernateTable.getComment().isEmpty()) {
@@ -56,32 +56,32 @@ public class TableSnapshotGenerator extends HibernateSnapshotGenerator {
 
         if (foundObject instanceof Schema schema) {
 
-            HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
-            MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
+            var database = (HibernateDatabase) snapshot.getDatabase();
+            var metadata = (MetadataImplementor) database.getMetadata();
 
-            Collection<PersistentClass> entityBindings = metadata.getEntityBindings();
+            var entityBindings = metadata.getEntityBindings();
 
-            for (PersistentClass pc : entityBindings) {
-                org.hibernate.mapping.Table hibernateTable = pc.getTable();
+            for (var persistentClass : entityBindings) {
+                var hibernateTable = persistentClass.getTable();
                 if (hibernateTable.isPhysicalTable()) {
                     addDatabaseObjectToSchema(hibernateTable, schema, snapshot);
 
-                    Collection<Join> joins = pc.getJoins();
-                    for (Join join : joins) {
+                    var joins = persistentClass.getJoins();
+                    for (var join : joins) {
                         addDatabaseObjectToSchema(join.getTable(), schema, snapshot);
                     }
                 }
             }
 
-            for (PersistentClass persistentClass : entityBindings) {
+            for (var persistentClass : entityBindings) {
                 if (!persistentClass.isInherited() && persistentClass.getIdentifier() instanceof SimpleValue simpleValue) {
-                    Generator ig = simpleValue.createGenerator(
+                    var generator = simpleValue.createGenerator(
                         database.getDialect(),
                         persistentClass.getRootClass()
                     );
-                    for (ExtendedSnapshotGenerator<Generator, Table> tableIdGenerator : tableIdGenerators) {
-                        if (tableIdGenerator.supports(ig)) {
-                            Table idTable = tableIdGenerator.snapshot(ig);
+                    for (var tableIdGenerator : tableIdGenerators) {
+                        if (tableIdGenerator.supports(generator)) {
+                            var idTable = tableIdGenerator.snapshot(generator);
                             idTable.setSchema(schema);
                             schema.addDatabaseObject(snapshotObject(idTable, snapshot));
                             break;

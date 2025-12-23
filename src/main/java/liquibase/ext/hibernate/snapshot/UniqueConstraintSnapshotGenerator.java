@@ -35,12 +35,12 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         }
 
         if (foundObject instanceof Table table) {
-            org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+            var hibernateTable = findHibernateTable(table, snapshot);
             if (hibernateTable == null) {
                 return;
             }
             for (var hibernateUnique : hibernateTable.getUniqueKeys().values()) {
-                UniqueConstraint uniqueConstraint = new UniqueConstraint();
+                var uniqueConstraint = new UniqueConstraint();
                 uniqueConstraint.setName(hibernateUnique.getName());
                 uniqueConstraint.setRelation(table);
                 uniqueConstraint.setClustered(false); // No way to set true via Hibernate

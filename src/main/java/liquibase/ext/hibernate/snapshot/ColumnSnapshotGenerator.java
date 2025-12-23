@@ -263,19 +263,17 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         var customIdGeneratorCreator = simpleValue.getCustomIdGeneratorCreator();
         var customIdGeneratorCreatorClass = customIdGeneratorCreator.getClass();
         for (Field declaredField : customIdGeneratorCreatorClass.getDeclaredFields()) {
-            var canAccess = declaredField.canAccess(customIdGeneratorCreator);
-            declaredField.setAccessible(true);
-            try {
-                var value = declaredField.get(customIdGeneratorCreator);
-                if (value instanceof MemberDetails memberDetails) {
-                    if (memberDetails.hasDirectAnnotationUsage(annotation)) {
-                        return memberDetails.getDirectAnnotationUsage(annotation);
+            if (declaredField.trySetAccessible()) {
+                try {
+                    var value = declaredField.get(customIdGeneratorCreator);
+                    if (value instanceof MemberDetails memberDetails) {
+                        if (memberDetails.hasDirectAnnotationUsage(annotation)) {
+                            return memberDetails.getDirectAnnotationUsage(annotation);
+                        }
                     }
+                } catch (IllegalAccessException e) {
+                    Scope.getCurrentScope().getLog(ColumnSnapshotGenerator.class).info(e.getLocalizedMessage(), e);
                 }
-            } catch (IllegalAccessException e) {
-                Scope.getCurrentScope().getLog(ColumnSnapshotGenerator.class).info(e.getLocalizedMessage(), e);
-            } finally {
-                declaredField.setAccessible(canAccess);
             }
         }
         Scope.getCurrentScope().getLog(ColumnSnapshotGenerator.class).info("Generator annotation not found for %s".formatted(simpleValue.getTable().getName()));

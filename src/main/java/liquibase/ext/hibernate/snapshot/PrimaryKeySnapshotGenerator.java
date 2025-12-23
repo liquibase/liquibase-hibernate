@@ -33,13 +33,13 @@ public class PrimaryKeySnapshotGenerator extends HibernateSnapshotGenerator {
             return;
         }
         if (foundObject instanceof Table table) {
-            org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+            var hibernateTable = findHibernateTable(table, snapshot);
             if (hibernateTable == null) {
                 return;
             }
-            org.hibernate.mapping.PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
+            var hibernatePrimaryKey = hibernateTable.getPrimaryKey();
             if (hibernatePrimaryKey != null) {
-                PrimaryKey pk = new PrimaryKey();
+                var pk = new PrimaryKey();
                 String hbnTableName = hibernateTable.getName();
 
                 String pkName = PK_NAME_ALIAS.toAliasString(hbnTableName);
