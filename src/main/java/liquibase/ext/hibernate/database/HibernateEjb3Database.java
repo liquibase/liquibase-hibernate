@@ -133,6 +133,8 @@ public class HibernateEjb3Database extends HibernateDatabase {
             final Field declaredField = obj.getClass().getDeclaredField(fieldName);
             if (declaredField.trySetAccessible()) {
                 declaredField.set(obj, value);
+            } else {
+                throw new IllegalAccessException("Cannot access field: " + fieldName);
             }
         }
 
