@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.SequenceGenerator;
 import liquibase.snapshot.SnapshotGenerator;
+import liquibase.structure.core.Sequence;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.NativeGenerator;
 import org.hibernate.boot.models.annotations.internal.GeneratedValueJpaAnnotation;
@@ -202,7 +203,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                                                 }
                                             }
                                         }
-                                        if (database.supportsSequences()) {
+                                        if (database.supports(Sequence.class)) {
                                             if (key == SequenceGenerator.class) {
                                                 if (entry.getValue() instanceof SequenceGeneratorJpaAnnotation) {
                                                     sequenceGeneratorJpaAnnotation = (SequenceGeneratorJpaAnnotation) entry.getValue();
@@ -229,7 +230,12 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                                     }
                                 }
                             } catch (IllegalAccessException e) {
-                                Scope.getCurrentScope().getLog(ColumnSnapshotGenerator.class).info(e.getLocalizedMessage(), e);
+                                Scope.getCurrentScope()
+                                    .getLog(ColumnSnapshotGenerator.class)
+                                    .warning(
+                                        "Failed to access ID generator metadata for column " + column.getName() + ". Auto-increment detection may be incomplete: " + e.getLocalizedMessage(),
+                                        e
+                                    );
                             } finally {
                                 field.setAccessible(canAccess);
                             }

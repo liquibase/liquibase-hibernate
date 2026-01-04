@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.persistence.PersistenceUnitTransactionType;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.cfg.AvailableSettings;
@@ -16,6 +15,7 @@ import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.metamodel.ManagedType;
+import jakarta.persistence.PersistenceUnitTransactionType;
 import liquibase.Scope;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
@@ -58,7 +58,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
         String dialectString = findDialectName();
         if (dialectString != null) {
             try {
-                dialect = (Dialect) Class.forName(dialectString).newInstance();
+                dialect = (Dialect) Class.forName(dialectString).getDeclaredConstructor().newInstance();
                 Scope.getCurrentScope().getLog(getClass()).info("Using dialect " + dialectString);
             } catch (Exception e) {
                 throw new DatabaseException(e);
@@ -138,7 +138,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
                 declaredField.setAccessible(true);
                 declaredField.set(obj, value);
             } catch (Exception ex) {
-                throw new IllegalStateException("Cannot invoke method get", ex);
+                throw new IllegalStateException("Cannot set field value", ex);
             } finally {
                 declaredField.setAccessible(wasAccessible);
             }
