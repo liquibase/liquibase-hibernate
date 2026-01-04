@@ -45,14 +45,13 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         if (!snapshot.getSnapshotControl().shouldInclude(Index.class)) {
             return;
         }
-        if (foundObject instanceof Table) {
-            Table table = (Table) foundObject;
-            org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+        if (foundObject instanceof Table table) {
+            var hibernateTable = findHibernateTable(table, snapshot);
             if (hibernateTable == null) {
                 return;
             }
             for (var hibernateIndex : hibernateTable.getIndexes().values()) {
-                Index index = handleHibernateIndex(table, hibernateIndex);
+                var index = handleHibernateIndex(table, hibernateIndex);
                 Scope.getCurrentScope().getLog(getClass()).info("Found index " + index.getName());
                 table.getIndexes().add(index);
             }
@@ -64,11 +63,12 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         index.setRelation(table);
         index.setName(hibernateIndex.getName());
         index.setUnique(isUniqueIndex(hibernateIndex));
-        for (var hibernateColumn : hibernateIndex.getColumns()) {
-            String hibernateOrder = hibernateIndex.getColumnOrderMap().get(hibernateColumn);
+        for (var selectable : hibernateIndex.getSelectables()) {
+            org.hibernate.mapping.Column hibernateColumn = (org.hibernate.mapping.Column) selectable;
+            String hibernateOrder = hibernateIndex.getSelectableOrderMap().get(hibernateColumn);
             Boolean descending = HIBERNATE_ORDER_ASC.equals(hibernateOrder)
-                    ? Boolean.FALSE
-                    : (HIBERNATE_ORDER_DESC.equals(hibernateOrder) ? Boolean.TRUE : null);
+                ? Boolean.FALSE
+                : (HIBERNATE_ORDER_DESC.equals(hibernateOrder) ? Boolean.TRUE : null);
             index.getColumns().add(new Column(hibernateColumn.getName()).setRelation(table).setDescending(descending));
         }
         return index;
@@ -80,12 +80,12 @@ public class IndexSnapshotGenerator extends HibernateSnapshotGenerator {
         actual diff in certain non-unique indexes
         */
         if (hibernateIndex.getColumnSpan() == 1) {
-            var col = hibernateIndex.getColumns().get(0);
+            var col = ((org.hibernate.mapping.Column) hibernateIndex.getSelectables().get(0));
             return col.isUnique();
         } else {
             /*
             It seems that because Hibernate does not implement the unique property of the Jpa composite index,
-            the diff command appears 'diffence', because the unique property of the entity index is 'null',
+            the diff command appears 'difference', because the unique property of the entity index is 'null',
             and the value read from the database is 'false', resulting in the generated changeSet after the Drop and
             Recreate Index.
             */
