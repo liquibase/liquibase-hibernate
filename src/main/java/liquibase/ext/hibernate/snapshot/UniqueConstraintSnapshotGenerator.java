@@ -34,14 +34,13 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
             return;
         }
 
-        if (foundObject instanceof Table) {
-            Table table = (Table) foundObject;
-            org.hibernate.mapping.Table hibernateTable = findHibernateTable(table, snapshot);
+        if (foundObject instanceof Table table) {
+            var hibernateTable = findHibernateTable(table, snapshot);
             if (hibernateTable == null) {
                 return;
             }
             for (var hibernateUnique : hibernateTable.getUniqueKeys().values()) {
-                UniqueConstraint uniqueConstraint = new UniqueConstraint();
+                var uniqueConstraint = new UniqueConstraint();
                 uniqueConstraint.setName(hibernateUnique.getName());
                 uniqueConstraint.setRelation(table);
                 uniqueConstraint.setClustered(false); // No way to set true via Hibernate
@@ -108,7 +107,7 @@ public class UniqueConstraintSnapshotGenerator extends HibernateSnapshotGenerato
         index.setRelation(uniqueConstraint.getRelation());
         index.setColumns(uniqueConstraint.getColumns());
         index.setUnique(true);
-        index.setName(String.format("%s_%s_IX",hibernateTable.getName(), StringUtil.randomIdentifer(4)));
+        index.setName(String.format("%s_%s_IX",hibernateTable.getName(), StringUtil.randomIdentifier(4)));
 
         return index;
     }

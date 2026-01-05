@@ -10,9 +10,9 @@ import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.ForeignKey;
 import liquibase.structure.core.Table;
 import org.hibernate.boot.spi.MetadataImplementor;
+import org.hibernate.mapping.Column;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
 
@@ -30,18 +30,13 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
         if (!snapshot.getSnapshotControl().shouldInclude(ForeignKey.class)) {
             return;
         }
-        if (foundObject instanceof Table) {
-            Table table = (Table) foundObject;
+        if (foundObject instanceof Table table) {
             HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
             MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
 
             Collection<org.hibernate.mapping.Table> tmapp = metadata.collectTableMappings();
-            Iterator<org.hibernate.mapping.Table> tableMappings = tmapp.iterator();
-            while (tableMappings.hasNext()) {
-                org.hibernate.mapping.Table hibernateTable = tableMappings.next();
-                Iterator fkIterator = hibernateTable.getForeignKeyCollection().iterator();
-                while (fkIterator.hasNext()) {
-                    org.hibernate.mapping.ForeignKey hibernateForeignKey = (org.hibernate.mapping.ForeignKey) fkIterator.next();
+            for (org.hibernate.mapping.Table hibernateTable : tmapp) {
+                for (org.hibernate.mapping.ForeignKey hibernateForeignKey : hibernateTable.getForeignKeyCollection()) {
                     Table currentTable = new Table().setName(hibernateTable.getName());
                     currentTable.setSchema(hibernateTable.getCatalog(), hibernateTable.getSchema());
 
@@ -54,15 +49,15 @@ public class ForeignKeySnapshotGenerator extends HibernateSnapshotGenerator {
                         fk.setName(hibernateForeignKey.getName());
                         fk.setPrimaryKeyTable(referencedTable);
                         fk.setForeignKeyTable(currentTable);
-                        for (Object column : hibernateForeignKey.getColumns()) {
-                            fk.addForeignKeyColumn(new liquibase.structure.core.Column(((org.hibernate.mapping.Column) column).getName()));
+                        for (Column column : hibernateForeignKey.getColumns()) {
+                            fk.addForeignKeyColumn(new liquibase.structure.core.Column(column.getName()));
                         }
-                        for (Object column : hibernateForeignKey.getReferencedColumns()) {
-                            fk.addPrimaryKeyColumn(new liquibase.structure.core.Column(((org.hibernate.mapping.Column) column).getName()));
+                        for (Column column : hibernateForeignKey.getReferencedColumns()) {
+                            fk.addPrimaryKeyColumn(new liquibase.structure.core.Column(column.getName()));
                         }
                         if (fk.getPrimaryKeyColumns() == null || fk.getPrimaryKeyColumns().isEmpty()) {
-                            for (Object column : hibernateReferencedTable.getPrimaryKey().getColumns()) {
-                                fk.addPrimaryKeyColumn(new liquibase.structure.core.Column(((org.hibernate.mapping.Column) column).getName()));
+                            for (Column column : hibernateReferencedTable.getPrimaryKey().getColumns()) {
+                                fk.addPrimaryKeyColumn(new liquibase.structure.core.Column(column.getName()));
                             }
                         }
 
