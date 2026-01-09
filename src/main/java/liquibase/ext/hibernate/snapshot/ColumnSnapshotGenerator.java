@@ -1,17 +1,30 @@
 package liquibase.ext.hibernate.snapshot;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.SequenceGenerator;
 import liquibase.snapshot.SnapshotGenerator;
+import liquibase.structure.core.Sequence;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.NativeGenerator;
+import org.hibernate.boot.models.annotations.internal.GeneratedValueJpaAnnotation;
+import org.hibernate.boot.models.annotations.internal.NativeGeneratorAnnotation;
+import org.hibernate.boot.models.annotations.internal.SequenceGeneratorJpaAnnotation;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
-import org.hibernate.id.ExportableColumn;
+import org.hibernate.mapping.BasicValue;
+import org.hibernate.mapping.GeneratorCreator;
 import org.hibernate.mapping.SimpleValue;
+import org.hibernate.models.internal.jdk.JdkFieldDetails;
 import org.hibernate.type.SqlTypes;
 
 import liquibase.Scope;
@@ -162,27 +175,83 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                         }
                     }
 
-                    if (isPrimaryKeyColumn) {
-                        String identifierGeneratorStrategy;
+                    if (isPrimaryKeyColumn && hibernateColumn.getValue() instanceof BasicValue) {
+                        GeneratorCreator generatorCreator = ((BasicValue) hibernateColumn.getValue()).getCustomIdGeneratorCreator();
+                        if (generatorCreator == null) {
+                            continue;
+                        }
+                        SequenceGeneratorJpaAnnotation sequenceGeneratorJpaAnnotation = null;
+                        boolean isAutoIncrement = false;
+                        Class<?> clazz = generatorCreator.getClass();
 
-                        if (hibernateColumn instanceof ExportableColumn) {
-                            //nothing
-                        } else {
+                        Field[] fields = clazz.getDeclaredFields();
 
-                            identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue() ? ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
-
-                            if (("native".equalsIgnoreCase(identifierGeneratorStrategy) || "identity".equalsIgnoreCase(identifierGeneratorStrategy))) {
-                                if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                                    String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
-                                    column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
-                                } else if (database.supportsAutoIncrement()) {
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                        for (Field field : fields) {
+                            boolean canAccess = field.canAccess(generatorCreator);
+                            field.setAccessible(true);
+                            try {
+                                Object value = field.get(generatorCreator);
+                                if (value instanceof JdkFieldDetails) {
+                                    for (Map.Entry<Class<? extends Annotation>, ? extends Annotation> entry : ((JdkFieldDetails) value).getUsageMap().entrySet()) {
+                                        Class<? extends Annotation> key = entry.getKey();
+                                        if (database.supportsAutoIncrement()) {
+                                            if (key == GeneratedValue.class) {
+                                                if (entry.getValue() instanceof GeneratedValueJpaAnnotation annotation) {
+                                                    if ((annotation.strategy() == GenerationType.AUTO || annotation.strategy() == GenerationType.IDENTITY)) {
+                                                        isAutoIncrement = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (database.supports(Sequence.class)) {
+                                            if (key == SequenceGenerator.class) {
+                                                if (entry.getValue() instanceof SequenceGeneratorJpaAnnotation) {
+                                                    sequenceGeneratorJpaAnnotation = (SequenceGeneratorJpaAnnotation) entry.getValue();
+                                                }
+                                            }
+                                            if (key == NativeGenerator.class) {
+                                                if (entry.getValue() instanceof NativeGeneratorAnnotation nativeGenerator
+                                                        && StringUtils.isNotBlank(nativeGenerator.sequenceForm().sequenceName())) {
+                                                    sequenceGeneratorJpaAnnotation = new SequenceGeneratorJpaAnnotation(nativeGenerator.sequenceForm(), null);
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
-                            } else if ("org.hibernate.id.enhanced.SequenceStyleGenerator".equals(identifierGeneratorStrategy)) {
-                                Properties prop = ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorProperties();
-                                if (prop.get("sequence_name") == null)
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                if (value instanceof String arg) {
+                                    if (("native".equalsIgnoreCase(arg) || "identity".equalsIgnoreCase(arg))) {
+                                        if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
+                                            column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                            String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
+                                            column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+                                        } else if (database.supportsAutoIncrement()) {
+                                            column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                        }
+                                    }
+                                }
+                            } catch (IllegalAccessException e) {
+                                Scope.getCurrentScope()
+                                    .getLog(ColumnSnapshotGenerator.class)
+                                    .warning(
+                                        "Failed to access ID generator metadata for column " + column.getName() + ". Auto-increment detection may be incomplete: " + e.getLocalizedMessage(),
+                                        e
+                                    );
+                            } finally {
+                                field.setAccessible(canAccess);
+                            }
+                        }
+
+                        if (sequenceGeneratorJpaAnnotation == null) {
+                            if (database.supportsAutoIncrement() && isAutoIncrement) {
+                                column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                            }
+                        } else {
+                            if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
+                                String sequenceName = sequenceGeneratorJpaAnnotation.sequenceName().toLowerCase();
+                                column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+                            } else {
+                                column.setAutoIncrementInformation(new Column.AutoIncrementInformation(
+                                        sequenceGeneratorJpaAnnotation.initialValue(), sequenceGeneratorJpaAnnotation.allocationSize()));
                             }
                         }
                         column.setNullable(false);

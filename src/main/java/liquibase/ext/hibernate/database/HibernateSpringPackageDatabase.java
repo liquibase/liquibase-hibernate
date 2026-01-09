@@ -46,7 +46,7 @@ public class HibernateSpringPackageDatabase extends JpaPersistenceDatabase {
     protected boolean isXmlFile(DatabaseConnection connection) {
         HibernateConnection hibernateConnection;
         if (connection instanceof JdbcConnection) {
-            hibernateConnection = ((HibernateConnection) ((JdbcConnection) connection).getUnderlyingConnection());
+            hibernateConnection = ((HibernateConnection) connection.getUnderlyingConnection());
         } else if (connection instanceof HibernateConnection) {
             hibernateConnection = (HibernateConnection) connection;
         } else {
