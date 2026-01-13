@@ -249,10 +249,10 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         if (dialect instanceof MySQLDialect) {
             indexesForForeignKeys = true;
         }
-        if(getProperty(AvailableSettings.DEFAULT_SCHEMA) != null){
+        /* if(getProperty(AvailableSettings.DEFAULT_SCHEMA) != null){
             setDefaultSchemaName(getProperty(AvailableSettings.DEFAULT_SCHEMA));
             setDefaultCatalogName(getProperty(AvailableSettings.DEFAULT_CATALOG));
-        }
+        }*/
     }
 
 
@@ -306,14 +306,12 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     @Override
     public String getDefaultSchemaName() {
-        String configuredSchema = getProperty(AvailableSettings.DEFAULT_SCHEMA);
-        return configuredSchema != null ? configuredSchema : DEFAULT_SCHEMA;
+        return getProperty(AvailableSettings.DEFAULT_SCHEMA) != null ? getProperty(AvailableSettings.DEFAULT_SCHEMA) : DEFAULT_SCHEMA;
     }
 
     @Override
     public String getDefaultCatalogName() {
-        String configuredSchema = getProperty(AvailableSettings.DEFAULT_SCHEMA);
-        return configuredSchema != null ? configuredSchema : DEFAULT_SCHEMA;
+        return getProperty(AvailableSettings.DEFAULT_CATALOG) != null ? getProperty(AvailableSettings.DEFAULT_CATALOG) : getDefaultSchemaName();
     }
 
     @Override
