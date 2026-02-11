@@ -3,14 +3,13 @@ package liquibase.ext.hibernate.snapshot;
 import liquibase.database.Database;
 import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
-import liquibase.logging.LogFactory;
-import liquibase.logging.LogService;
-import liquibase.logging.Logger;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
 import liquibase.snapshot.SnapshotGenerator;
 import liquibase.snapshot.SnapshotGeneratorChain;
 import liquibase.structure.DatabaseObject;
+import liquibase.structure.core.Schema;
+import org.hibernate.boot.model.relational.Namespace;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.mapping.Table;
 
@@ -107,4 +106,43 @@ public abstract class HibernateSnapshotGenerator implements SnapshotGenerator {
         }
         return null;
     }
+
+    /**
+     * Checks if a database object's schema matches a Hibernate table's schema.
+     * Used to filter tables by their declared schemas during snapshot generation.
+     *
+     * @param example the database object being examined
+     * @param hibernateTable the Hibernate table mapping
+     * @return true if schemas match, false otherwise
+     */
+    protected static boolean schemaMatchesTable(
+            DatabaseObject example,
+            Table hibernateTable
+    ) {
+        if (example.getSchema().getName() != null && example.getSchema().getName().equalsIgnoreCase(hibernateTable.getSchema())) {
+            return true;
+        }
+
+        return example.getSchema().isDefault() && hibernateTable.getSchema() == null;
+    }
+
+    /**
+     * Checks if a Liquibase schema matches a Hibernate namespace.
+     * Used to filter sequences and other namespace-scoped objects during snapshot generation.
+     *
+     * @param schema the Liquibase schema
+     * @param hibernateNamespace the Hibernate namespace
+     * @return true if schemas match (including regex matching), false otherwise
+     */
+    protected static boolean schemaMatchesNamespace(
+            Schema schema,
+            Namespace hibernateNamespace
+    ) {
+        if (hibernateNamespace.getName().getSchema() != null && hibernateNamespace.getName().getSchema().matches(schema.getName())) {
+            return true;
+        }
+
+        return hibernateNamespace.getName().getSchema() == null && schema.isDefault();
+    }
+
 }
