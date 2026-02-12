@@ -15,6 +15,7 @@ import liquibase.snapshot.SnapshotGenerator;
 import liquibase.structure.core.Sequence;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.NativeGenerator;
+import org.hibernate.boot.model.relational.SqlStringGenerationContext;
 import org.hibernate.boot.models.annotations.internal.GeneratedValueJpaAnnotation;
 import org.hibernate.boot.models.annotations.internal.NativeGeneratorAnnotation;
 import org.hibernate.boot.models.annotations.internal.SequenceGeneratorJpaAnnotation;
@@ -23,6 +24,8 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
 import org.hibernate.mapping.BasicValue;
 import org.hibernate.mapping.GeneratorCreator;
+import org.hibernate.mapping.GeneratorSettings;
+import org.hibernate.mapping.RootClass;
 import org.hibernate.mapping.SimpleValue;
 import org.hibernate.models.internal.jdk.JdkFieldDetails;
 import org.hibernate.type.SqlTypes;
@@ -42,6 +45,8 @@ import liquibase.structure.core.Relation;
 import liquibase.structure.core.Table;
 import liquibase.util.SqlUtil;
 import liquibase.util.StringUtil;
+
+import static org.hibernate.boot.model.relational.internal.SqlStringGenerationContextImpl.fromExplicit;
 
 
 /**
@@ -114,7 +119,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         Dialect dialect = database.getDialect();
         MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
 
-        for (org.hibernate.mapping.Column hibernateColumn: hibernateTable.getColumns()) {
+        for (org.hibernate.mapping.Column hibernateColumn : hibernateTable.getColumns()) {
             if (hibernateColumn.getName().equalsIgnoreCase(column.getName())) {
 
                 String defaultValue = null;
@@ -132,14 +137,9 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 }
 
                 column.setType(dataType);
-                Scope.getCurrentScope().getLog(getClass()).info("Found column " + column.getName() + " " + column.getType().toString());
-
                 column.setRemarks(hibernateColumn.getComment());
 
-                // DataTypeFactory.from and SqlUtil.parseValue rely on the database type however,
-                // the liquibase-core does not know about the fake hibernate database so not all conditions
-                // are handled correctly for enums.
-                boolean isEnumType =  Optional.ofNullable(dataType.getDataTypeId())
+                boolean isEnumType = Optional.ofNullable(dataType.getDataTypeId())
                         .map(SqlTypes::isEnumType)
                         .orElse(false);
 
@@ -155,16 +155,14 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                         defaultValue = hibernateColumn.getDefaultValue();
                     }
 
-                    column.setDefaultValue(SqlUtil.parseValue(
-                            snapshot.getDatabase(),
-                            defaultValue,
-                            parseType));
+                    column.setDefaultValue(SqlUtil.parseValue(snapshot.getDatabase(), defaultValue, parseType));
                 } else {
                     column.setDefaultValue(hibernateColumn.getDefaultValue());
                 }
                 column.setNullable(hibernateColumn.isNullable());
                 column.setCertainDataType(false);
 
+                // PRIMARY KEY & AUTO-INCREMENT LOGIC (HIBERNATE 7)
                 org.hibernate.mapping.PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
                 if (hibernatePrimaryKey != null) {
                     boolean isPrimaryKeyColumn = false;
@@ -175,86 +173,69 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                         }
                     }
 
-                    if (isPrimaryKeyColumn && hibernateColumn.getValue() instanceof BasicValue) {
-                        GeneratorCreator generatorCreator = ((BasicValue) hibernateColumn.getValue()).getCustomIdGeneratorCreator();
-                        if (generatorCreator == null) {
-                            continue;
-                        }
-                        SequenceGeneratorJpaAnnotation sequenceGeneratorJpaAnnotation = null;
-                        boolean isAutoIncrement = false;
-                        Class<?> clazz = generatorCreator.getClass();
+                    if (isPrimaryKeyColumn && hibernateColumn.getValue() instanceof SimpleValue simpleValue) {
+                        // Find the PersistentClass to satisfy the H7 createGenerator requirement
+                        org.hibernate.mapping.PersistentClass persistentClass = metadata.getEntityBindings().stream()
+                                .filter(pc -> pc.getTable().equals(hibernateTable))
+                                .findFirst()
+                                .orElse(null);
 
-                        Field[] fields = clazz.getDeclaredFields();
+                        if (persistentClass != null) {
+                            org.hibernate.mapping.RootClass rootClass = persistentClass.getRootClass();
+                            var buildingContext = simpleValue.getBuildingContext();
+                            org.hibernate.generator.Generator generator = simpleValue.createGenerator(dialect
+                                    , rootClass
+                                    , null
+                                    , new GeneratorSettings() {
+                                        @Override
+                                        public String getDefaultCatalog() {
+                                            return null;
+                                        }
 
-                        for (Field field : fields) {
-                            boolean canAccess = field.canAccess(generatorCreator);
-                            field.setAccessible(true);
-                            try {
-                                Object value = field.get(generatorCreator);
-                                if (value instanceof JdkFieldDetails) {
-                                    for (Map.Entry<Class<? extends Annotation>, ? extends Annotation> entry : ((JdkFieldDetails) value).getUsageMap().entrySet()) {
-                                        Class<? extends Annotation> key = entry.getKey();
-                                        if (database.supportsAutoIncrement()) {
-                                            if (key == GeneratedValue.class) {
-                                                if (entry.getValue() instanceof GeneratedValueJpaAnnotation annotation) {
-                                                    if ((annotation.strategy() == GenerationType.AUTO || annotation.strategy() == GenerationType.IDENTITY)) {
-                                                        isAutoIncrement = true;
-                                                    }
-                                                }
-                                            }
+                                        @Override
+                                        public String getDefaultSchema() {
+                                            return null;
                                         }
-                                        if (database.supports(Sequence.class)) {
-                                            if (key == SequenceGenerator.class) {
-                                                if (entry.getValue() instanceof SequenceGeneratorJpaAnnotation) {
-                                                    sequenceGeneratorJpaAnnotation = (SequenceGeneratorJpaAnnotation) entry.getValue();
-                                                }
-                                            }
-                                            if (key == NativeGenerator.class) {
-                                                if (entry.getValue() instanceof NativeGeneratorAnnotation nativeGenerator
-                                                        && StringUtils.isNotBlank(nativeGenerator.sequenceForm().sequenceName())) {
-                                                    sequenceGeneratorJpaAnnotation = new SequenceGeneratorJpaAnnotation(nativeGenerator.sequenceForm(), null);
-                                                }
-                                            }
+
+                                        @Override
+                                        public SqlStringGenerationContext getSqlStringGenerationContext() {
+                                            final var database1 = buildingContext.getMetadataCollector().getDatabase();
+                                            return fromExplicit( database1.getJdbcEnvironment(), database1, getDefaultCatalog(), getDefaultSchema() );
                                         }
+                            });
+
+                            if (generator != null) {
+                                boolean isAutoIncrement = false;
+
+                                // Check for Identity (e.g. MySQL Auto_Increment)
+                                if (generator instanceof org.hibernate.id.IdentityGenerator) {
+                                    isAutoIncrement = true;
+                                }
+                                // Check for Sequences (e.g. Postgres SERIAL/Sequence)
+                                else if (generator instanceof org.hibernate.id.enhanced.SequenceStyleGenerator seqGen) {
+                                    if (org.hibernate.dialect.PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
+                                        // Get the sequence name using H7 QualifiedName API
+                                        String sequenceName = null;
+                                        org.hibernate.id.enhanced.DatabaseStructure structure = seqGen.getDatabaseStructure();
+                                        if (structure.getPhysicalName() != null) {
+                                            sequenceName = structure.getPhysicalName().render();
+                                        }
+
+                                        if (sequenceName == null) {
+                                            sequenceName = (hibernateTable.getName() + "_" + hibernateColumn.getName() + "_seq").toLowerCase();
+                                        }
+                                        column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+                                    } else if (database.supportsAutoIncrement()) {
+                                        isAutoIncrement = true;
                                     }
                                 }
-                                if (value instanceof String arg) {
-                                    if (("native".equalsIgnoreCase(arg) || "identity".equalsIgnoreCase(arg))) {
-                                        if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
-                                            column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                                            String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
-                                            column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
-                                        } else if (database.supportsAutoIncrement()) {
-                                            column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                                        }
-                                    }
-                                }
-                            } catch (IllegalAccessException e) {
-                                Scope.getCurrentScope()
-                                    .getLog(ColumnSnapshotGenerator.class)
-                                    .warning(
-                                        "Failed to access ID generator metadata for column " + column.getName() + ". Auto-increment detection may be incomplete: " + e.getLocalizedMessage(),
-                                        e
-                                    );
-                            } finally {
-                                field.setAccessible(canAccess);
-                            }
-                        }
 
-                        if (sequenceGeneratorJpaAnnotation == null) {
-                            if (database.supportsAutoIncrement() && isAutoIncrement) {
-                                column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                            }
-                        } else {
-                            if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
-                                String sequenceName = sequenceGeneratorJpaAnnotation.sequenceName().toLowerCase();
-                                column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
-                            } else {
-                                column.setAutoIncrementInformation(new Column.AutoIncrementInformation(
-                                        sequenceGeneratorJpaAnnotation.initialValue(), sequenceGeneratorJpaAnnotation.allocationSize()));
+                                if (isAutoIncrement && database.supportsAutoIncrement()) {
+                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                }
+                                column.setNullable(false);
                             }
                         }
-                        column.setNullable(false);
                     }
                 }
                 return;
@@ -304,6 +285,14 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             if (extra != null) {
                 if (extra.equalsIgnoreCase("char")) {
                     dataType.setColumnSizeUnit(DataType.ColumnSizeUnit.CHAR);
+                } else {
+                    if (extra.startsWith(")")) {
+                        extra = extra.substring(1);
+                    }
+                    extra = StringUtil.trimToNull(extra.toLowerCase().replace(SQL_TIMEZONE_SUFFIX, ""));
+                    if (extra != null) {
+                        dataType.setTypeName(dataType.getTypeName() + " " + extra);
+                    }
                 }
             }
         }

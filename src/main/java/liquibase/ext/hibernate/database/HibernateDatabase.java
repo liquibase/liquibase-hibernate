@@ -277,6 +277,11 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
 
     @Override
+    public boolean supportsAutoIncrement() {
+        return true;
+    }
+
+    @Override
     public boolean createsIndexesForForeignKeys() {
         return indexesForForeignKeys;
     }
