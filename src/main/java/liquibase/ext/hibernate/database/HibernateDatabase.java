@@ -38,8 +38,6 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     public static final String HIBERNATE_TEMP_USE_JDBC_METADATA_DEFAULTS = "hibernate.temp.use_jdbc_metadata_defaults";
 
     public HibernateDatabase() {
-        setDefaultCatalogName(DEFAULT_SCHEMA);
-        setDefaultSchemaName(DEFAULT_SCHEMA);
     }
 
     public boolean requiresPassword() {
@@ -251,6 +249,10 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         if (dialect instanceof MySQLDialect) {
             indexesForForeignKeys = true;
         }
+        /* if(getProperty(AvailableSettings.DEFAULT_SCHEMA) != null){
+            setDefaultSchemaName(getProperty(AvailableSettings.DEFAULT_SCHEMA));
+            setDefaultCatalogName(getProperty(AvailableSettings.DEFAULT_CATALOG));
+        }*/
     }
 
 
@@ -304,12 +306,12 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
     @Override
     public String getDefaultSchemaName() {
-        return DEFAULT_SCHEMA;
+        return getProperty(AvailableSettings.DEFAULT_SCHEMA) != null ? getProperty(AvailableSettings.DEFAULT_SCHEMA) : DEFAULT_SCHEMA;
     }
 
     @Override
     public String getDefaultCatalogName() {
-        return DEFAULT_SCHEMA;
+        return getProperty(AvailableSettings.DEFAULT_CATALOG) != null ? getProperty(AvailableSettings.DEFAULT_CATALOG) : getDefaultSchemaName();
     }
 
     @Override
