@@ -35,10 +35,10 @@ jobs:
         hibernate: [ "6.2.7.Final", "6.3.1.Final", "6.6.1.Final" ]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 17
           distribution: 'temurin'
@@ -52,7 +52,7 @@ jobs:
 
       - name: Archive Test Results
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-reports-hibernate-${{ matrix.hibernate }}
           path: |
