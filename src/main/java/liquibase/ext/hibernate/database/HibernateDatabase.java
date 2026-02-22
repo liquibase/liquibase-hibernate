@@ -104,7 +104,19 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
      * Convenience method to return the underlying HibernateConnection in the JdbcConnection returned by {@link #getConnection()}
      */
     protected HibernateConnection getHibernateConnection() {
-        return ((HibernateConnection) getConnection().getUnderlyingConnection());
+        DatabaseConnection originalConnection = getConnection();
+        if (originalConnection instanceof liquibase.database.jvm.JdbcConnection) {
+            java.sql.Connection underlyingConnection = ((liquibase.database.jvm.JdbcConnection) originalConnection).getUnderlyingConnection();
+            if (underlyingConnection instanceof HibernateConnection) {
+                return (HibernateConnection) underlyingConnection;
+            } else {
+                throw new UnexpectedLiquibaseException("Underlying connection is not a HibernateConnection: " + underlyingConnection.getClass().getName());
+            }
+        } else if (originalConnection instanceof HibernateConnection) {
+            return (HibernateConnection) originalConnection;
+        } else {
+            throw new UnexpectedLiquibaseException("Unknown connection type: " + originalConnection.getClass().getName());
+        }
     }
 
     /**
