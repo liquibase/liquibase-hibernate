@@ -288,6 +288,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     }
 
 
+    /** Required for snapshot auto-increment detection of identity/sequence columns managed by Hibernate. */
     @Override
     public boolean supportsAutoIncrement() {
         return true;
