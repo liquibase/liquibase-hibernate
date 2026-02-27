@@ -74,7 +74,7 @@
         <hibernate.version>7.2.4.Final</hibernate.version>
         <spring.version>7.0.2</spring.version>
         <hibernate.models.version>1.0.1</hibernate.models.version>
-        <liquibase.version>4.29.2</liquibase.version>
+        <liquibase.version>5.0.1</liquibase.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
     </properties>
@@ -165,6 +165,19 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
