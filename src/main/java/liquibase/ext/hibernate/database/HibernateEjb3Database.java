@@ -129,18 +129,12 @@ public class HibernateEjb3Database extends HibernateDatabase {
 
     private static class MyHibernatePersistenceProvider extends HibernatePersistenceProvider {
 
-        private void setField(final Object obj, String fieldName, final Object value) throws Exception {
-            final Field declaredField;
-
-            declaredField = obj.getClass().getDeclaredField(fieldName);
-            boolean wasAccessible = declaredField.canAccess(obj);
-            try {
-                declaredField.setAccessible(true);
+        private void setField(final Object obj, String fieldName, final Object value) throws NoSuchFieldException, IllegalAccessException {
+            final Field declaredField = obj.getClass().getDeclaredField(fieldName);
+            if (declaredField.trySetAccessible()) {
                 declaredField.set(obj, value);
-            } catch (Exception ex) {
-                throw new IllegalStateException("Cannot set field value", ex);
-            } finally {
-                declaredField.setAccessible(wasAccessible);
+            } else {
+                throw new IllegalAccessException("Cannot access field: " + fieldName);
             }
         }
 
