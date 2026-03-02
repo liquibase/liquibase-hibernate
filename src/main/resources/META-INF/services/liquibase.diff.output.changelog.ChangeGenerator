@@ -4,4 +4,5 @@ liquibase.ext.hibernate.diff.ChangedPrimaryKeyChangeGenerator
 liquibase.ext.hibernate.diff.ChangedSequenceChangeGenerator
 liquibase.ext.hibernate.diff.ChangedUniqueConstraintChangeGenerator
 liquibase.ext.hibernate.diff.MissingSequenceChangeGenerator
+liquibase.ext.hibernate.diff.ChangedIndexChangeGenerator
 liquibase.ext.hibernate.diff.UnexpectedIndexChangeGenerator
