@@ -28,6 +28,7 @@ public class ChangedUniqueConstraintChangeGenerator extends liquibase.diff.outpu
     public Change[] fixChanged(DatabaseObject changedObject, ObjectDifferences differences, DiffOutputControl control, Database referenceDatabase, Database comparisonDatabase, ChangeGeneratorChain chain) {
         if (referenceDatabase instanceof HibernateDatabase || comparisonDatabase instanceof HibernateDatabase) {
             differences.removeDifference("unique");
+            differences.removeDifference("using");
             if (!differences.hasDifferences()) {
                 return null;
             }
