@@ -37,10 +37,10 @@ import org.hibernate.type.SqlTypes;
  */
 public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
 
-    private static final String SQL_TIMEZONE_SUFFIX = "with time zone";
-    private static final String LIQUIBASE_TIMEZONE_SUFFIX = "with timezone";
+    static final String SQL_TIMEZONE_SUFFIX = "with time zone";
+    static final String LIQUIBASE_TIMEZONE_SUFFIX = "with timezone";
 
-    private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
+    final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
 
     public ColumnSnapshotGenerator() {
         super(Column.class, new Class[]{Table.class});
@@ -151,6 +151,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                     for (org.hibernate.mapping.Column pkColumn : (List<org.hibernate.mapping.Column>) hibernatePrimaryKey.getColumns()) {
                         if (pkColumn.getName().equalsIgnoreCase(hibernateColumn.getName())) {
                             isPrimaryKeyColumn = true;
+                            column.setNullable(false);
                             break;
                         }
                     }
@@ -180,7 +181,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                                 if (isAutoIncrement && database.supportsAutoIncrement()) {
                                     column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                                 }
-                                column.setNullable(false);
+
                             }
                         }
                     }
