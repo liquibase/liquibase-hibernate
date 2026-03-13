@@ -1,11 +1,20 @@
 package liquibase.ext.hibernate.database;
 
+import com.example.ejb3.auction.AuctionItem;
+import com.example.ejb3.auction.Item;
+import com.example.ejb3.auction.Watcher;
+import com.sun.tools.javac.Main;
 import liquibase.CatalogAndSchema;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
+import liquibase.ext.hibernate.database.connection.HibernateConnection;
 import liquibase.integration.commandline.CommandLineUtils;
 import liquibase.resource.ClassLoaderResourceAccessor;
+import liquibase.resource.ResourceAccessor;
 import liquibase.snapshot.DatabaseSnapshot;
+import liquibase.snapshot.InvalidExampleException;
 import liquibase.snapshot.SnapshotControl;
 import liquibase.snapshot.SnapshotGeneratorFactory;
 import liquibase.structure.core.Schema;
@@ -37,32 +46,44 @@ public class HibernateClassicDatabaseTest {
         db.close();
     }
 
-//    @Test
-//    public void runMain() throws Exception {
-//        Main.main(new String[]{
-//                "--url=hibernate:classic:com/example/pojo/Hibernate.cfg.xml",
-//                "--referenceUrl=jdbc:mysql://vagrant/lbcat", "--referenceUsername=lbuser",
-//                "--referencePassword=lbuser",
-//                "--logLevel=debug",
-//                "diffChangeLog"
-//        });
-//    }
+    @Test
+    public void runMain() throws Exception {
+        Main.main(new String[]{
+                "--url=hibernate:classic:com/example/pojo/Hibernate.cfg.xml",
+                "--referenceUrl=jdbc:mysql://vagrant/lbcat", "--referenceUsername=lbuser",
+                "--referencePassword=lbuser",
+                "--logLevel=debug",
+                "diffChangeLog"
+        });
+    }
 
-//    @Test
-//    public void testHibernateUrlSimple() throws DatabaseException {
-//        conn = new JdbcConnection(new HibernateConnection("hibernate:classic:com/example/pojo/Hibernate.cfg.xml"));
-//        db.setConnection(conn);
-//        assertNotNull(db.getConfiguration().getClassMapping(AuctionItem.class.getName()));
-//        assertNotNull(db.getConfiguration().getClassMapping(Watcher.class.getName()));
-//    }
-//
-//
-//    @Test
-//    public void testCustomConfigMustHaveItemClassMapping() throws DatabaseException {
-//        conn = new JdbcConnection(new HibernateConnection("hibernate:classic:" + CUSTOMCONFIG_CLASS));
-//        db.setConnection(conn);
-//        assertNotNull(db.getConfiguration().getClassMapping(Item.class.getName()));
-//    }
+    @Test
+    public void testHibernateUrlSimple() throws DatabaseException, InvalidExampleException {
+        ResourceAccessor resourceAccessor = new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader());
+        conn = new JdbcConnection(new HibernateConnection("hibernate:classic:com/example/pojo/Hibernate.cfg.xml",resourceAccessor));
+
+        // 2. Ensure 'db' is treated as a HibernateClassicDatabase
+        db.setConnection(conn);
+
+        // 3. Now getConfiguration() will be available
+        DatabaseSnapshot snapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(CatalogAndSchema.DEFAULT, db, new SnapshotControl(db));
+
+        // Verify the mapping exists in the snapshot
+        assertThat(snapshot.get(Table.class), hasItem(hasProperty("name", is(AuctionItem.class.getSimpleName()))));
+        assertThat(snapshot.get(Table.class), hasItem(hasProperty("name", is(Watcher.class.getSimpleName()))));
+    }
+
+
+    @Test
+    public void testCustomConfigMustHaveItemClassMapping() throws DatabaseException, InvalidExampleException {
+        ResourceAccessor resourceAccessor = new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader());
+        conn = new JdbcConnection(new HibernateConnection("hibernate:classic:com/example/pojo/Hibernate.cfg.xml",resourceAccessor));
+
+        // 2. Ensure 'db' is treated as a HibernateClassicDatabase
+        db.setConnection(conn);
+        DatabaseSnapshot snapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(CatalogAndSchema.DEFAULT, db, new SnapshotControl(db));
+        assertThat(snapshot.get(Table.class), hasItem(hasProperty("name", is(Item.class.getSimpleName()))));
+    }
 
     @Test
     public void simpleHibernateUrl() throws Exception {
