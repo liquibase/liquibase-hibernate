@@ -37,10 +37,10 @@ import org.hibernate.type.SqlTypes;
  */
 public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
 
-    static final String SQL_TIMEZONE_SUFFIX = "with time zone";
-    static final String LIQUIBASE_TIMEZONE_SUFFIX = "with timezone";
+    private static final String SQL_TIMEZONE_SUFFIX = "with time zone";
+    private static final String LIQUIBASE_TIMEZONE_SUFFIX = "with timezone";
 
-    final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
+    private static final Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
 
     public ColumnSnapshotGenerator() {
         super(Column.class, new Class[]{Table.class});
