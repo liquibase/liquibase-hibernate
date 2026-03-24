@@ -44,15 +44,12 @@ public class ChangedColumnChangeGenerator extends liquibase.diff.output.changelo
         }
         Difference difference = differences.getDifference("type");
         if (difference != null) {
-            for (Difference d : differences.getDifferences()) {
-                if (!(d.getReferenceValue() instanceof DataType)) {
-                    differences.removeDifference(d.getField());
-                    continue;
-                }
-                Integer originalSize = ((DataType) d.getReferenceValue()).getColumnSize();
-                Integer newSize = ((DataType) d.getComparedValue()).getColumnSize();
+            if (difference.getReferenceValue() instanceof DataType referencedType) {
+                Integer originalSize = referencedType.getColumnSize();
+                Integer newSize = difference.getComparedValue() instanceof DataType comparedType
+                        ? comparedType.getColumnSize() : null;
                 if (newSize == null || originalSize == null || newSize.equals(originalSize)) {
-                    differences.removeDifference(d.getField());
+                    differences.removeDifference("type");
                 }
             }
             super.handleTypeDifferences(column, differences, control, changes, referenceDatabase, comparisonDatabase);
