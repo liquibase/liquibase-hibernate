@@ -15,35 +15,20 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Transient;
 
+@Getter
+@Setter
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorValue("Y")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Bid extends Persistent {
-    @Setter
-    private AuctionItem item;
-    @Setter
-    @Getter
-    private float amount;
-    @Setter
-    private Date datetime;
-    @Setter
-    private User bidder;
-
     @ManyToOne
-    public AuctionItem getItem() {
-        return item;
-    }
-
+    private AuctionItem item;
+    private float amount;
     @Column(nullable = false, name = "datetime")
-    public Date getDatetime() {
-        return datetime;
-    }
-
+    private Date datetime;
     @ManyToOne(optional = false)
-    public User getBidder() {
-        return bidder;
-    }
+    private User bidder;
 
     public String toString() {
         return bidder.getUserName() + " $" + amount;

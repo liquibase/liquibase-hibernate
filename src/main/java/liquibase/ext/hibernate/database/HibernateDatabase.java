@@ -3,7 +3,6 @@ package liquibase.ext.hibernate.database;
 import liquibase.Scope;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
-import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.ext.hibernate.customfactory.CustomMetadataFactory;
@@ -22,6 +21,7 @@ import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.hibernate.service.ServiceRegistry;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -95,7 +95,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
     /**
      * Return the hibernate {@link Metadata} used by this database.
      */
-    public Metadata getMetadata() throws DatabaseException {
+    public Metadata getMetadata() {
         return metadata;
     }
 
@@ -104,7 +104,19 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
      * Convenience method to return the underlying HibernateConnection in the JdbcConnection returned by {@link #getConnection()}
      */
     protected HibernateConnection getHibernateConnection() {
-        return ((HibernateConnection) ((JdbcConnection) getConnection()).getUnderlyingConnection());
+        DatabaseConnection originalConnection = getConnection();
+        if (originalConnection instanceof liquibase.database.jvm.JdbcConnection) {
+            java.sql.Connection underlyingConnection = ((liquibase.database.jvm.JdbcConnection) originalConnection).getUnderlyingConnection();
+            if (underlyingConnection instanceof HibernateConnection) {
+                return (HibernateConnection) underlyingConnection;
+            } else {
+                throw new UnexpectedLiquibaseException("Underlying connection is not a HibernateConnection: " + underlyingConnection.getClass().getName());
+            }
+        } else if (originalConnection instanceof HibernateConnection) {
+            return (HibernateConnection) originalConnection;
+        } else {
+            throw new UnexpectedLiquibaseException("Unknown connection type: " + originalConnection.getClass().getName());
+        }
     }
 
     /**
@@ -119,8 +131,9 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
                 Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(path);
                 if (CustomMetadataFactory.class.isAssignableFrom(clazz)) {
                     try {
-                        return ((CustomMetadataFactory) clazz.newInstance()).getMetadata(this, getHibernateConnection());
-                    } catch (InstantiationException | IllegalAccessException e) {
+                        return ((CustomMetadataFactory) clazz.getDeclaredConstructor().newInstance()).getMetadata(this, getHibernateConnection());
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                             NoSuchMethodException e) {
                         throw new DatabaseException(e);
                     }
                 }
@@ -172,9 +185,10 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         String dialectString = findDialectName();
         if (dialectString != null) {
             try {
-                dialect = (Dialect) Thread.currentThread().getContextClassLoader().loadClass(dialectString).newInstance();
+                dialect = (Dialect) Thread.currentThread().getContextClassLoader().loadClass(dialectString).getDeclaredConstructor().newInstance();
                 Scope.getCurrentScope().getLog(getClass()).info("Using dialect " + dialectString);
-            } catch (Exception e) {
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException | ClassNotFoundException e) {
                 throw new DatabaseException(e);
             }
         } else {
@@ -206,9 +220,10 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
 
         try {
             if (namingStrategy != null) {
-                builder.applyPhysicalNamingStrategy((PhysicalNamingStrategy) Thread.currentThread().getContextClassLoader().loadClass(namingStrategy).newInstance());
+                builder.applyPhysicalNamingStrategy((PhysicalNamingStrategy) Thread.currentThread().getContextClassLoader().loadClass(namingStrategy).getDeclaredConstructor().newInstance());
             }
-        } catch (Exception e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException |
+                 ClassNotFoundException e) {
             throw new DatabaseException(e);
         }
     }
@@ -234,12 +249,13 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
                         builder.applyImplicitNamingStrategy(org.hibernate.boot.model.naming.ImplicitNamingStrategyComponentPathImpl.INSTANCE);
                         break;
                     default:
-                        builder.applyImplicitNamingStrategy((ImplicitNamingStrategy) Thread.currentThread().getContextClassLoader().loadClass(namingStrategy).newInstance());
+                        builder.applyImplicitNamingStrategy((ImplicitNamingStrategy) Thread.currentThread().getContextClassLoader().loadClass(namingStrategy).getDeclaredConstructor().newInstance());
                         break;
                 }
 
             }
-        } catch (Exception e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException |
+                 ClassNotFoundException e) {
             throw new DatabaseException(e);
         }
     }
@@ -261,7 +277,7 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         configureImplicitNamingStrategy(getProperty(AvailableSettings.IMPLICIT_NAMING_STRATEGY), metadataBuilder);
         configurePhysicalNamingStrategy(getProperty(AvailableSettings.PHYSICAL_NAMING_STRATEGY), metadataBuilder);
         metadataBuilder.enableGlobalNationalizedCharacterDataSupport(
-                Boolean.parseBoolean(getProperty(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA)));
+            Boolean.parseBoolean(getProperty(AvailableSettings.USE_NATIONALIZED_CHARACTER_DATA)));
     }
 
     /**
@@ -271,6 +287,12 @@ public abstract class HibernateDatabase extends AbstractJdbcDatabase {
         return getHibernateConnection().getProperties().getProperty(name);
     }
 
+
+    /** Required for snapshot auto-increment detection of identity/sequence columns managed by Hibernate. */
+    @Override
+    public boolean supportsAutoIncrement() {
+        return true;
+    }
 
     @Override
     public boolean createsIndexesForForeignKeys() {

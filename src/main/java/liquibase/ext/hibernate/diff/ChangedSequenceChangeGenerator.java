@@ -10,7 +10,6 @@ import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Sequence;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -25,11 +24,7 @@ public class ChangedSequenceChangeGenerator extends liquibase.diff.output.change
     private static final Set<String> HIBERNATE_SEQUENCE_FIELDS;
 
     static {
-        HashSet<String> hibernateSequenceFields = new HashSet<>();
-        hibernateSequenceFields.add("name");
-        hibernateSequenceFields.add("startValue");
-        hibernateSequenceFields.add("incrementBy");
-        HIBERNATE_SEQUENCE_FIELDS = Collections.unmodifiableSet(hibernateSequenceFields);
+        HIBERNATE_SEQUENCE_FIELDS = Set.of("name", "startValue", "incrementBy");
     }
 
     @Override
@@ -49,9 +44,9 @@ public class ChangedSequenceChangeGenerator extends liquibase.diff.output.change
 
         // if any of the databases is a hibernate database, remove all differences that affect a field not managed by hibernate
         Set<String> ignoredDifferenceFields = differences.getDifferences().stream()
-                .map(Difference::getField)
-                .filter(differenceField ->  !HIBERNATE_SEQUENCE_FIELDS.contains(differenceField))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+            .map(Difference::getField)
+            .filter(differenceField ->  !HIBERNATE_SEQUENCE_FIELDS.contains(differenceField))
+            .collect(Collectors.toCollection(LinkedHashSet::new));
         ignoredDifferenceFields.forEach(differences::removeDifference);
         this.advancedIgnoredDifferenceFields(differences, referenceDatabase, comparisonDatabase);
         return super.fixChanged(changedObject, differences, control, referenceDatabase, comparisonDatabase, chain);

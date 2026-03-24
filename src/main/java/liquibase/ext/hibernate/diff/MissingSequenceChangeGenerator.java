@@ -20,11 +20,11 @@ public class MissingSequenceChangeGenerator extends liquibase.diff.output.change
 
     @Override
     public Change[] fixMissing(DatabaseObject missingObject, DiffOutputControl control, Database referenceDatabase, Database comparisonDatabase, ChangeGeneratorChain chain) {
-        if (referenceDatabase instanceof HibernateDatabase && !comparisonDatabase.supportsSequences()) {
+        if (referenceDatabase instanceof HibernateDatabase && !comparisonDatabase.supports(Sequence.class)) {
             return null;
-        } else if (comparisonDatabase instanceof HibernateDatabase && !referenceDatabase.supportsSequences()) {
+        } else if (comparisonDatabase instanceof HibernateDatabase && !referenceDatabase.supports(Sequence.class)) {
             return null;
-        }else {
+        } else {
             return super.fixMissing(missingObject, control, referenceDatabase, comparisonDatabase, chain);
         }
     }

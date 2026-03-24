@@ -31,8 +31,7 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
             return;
         }
 
-        if (foundObject instanceof Schema) {
-            Schema schema = (Schema) foundObject;
+        if (foundObject instanceof Schema schema) {
             HibernateDatabase database = (HibernateDatabase) snapshot.getDatabase();
             for (org.hibernate.boot.model.relational.Namespace namespace : database.getMetadata().getDatabase().getNamespaces()) {
                 for (org.hibernate.boot.model.relational.Sequence sequence : namespace.getSequences()) {

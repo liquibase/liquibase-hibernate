@@ -1,8 +1,6 @@
 package liquibase.ext.hibernate.database;
 
 import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +15,7 @@ import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.metamodel.ManagedType;
-import jakarta.persistence.spi.PersistenceUnitTransactionType;
+import jakarta.persistence.PersistenceUnitTransactionType;
 import liquibase.Scope;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
@@ -60,7 +58,7 @@ public class HibernateEjb3Database extends HibernateDatabase {
         String dialectString = findDialectName();
         if (dialectString != null) {
             try {
-                dialect = (Dialect) Class.forName(dialectString).newInstance();
+                dialect = (Dialect) Class.forName(dialectString).getDeclaredConstructor().newInstance();
                 Scope.getCurrentScope().getLog(getClass()).info("Using dialect " + dialectString);
             } catch (Exception e) {
                 throw new DatabaseException(e);
@@ -131,25 +129,13 @@ public class HibernateEjb3Database extends HibernateDatabase {
 
     private static class MyHibernatePersistenceProvider extends HibernatePersistenceProvider {
 
-        private void setField(final Object obj, String fieldName, final Object value) throws Exception {
-            final Field declaredField;
-
-            declaredField = obj.getClass().getDeclaredField(fieldName);
-            AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                @Override
-                public Object run() {
-                    boolean wasAccessible = declaredField.isAccessible();
-                    try {
-                        declaredField.setAccessible(true);
-                        declaredField.set(obj, value);
-                        return null;
-                    } catch (Exception ex) {
-                        throw new IllegalStateException("Cannot invoke method get", ex);
-                    } finally {
-                        declaredField.setAccessible(wasAccessible);
-                    }
-                }
-            });
+        private void setField(final Object obj, String fieldName, final Object value) throws NoSuchFieldException, IllegalAccessException {
+            final Field declaredField = obj.getClass().getDeclaredField(fieldName);
+            if (declaredField.trySetAccessible()) {
+                declaredField.set(obj, value);
+            } else {
+                throw new IllegalAccessException("Cannot access field: " + fieldName);
+            }
         }
 
         @Override

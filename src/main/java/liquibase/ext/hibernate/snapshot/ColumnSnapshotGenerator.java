@@ -2,17 +2,8 @@ package liquibase.ext.hibernate.snapshot;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import liquibase.snapshot.SnapshotGenerator;
-import org.hibernate.boot.spi.MetadataImplementor;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.PostgreSQLDialect;
-import org.hibernate.id.ExportableColumn;
-import org.hibernate.mapping.SimpleValue;
-import org.hibernate.type.SqlTypes;
 
 import liquibase.Scope;
 import liquibase.datatype.DataTypeFactory;
@@ -21,6 +12,7 @@ import liquibase.exception.DatabaseException;
 import liquibase.ext.hibernate.database.HibernateDatabase;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.snapshot.InvalidExampleException;
+import liquibase.snapshot.SnapshotGenerator;
 import liquibase.statement.DatabaseFunction;
 import liquibase.structure.DatabaseObject;
 import liquibase.structure.core.Column;
@@ -29,6 +21,14 @@ import liquibase.structure.core.Relation;
 import liquibase.structure.core.Table;
 import liquibase.util.SqlUtil;
 import liquibase.util.StringUtil;
+import org.hibernate.boot.model.relational.SqlStringGenerationContext;
+import org.hibernate.boot.model.relational.internal.SqlStringGenerationContextImpl;
+import org.hibernate.boot.spi.MetadataImplementor;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.PostgreSQLDialect;
+import org.hibernate.mapping.GeneratorSettings;
+import org.hibernate.mapping.SimpleValue;
+import org.hibernate.type.SqlTypes;
 
 
 /**
@@ -40,7 +40,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
     private static final String SQL_TIMEZONE_SUFFIX = "with time zone";
     private static final String LIQUIBASE_TIMEZONE_SUFFIX = "with timezone";
 
-    private final static Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
+    private static final Pattern pattern = Pattern.compile("([^\\(]*)\\s*\\(?\\s*(\\d*)?\\s*,?\\s*(\\d*)?\\s*([^\\(]*?)\\)?");
 
     public ColumnSnapshotGenerator() {
         super(Column.class, new Class[]{Table.class});
@@ -101,7 +101,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         Dialect dialect = database.getDialect();
         MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
 
-        for (org.hibernate.mapping.Column hibernateColumn: hibernateTable.getColumns()) {
+        for (org.hibernate.mapping.Column hibernateColumn : hibernateTable.getColumns()) {
             if (hibernateColumn.getName().equalsIgnoreCase(column.getName())) {
 
                 String defaultValue = null;
@@ -119,14 +119,9 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                 }
 
                 column.setType(dataType);
-                Scope.getCurrentScope().getLog(getClass()).info("Found column " + column.getName() + " " + column.getType().toString());
-
                 column.setRemarks(hibernateColumn.getComment());
 
-                // DataTypeFactory.from and SqlUtil.parseValue rely on the database type however,
-                // the liquibase-core does not know about the fake hibernate database so not all conditions
-                // are handled correctly for enums.
-                boolean isEnumType =  Optional.ofNullable(dataType.getDataTypeId())
+                boolean isEnumType = Optional.ofNullable(dataType.getDataTypeId())
                         .map(SqlTypes::isEnumType)
                         .orElse(false);
 
@@ -142,50 +137,53 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                         defaultValue = hibernateColumn.getDefaultValue();
                     }
 
-                    column.setDefaultValue(SqlUtil.parseValue(
-                            snapshot.getDatabase(),
-                            defaultValue,
-                            parseType));
+                    column.setDefaultValue(SqlUtil.parseValue(snapshot.getDatabase(), defaultValue, parseType));
                 } else {
                     column.setDefaultValue(hibernateColumn.getDefaultValue());
                 }
                 column.setNullable(hibernateColumn.isNullable());
                 column.setCertainDataType(false);
 
+                // PRIMARY KEY & AUTO-INCREMENT LOGIC (HIBERNATE 7)
                 org.hibernate.mapping.PrimaryKey hibernatePrimaryKey = hibernateTable.getPrimaryKey();
                 if (hibernatePrimaryKey != null) {
                     boolean isPrimaryKeyColumn = false;
                     for (org.hibernate.mapping.Column pkColumn : (List<org.hibernate.mapping.Column>) hibernatePrimaryKey.getColumns()) {
                         if (pkColumn.getName().equalsIgnoreCase(hibernateColumn.getName())) {
                             isPrimaryKeyColumn = true;
+                            column.setNullable(false);
                             break;
                         }
                     }
 
-                    if (isPrimaryKeyColumn) {
-                        String identifierGeneratorStrategy;
+                    if (isPrimaryKeyColumn && hibernateColumn.getValue() instanceof SimpleValue simpleValue) {
+                        var persistentClass = findPersistentClass(metadata, hibernateTable);
 
-                        if (hibernateColumn instanceof ExportableColumn) {
-                            //nothing
-                        } else {
+                        if (persistentClass != null) {
+                            var rootClass = persistentClass.getRootClass();
+                            var generatorSettings = createGeneratorSettings(simpleValue);
+                            var generator = simpleValue.createGenerator(dialect, rootClass, null, generatorSettings);
 
-                            identifierGeneratorStrategy = hibernateColumn.getValue().isSimpleValue() ? ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorStrategy() : null;
+                            if (generator != null) {
+                                boolean isAutoIncrement = false;
 
-                            if (("native".equalsIgnoreCase(identifierGeneratorStrategy) || "identity".equalsIgnoreCase(identifierGeneratorStrategy))) {
-                                if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                                    String sequenceName = (column.getRelation().getName() + "_" + column.getName() + "_seq").toLowerCase();
-                                    column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
-                                } else if (database.supportsAutoIncrement()) {
+                                if (generator instanceof org.hibernate.id.IdentityGenerator) {
+                                    isAutoIncrement = true;
+                                } else if (generator instanceof org.hibernate.id.enhanced.SequenceStyleGenerator seqGen) {
+                                    if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
+                                        String sequenceName = resolveSequenceName(seqGen, hibernateTable, hibernateColumn);
+                                        column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+                                    } else if (database.supportsAutoIncrement()) {
+                                        isAutoIncrement = true;
+                                    }
+                                }
+
+                                if (isAutoIncrement && database.supportsAutoIncrement()) {
                                     column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                                 }
-                            } else if ("org.hibernate.id.enhanced.SequenceStyleGenerator".equals(identifierGeneratorStrategy)) {
-                                Properties prop = ((SimpleValue) hibernateColumn.getValue()).getIdentifierGeneratorProperties();
-                                if (prop.get("sequence_name") == null)
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+
                             }
                         }
-                        column.setNullable(false);
                     }
                 }
                 return;
@@ -235,6 +233,14 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             if (extra != null) {
                 if (extra.equalsIgnoreCase("char")) {
                     dataType.setColumnSizeUnit(DataType.ColumnSizeUnit.CHAR);
+                } else {
+                    if (extra.startsWith(")")) {
+                        extra = extra.substring(1);
+                    }
+                    extra = StringUtil.trimToNull(extra.toLowerCase().replace(SQL_TIMEZONE_SUFFIX, ""));
+                    if (extra != null) {
+                        dataType.setTypeName(dataType.getTypeName() + " " + extra);
+                    }
                 }
             }
         }
@@ -250,4 +256,44 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         return new Class[]{liquibase.snapshot.jvm.ColumnSnapshotGenerator.class};
     }
 
+    private org.hibernate.mapping.PersistentClass findPersistentClass(
+            MetadataImplementor metadata, org.hibernate.mapping.Table hibernateTable) {
+        return metadata.getEntityBindings().stream()
+                .filter(pc -> pc.getTable().equals(hibernateTable))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private GeneratorSettings createGeneratorSettings(SimpleValue simpleValue) {
+        var buildingContext = simpleValue.getBuildingContext();
+        return new GeneratorSettings() {
+            @Override
+            public String getDefaultCatalog() {
+                return null;
+            }
+
+            @Override
+            public String getDefaultSchema() {
+                return null;
+            }
+
+            @Override
+            public SqlStringGenerationContext getSqlStringGenerationContext() {
+                var db = buildingContext.getMetadataCollector().getDatabase();
+                return SqlStringGenerationContextImpl.fromExplicit(
+                        db.getJdbcEnvironment(), db, getDefaultCatalog(), getDefaultSchema());
+            }
+        };
+    }
+
+    private String resolveSequenceName(
+            org.hibernate.id.enhanced.SequenceStyleGenerator seqGen,
+            org.hibernate.mapping.Table hibernateTable,
+            org.hibernate.mapping.Column hibernateColumn) {
+        var structure = seqGen.getDatabaseStructure();
+        if (structure.getPhysicalName() != null) {
+            return structure.getPhysicalName().render();
+        }
+        return (hibernateTable.getName() + "_" + hibernateColumn.getName() + "_seq").toLowerCase();
+    }
 }

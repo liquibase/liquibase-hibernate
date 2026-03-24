@@ -6,15 +6,13 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
+@Setter
 @MappedSuperclass
 public class Persistent {
-    @Setter
-    private Long id;
 
     @Id
     @GeneratedValue
-    public Long getId() {
-        return id;
-    }
+    private Long id;
 
 }

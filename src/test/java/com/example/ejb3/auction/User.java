@@ -8,29 +8,18 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 @Setter
 @Entity
 public class User extends Persistent {
-    @Getter
     private String userName;
-    @Getter
     private String password;
-    @Getter
     private String email;
-    @Getter
     private Name name;
-    private List<Bid> bids;
-    private List<AuctionItem> auctions;
-
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
-    public List<AuctionItem> getAuctions() {
-        return auctions;
-    }
-
     @OneToMany(mappedBy = "bidder", cascade = CascadeType.ALL)
-    public List<Bid> getBids() {
-        return bids;
-    }
+    private List<Bid> bids;
+    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
+    private List<AuctionItem> auctions;
 
     public String toString() {
         return userName;

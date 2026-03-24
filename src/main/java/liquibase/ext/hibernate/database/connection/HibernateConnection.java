@@ -5,6 +5,7 @@ import liquibase.resource.ResourceAccessor;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
@@ -53,9 +54,9 @@ public class HibernateConnection implements Connection {
      */
     protected Properties readProperties(String queryString) {
         Properties properties = new Properties();
-        queryString = queryString.replaceAll("&", System.getProperty("line.separator"));
+        queryString = queryString.replaceAll("&", System.lineSeparator());
         try {
-            queryString = URLDecoder.decode(queryString, "UTF-8");
+            queryString = URLDecoder.decode(queryString, StandardCharsets.UTF_8);
             properties.load(new StringReader(queryString));
         } catch (IOException ioe) {
             throw new IllegalStateException("Failed to read properties from url", ioe);
@@ -167,7 +168,7 @@ public class HibernateConnection implements Connection {
     }
 
     public int getTransactionIsolation() throws SQLException {
-        return 0;
+        return Connection.TRANSACTION_NONE;
     }
 
     public SQLWarning getWarnings() throws SQLException {
