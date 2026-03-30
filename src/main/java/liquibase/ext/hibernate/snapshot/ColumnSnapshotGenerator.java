@@ -162,7 +162,8 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                         if (persistentClass != null) {
                             var rootClass = persistentClass.getRootClass();
                             var generatorSettings = createGeneratorSettings(simpleValue);
-                            var generator = simpleValue.createGenerator(dialect, rootClass, null, generatorSettings);
+                            var identifierProperty = rootClass.getIdentifierProperty();
+                            var generator = simpleValue.createGenerator(dialect, rootClass, identifierProperty, generatorSettings);
 
                             if (generator != null) {
                                 boolean isAutoIncrement = false;
