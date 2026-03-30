@@ -8,8 +8,10 @@ import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Custom ID generator implementing legacy IdentifierGenerator interface.
- * Reproduces the NPE reported in GitHub issue comment on PR #852.
+ * Custom ID generator implementing the legacy {@link IdentifierGenerator} interface.
+ * <p>
+ * This test generator simply returns incrementing {@code long} values using an in-memory
+ * counter and does not interact with any {@code GeneratorCreationContext} or its properties.
  */
 public class SnowflakeIdGenerator implements IdentifierGenerator {
 
