@@ -1,4 +1,4 @@
-package com.example.ejb3.auction;
+package com.example.ejb3.customid;
 
 import org.hibernate.annotations.IdGeneratorType;
 

@@ -1,4 +1,4 @@
-package com.example.ejb3.auction;
+package com.example.ejb3.customid;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

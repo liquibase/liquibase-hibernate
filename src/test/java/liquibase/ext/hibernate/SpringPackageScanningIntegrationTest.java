@@ -38,7 +38,7 @@ import java.util.Set;
 import static junit.framework.TestCase.*;
 
 public class SpringPackageScanningIntegrationTest {
-    private static final String PACKAGES = "com.example.ejb3.auction";
+    private static final String PACKAGES = "com.example.ejb3.auction,com.example.ejb3.customid";
     private Database database;
     private Connection connection;
     private CompareControl compareControl;
