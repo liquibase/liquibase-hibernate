@@ -171,12 +171,9 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                                 if (generator instanceof org.hibernate.id.IdentityGenerator) {
                                     isAutoIncrement = true;
                                 } else if (generator instanceof org.hibernate.id.enhanced.SequenceStyleGenerator seqGen) {
-                                    if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
-                                        String sequenceName = resolveSequenceName(seqGen, hibernateTable, hibernateColumn);
-                                        column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
-                                    } else if (database.supportsAutoIncrement()) {
-                                        isAutoIncrement = true;
-                                    }
+                                    isAutoIncrement = handleSequenceGenerator(seqGen, dialect, database, column, hibernateTable, hibernateColumn);
+                                } else if (generator instanceof org.hibernate.id.NativeGenerator nativeGen) {
+                                    isAutoIncrement = handleNativeGenerator(nativeGen, dialect, database, column, hibernateTable, hibernateColumn);
                                 }
 
                                 if (isAutoIncrement && database.supportsAutoIncrement()) {
@@ -255,6 +252,48 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
     @Override
     public Class<? extends SnapshotGenerator>[] replaces() {
         return new Class[]{liquibase.snapshot.jvm.ColumnSnapshotGenerator.class};
+    }
+
+    private boolean handleSequenceGenerator(
+            org.hibernate.id.enhanced.SequenceStyleGenerator seqGen,
+            Dialect dialect, HibernateDatabase database, Column column,
+            org.hibernate.mapping.Table hibernateTable,
+            org.hibernate.mapping.Column hibernateColumn) {
+        if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
+            String sequenceName = resolveSequenceName(seqGen, hibernateTable, hibernateColumn);
+            column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+            return false;
+        }
+        return database.supportsAutoIncrement();
+    }
+
+    private boolean handleNativeGenerator(
+            org.hibernate.id.NativeGenerator nativeGen,
+            Dialect dialect, HibernateDatabase database, Column column,
+            org.hibernate.mapping.Table hibernateTable,
+            org.hibernate.mapping.Column hibernateColumn) {
+        return switch (nativeGen.getGenerationType()) {
+            case IDENTITY -> true;
+            case SEQUENCE -> {
+                var delegate = getNativeGeneratorDelegate(nativeGen);
+                if (delegate instanceof org.hibernate.id.enhanced.SequenceStyleGenerator seqGen) {
+                    yield handleSequenceGenerator(seqGen, dialect, database, column, hibernateTable, hibernateColumn);
+                }
+                yield database.supportsAutoIncrement();
+            }
+            default -> false;
+        };
+    }
+
+    private org.hibernate.generator.Generator getNativeGeneratorDelegate(org.hibernate.id.NativeGenerator nativeGen) {
+        try {
+            var field = org.hibernate.id.NativeGenerator.class.getDeclaredField("dialectNativeGenerator");
+            field.setAccessible(true);
+            return (org.hibernate.generator.Generator) field.get(nativeGen);
+        } catch (ReflectiveOperationException e) {
+            Scope.getCurrentScope().getLog(getClass()).fine("Could not access NativeGenerator delegate", e);
+            return null;
+        }
     }
 
     private org.hibernate.mapping.PersistentClass findPersistentClass(
