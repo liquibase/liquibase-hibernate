@@ -290,7 +290,7 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
             var field = org.hibernate.id.NativeGenerator.class.getDeclaredField("dialectNativeGenerator");
             field.setAccessible(true);
             return (org.hibernate.generator.Generator) field.get(nativeGen);
-        } catch (ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException | RuntimeException e) {
             Scope.getCurrentScope().getLog(getClass()).fine("Could not access NativeGenerator delegate", e);
             return null;
         }
