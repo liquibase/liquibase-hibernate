@@ -66,8 +66,7 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
     }
 
     /**
-     * Scans entity bindings for @NativeGenerator-based sequences that are
-     * not registered in the relational namespace.
+     * Scans entity bindings for sequence-based generators.
      */
     private void addNativeGeneratorSequences(HibernateDatabase database, Schema schema, Set<String> addedSequences) {
         MetadataImplementor metadata = (MetadataImplementor) database.getMetadata();
@@ -83,25 +82,44 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
             }
 
             try {
+                var memberDetails = simpleValue.getMemberDetails();
+                // Detection of Generation Intent:
+                // Only create a sequence snapshot if @GeneratedValue is present.
+                // If it is absent, the ID is application-assigned and no sequence is required.
+                if (memberDetails == null || !memberDetails.hasDirectAnnotationUsage(jakarta.persistence.GeneratedValue.class)) {
+                    continue;
+                }
+
                 var identifierProperty = rootClass.getIdentifierProperty();
                 var settings = createGeneratorSettings(simpleValue);
                 var generator = simpleValue.createGenerator(dialect, rootClass, identifierProperty, settings);
 
+                SequenceStyleGenerator seqGen = null;
+                // NativeGenerator might wrap a SequenceStyleGenerator delegate depending on the dialect.
                 if (generator instanceof NativeGenerator nativeGen) {
                     var delegate = getNativeGeneratorDelegate(nativeGen);
-                    if (delegate instanceof SequenceStyleGenerator seqGen) {
-                        var structure = seqGen.getDatabaseStructure();
-                        if (structure != null && structure.getPhysicalName() != null) {
-                            String name = structure.getPhysicalName().render();
-                            if (!addedSequences.contains(name.toLowerCase())) {
-                                schema.addDatabaseObject(new Sequence()
-                                        .setName(name)
-                                        .setSchema(schema)
-                                        .setStartValue(BigInteger.valueOf(structure.getInitialValue()))
-                                        .setIncrementBy(BigInteger.valueOf(structure.getIncrementSize()))
-                                );
-                                addedSequences.add(name.toLowerCase());
-                            }
+                    if (delegate instanceof SequenceStyleGenerator s) {
+                        seqGen = s;
+                    }
+                } else if (generator instanceof SequenceStyleGenerator s) {
+                    seqGen = s;
+                }
+
+                if (seqGen != null) {
+                    var structure = seqGen.getDatabaseStructure();
+                    if (structure != null && structure.getPhysicalName() != null) {
+                        String name = structure.getPhysicalName().render();
+                        if (!addedSequences.contains(name.toLowerCase())) {
+                            // Final Liquibase Model Synthesis:
+                            // If the logic resolved to a sequence, create a Sequence object
+                            // in the Liquibase metadata for snapshot comparison.
+                            schema.addDatabaseObject(new Sequence()
+                                    .setName(name)
+                                    .setSchema(schema)
+                                    .setStartValue(BigInteger.valueOf(structure.getInitialValue()))
+                                    .setIncrementBy(BigInteger.valueOf(structure.getIncrementSize()))
+                            );
+                            addedSequences.add(name.toLowerCase());
                         }
                     }
                 }

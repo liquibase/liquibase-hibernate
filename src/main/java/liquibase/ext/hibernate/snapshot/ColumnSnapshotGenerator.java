@@ -161,25 +161,41 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
 
                         if (persistentClass != null) {
                             var rootClass = persistentClass.getRootClass();
-                            var generatorSettings = createGeneratorSettings(simpleValue);
                             var identifierProperty = rootClass.getIdentifierProperty();
-                            var generator = simpleValue.createGenerator(dialect, rootClass, identifierProperty, generatorSettings);
+                            var memberDetails = simpleValue.getMemberDetails();
 
-                            if (generator != null) {
-                                boolean isAutoIncrement = false;
+                            // Detection of Generation Intent:
+                            // According to JPA/Hibernate 7 logic, if @GeneratedValue is absent,
+                            // the application is responsible for the ID (Assigned Strategy).
+                            // No Liquibase generator (autoIncrement or Sequence) is created in this case.
+                            boolean hasGeneratedValue = memberDetails != null && memberDetails.hasDirectAnnotationUsage(jakarta.persistence.GeneratedValue.class);
 
-                                if (generator instanceof org.hibernate.id.IdentityGenerator) {
-                                    isAutoIncrement = true;
-                                } else if (generator instanceof org.hibernate.id.enhanced.SequenceStyleGenerator seqGen) {
-                                    isAutoIncrement = handleSequenceGenerator(seqGen, dialect, database, column, hibernateTable, hibernateColumn);
-                                } else if (generator instanceof org.hibernate.id.NativeGenerator nativeGen) {
-                                    isAutoIncrement = handleNativeGenerator(nativeGen, dialect, database, column, hibernateTable, hibernateColumn);
+                            if (hasGeneratedValue) {
+                                var generatorSettings = createGeneratorSettings(simpleValue);
+                                var generator = simpleValue.createGenerator(dialect, rootClass, identifierProperty, generatorSettings);
+
+                                if (generator != null) {
+                                    boolean isAutoIncrement = false;
+
+                                    // Resolution of the GenerationType Strategy:
+                                    // IDENTITY maps to a database-native "auto-increment" column.
+                                    // SEQUENCE and TABLE indicate separate generator objects and should NOT
+                                    // be marked as auto-increment in Liquibase metadata.
+                                    if (generator instanceof org.hibernate.id.IdentityGenerator) {
+                                        isAutoIncrement = true;
+                                    } else if (generator instanceof org.hibernate.id.enhanced.SequenceStyleGenerator seqGen) {
+                                        isAutoIncrement = handleSequenceGenerator(seqGen, dialect, database, column, hibernateTable, hibernateColumn);
+                                    } else if (generator instanceof org.hibernate.id.NativeGenerator nativeGen) {
+                                        isAutoIncrement = handleNativeGenerator(nativeGen, dialect, database, column, hibernateTable, hibernateColumn);
+                                    } else if (generator instanceof org.hibernate.id.enhanced.TableGenerator) {
+                                        // TABLE strategy is a pre-insert generator, not a database identity column.
+                                        isAutoIncrement = false;
+                                    }
+
+                                    if (isAutoIncrement && database.supportsAutoIncrement()) {
+                                        column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
+                                    }
                                 }
-
-                                if (isAutoIncrement && database.supportsAutoIncrement()) {
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                                }
-
                             }
                         }
                     }
