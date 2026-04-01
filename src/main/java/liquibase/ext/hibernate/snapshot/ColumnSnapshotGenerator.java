@@ -161,27 +161,42 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
 
                         if (persistentClass != null) {
                             var rootClass = persistentClass.getRootClass();
-                            var generatorSettings = createGeneratorSettings(simpleValue);
-                            var generator = simpleValue.createGenerator(dialect, rootClass, null, generatorSettings);
+                            var identifierProperty = rootClass.getIdentifierProperty();
+                            var memberDetails = simpleValue.getMemberDetails();
 
-                            if (generator != null) {
-                                boolean isAutoIncrement = false;
+                            // Detection of Generation Intent:
+                            // For annotation-based entities, if @GeneratedValue is absent the ID
+                            // is application-assigned and no generator should be created.
+                            // For XML-mapped entities (memberDetails is null), we always process
+                            // the generator since the intent is declared in the hbm.xml mapping.
+                            boolean hasGeneratedValue = memberDetails == null || memberDetails.hasDirectAnnotationUsage(jakarta.persistence.GeneratedValue.class);
 
-                                if (generator instanceof org.hibernate.id.IdentityGenerator) {
-                                    isAutoIncrement = true;
-                                } else if (generator instanceof org.hibernate.id.enhanced.SequenceStyleGenerator seqGen) {
-                                    if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
-                                        String sequenceName = resolveSequenceName(seqGen, hibernateTable, hibernateColumn);
-                                        column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
-                                    } else if (database.supportsAutoIncrement()) {
+                            if (hasGeneratedValue) {
+                                var generatorSettings = createGeneratorSettings(simpleValue);
+                                var generator = simpleValue.createGenerator(dialect, rootClass, identifierProperty, generatorSettings);
+
+                                if (generator != null) {
+                                    boolean isAutoIncrement = false;
+
+                                    // Resolution of the GenerationType Strategy:
+                                    // IDENTITY maps to a database-native "auto-increment" column.
+                                    // SEQUENCE and TABLE indicate separate generator objects and should NOT
+                                    // be marked as auto-increment in Liquibase metadata.
+                                    if (generator instanceof org.hibernate.id.IdentityGenerator) {
                                         isAutoIncrement = true;
+                                    } else if (generator instanceof org.hibernate.id.enhanced.SequenceStyleGenerator seqGen) {
+                                        isAutoIncrement = handleSequenceGenerator(seqGen, dialect, database, column, hibernateTable, hibernateColumn);
+                                    } else if (generator instanceof org.hibernate.id.NativeGenerator nativeGen) {
+                                        isAutoIncrement = handleNativeGenerator(nativeGen, dialect, database, column, hibernateTable, hibernateColumn);
+                                    } else if (generator instanceof org.hibernate.id.enhanced.TableGenerator) {
+                                        // TABLE strategy is a pre-insert generator, not a database identity column.
+                                        isAutoIncrement = false;
+                                    }
+
+                                    if (isAutoIncrement && database.supportsAutoIncrement()) {
+                                        column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
                                     }
                                 }
-
-                                if (isAutoIncrement && database.supportsAutoIncrement()) {
-                                    column.setAutoIncrementInformation(new Column.AutoIncrementInformation());
-                                }
-
                             }
                         }
                     }
@@ -254,6 +269,48 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
     @Override
     public Class<? extends SnapshotGenerator>[] replaces() {
         return new Class[]{liquibase.snapshot.jvm.ColumnSnapshotGenerator.class};
+    }
+
+    private boolean handleSequenceGenerator(
+            org.hibernate.id.enhanced.SequenceStyleGenerator seqGen,
+            Dialect dialect, HibernateDatabase database, Column column,
+            org.hibernate.mapping.Table hibernateTable,
+            org.hibernate.mapping.Column hibernateColumn) {
+        if (PostgreSQLDialect.class.isAssignableFrom(dialect.getClass())) {
+            String sequenceName = resolveSequenceName(seqGen, hibernateTable, hibernateColumn);
+            column.setDefaultValue(new DatabaseFunction("nextval('" + sequenceName + "'::regclass)"));
+            return false;
+        }
+        return database.supportsAutoIncrement();
+    }
+
+    private boolean handleNativeGenerator(
+            org.hibernate.id.NativeGenerator nativeGen,
+            Dialect dialect, HibernateDatabase database, Column column,
+            org.hibernate.mapping.Table hibernateTable,
+            org.hibernate.mapping.Column hibernateColumn) {
+        return switch (nativeGen.getGenerationType()) {
+            case IDENTITY -> true;
+            case SEQUENCE -> {
+                var delegate = getNativeGeneratorDelegate(nativeGen);
+                if (delegate instanceof org.hibernate.id.enhanced.SequenceStyleGenerator seqGen) {
+                    yield handleSequenceGenerator(seqGen, dialect, database, column, hibernateTable, hibernateColumn);
+                }
+                yield database.supportsAutoIncrement();
+            }
+            default -> false;
+        };
+    }
+
+    private org.hibernate.generator.Generator getNativeGeneratorDelegate(org.hibernate.id.NativeGenerator nativeGen) {
+        try {
+            var field = org.hibernate.id.NativeGenerator.class.getDeclaredField("dialectNativeGenerator");
+            field.setAccessible(true);
+            return (org.hibernate.generator.Generator) field.get(nativeGen);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            Scope.getCurrentScope().getLog(getClass()).fine("Could not access NativeGenerator delegate", e);
+            return null;
+        }
     }
 
     private org.hibernate.mapping.PersistentClass findPersistentClass(
