@@ -165,10 +165,11 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                             var memberDetails = simpleValue.getMemberDetails();
 
                             // Detection of Generation Intent:
-                            // According to JPA/Hibernate 7 logic, if @GeneratedValue is absent,
-                            // the application is responsible for the ID (Assigned Strategy).
-                            // No Liquibase generator (autoIncrement or Sequence) is created in this case.
-                            boolean hasGeneratedValue = memberDetails != null && memberDetails.hasDirectAnnotationUsage(jakarta.persistence.GeneratedValue.class);
+                            // For annotation-based entities, if @GeneratedValue is absent the ID
+                            // is application-assigned and no generator should be created.
+                            // For XML-mapped entities (memberDetails is null), we always process
+                            // the generator since the intent is declared in the hbm.xml mapping.
+                            boolean hasGeneratedValue = memberDetails == null || memberDetails.hasDirectAnnotationUsage(jakarta.persistence.GeneratedValue.class);
 
                             if (hasGeneratedValue) {
                                 var generatorSettings = createGeneratorSettings(simpleValue);

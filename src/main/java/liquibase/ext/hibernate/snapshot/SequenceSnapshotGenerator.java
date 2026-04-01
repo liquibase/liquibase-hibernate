@@ -84,9 +84,10 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
             try {
                 var memberDetails = simpleValue.getMemberDetails();
                 // Detection of Generation Intent:
-                // Only create a sequence snapshot if @GeneratedValue is present.
-                // If it is absent, the ID is application-assigned and no sequence is required.
-                if (memberDetails == null || !memberDetails.hasDirectAnnotationUsage(jakarta.persistence.GeneratedValue.class)) {
+                // For annotation-based entities, only create a sequence snapshot if
+                // @GeneratedValue is present. For XML-mapped entities (memberDetails
+                // is null), always process since intent is declared in the mapping.
+                if (memberDetails != null && !memberDetails.hasDirectAnnotationUsage(jakarta.persistence.GeneratedValue.class)) {
                     continue;
                 }
 
