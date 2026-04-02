@@ -35,10 +35,10 @@ jobs:
         hibernate: ["7.1.16.Final", "7.2.4.Final"]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           java-version: 17
           distribution: 'temurin'
@@ -52,7 +52,7 @@ jobs:
 
       - name: Archive Test Results
         if: ${{ always() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: test-reports-hibernate-${{ matrix.hibernate }}
           path: |
