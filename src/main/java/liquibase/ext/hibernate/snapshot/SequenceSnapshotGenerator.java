@@ -82,12 +82,12 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
             }
 
             try {
-                var memberDetails = simpleValue.getMemberDetails();
+                var memberDetails = getMemberDetails(simpleValue);
                 // Detection of Generation Intent:
                 // For annotation-based entities, only create a sequence snapshot if
                 // @GeneratedValue is present. For XML-mapped entities (memberDetails
                 // is null), always process since intent is declared in the mapping.
-                if (memberDetails != null && !memberDetails.hasDirectAnnotationUsage(jakarta.persistence.GeneratedValue.class)) {
+                if (memberDetails != null && !hasAnnotation(memberDetails, jakarta.persistence.GeneratedValue.class)) {
                     continue;
                 }
 
@@ -140,6 +140,27 @@ public class SequenceSnapshotGenerator extends HibernateSnapshotGenerator {
             Scope.getCurrentScope().getLog(getClass()).fine(
                     "Could not access NativeGenerator delegate", e);
             return null;
+        }
+    }
+
+    private Object getMemberDetails(SimpleValue simpleValue) {
+        try {
+            var method = SimpleValue.class.getMethod("getMemberDetails");
+            return method.invoke(simpleValue);
+        } catch (NoSuchMethodException e) {
+            return null;
+        } catch (ReflectiveOperationException e) {
+            Scope.getCurrentScope().getLog(getClass()).fine("Could not get member details", e);
+            return null;
+        }
+    }
+
+    private boolean hasAnnotation(Object memberDetails, Class<? extends java.lang.annotation.Annotation> annotationType) {
+        try {
+            var method = memberDetails.getClass().getMethod("hasDirectAnnotationUsage", Class.class);
+            return (boolean) method.invoke(memberDetails, annotationType);
+        } catch (ReflectiveOperationException e) {
+            return true;
         }
     }
 

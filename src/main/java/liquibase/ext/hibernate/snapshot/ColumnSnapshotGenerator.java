@@ -162,14 +162,14 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
                         if (persistentClass != null) {
                             var rootClass = persistentClass.getRootClass();
                             var identifierProperty = rootClass.getIdentifierProperty();
-                            var memberDetails = simpleValue.getMemberDetails();
+                            var memberDetails = getMemberDetails(simpleValue);
 
                             // Detection of Generation Intent:
                             // For annotation-based entities, if @GeneratedValue is absent the ID
                             // is application-assigned and no generator should be created.
                             // For XML-mapped entities (memberDetails is null), we always process
                             // the generator since the intent is declared in the hbm.xml mapping.
-                            boolean hasGeneratedValue = memberDetails == null || memberDetails.hasDirectAnnotationUsage(jakarta.persistence.GeneratedValue.class);
+                            boolean hasGeneratedValue = memberDetails == null || hasAnnotation(memberDetails, jakarta.persistence.GeneratedValue.class);
 
                             if (hasGeneratedValue) {
                                 var generatorSettings = createGeneratorSettings(simpleValue);
@@ -310,6 +310,35 @@ public class ColumnSnapshotGenerator extends HibernateSnapshotGenerator {
         } catch (ReflectiveOperationException | RuntimeException e) {
             Scope.getCurrentScope().getLog(getClass()).fine("Could not access NativeGenerator delegate", e);
             return null;
+        }
+    }
+
+    /**
+     * Returns member details via reflection, for compatibility with Hibernate < 7.3
+     * where SimpleValue.getMemberDetails() does not exist.
+     */
+    private Object getMemberDetails(SimpleValue simpleValue) {
+        try {
+            var method = SimpleValue.class.getMethod("getMemberDetails");
+            return method.invoke(simpleValue);
+        } catch (NoSuchMethodException e) {
+            return null;
+        } catch (ReflectiveOperationException e) {
+            Scope.getCurrentScope().getLog(getClass()).fine("Could not get member details", e);
+            return null;
+        }
+    }
+
+    /**
+     * Checks for an annotation on member details via reflection, for compatibility
+     * with Hibernate < 7.3 where MemberDetails may not be available.
+     */
+    private boolean hasAnnotation(Object memberDetails, Class<? extends java.lang.annotation.Annotation> annotationType) {
+        try {
+            var method = memberDetails.getClass().getMethod("hasDirectAnnotationUsage", Class.class);
+            return (boolean) method.invoke(memberDetails, annotationType);
+        } catch (ReflectiveOperationException e) {
+            return true; // assume yes when we can't determine
         }
     }
 
