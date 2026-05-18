@@ -4,3 +4,9 @@
 /.settings
 /.idea
 *.iml
+
+# maven-release-plugin artifacts
+release.properties
+pom.xml.releaseBackup
+pom.xml.next
+pom.xml.tag
