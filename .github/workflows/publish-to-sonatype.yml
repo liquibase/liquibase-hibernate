@@ -11,9 +11,13 @@ name: Publish to Sonatype (manual)
 on:
   workflow_dispatch:
     inputs:
+      releaseId:
+        description: "GitHub release ID to download artifacts from. Use this for draft releases (where no git tag exists yet). Find via API or the draft URL."
+        required: false
+        type: string
       tag:
-        description: "GitHub release tag to download artifacts from (e.g. v5.0.3-hibernate6)"
-        required: true
+        description: "GitHub release tag (e.g. v5.0.3-hibernate6). Use this for already-published releases. Ignored if releaseId is set."
+        required: false
         type: string
       version:
         description: "Maven Central artifact version (e.g. 5.0.3) — used for file matching and deployment metadata"
@@ -75,7 +79,23 @@ jobs:
           path: build-logic
           sparse-checkout: .github/actions/publish-to-central-portal
 
-      - name: Download Release Artifacts
+      - name: Validate release inputs
+        run: |
+          if [ -z "${{ inputs.releaseId }}" ] && [ -z "${{ inputs.tag }}" ]; then
+            echo "::error::One of 'releaseId' or 'tag' must be provided."
+            exit 1
+          fi
+
+      - name: Download Release Artifacts (by release ID)
+        if: ${{ inputs.releaseId != '' }}
+        uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
+        with:
+          releaseId: ${{ inputs.releaseId }}
+          fileName: "*"
+          out-file-path: ${{ inputs.artifactPath }}
+
+      - name: Download Release Artifacts (by tag)
+        if: ${{ inputs.releaseId == '' && inputs.tag != '' }}
         uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
         with:
           tag: ${{ inputs.tag }}
