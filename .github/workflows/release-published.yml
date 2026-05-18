@@ -1,38 +1,20 @@
 name: Release Extension to Sonatype
 
-# Two paths:
-# - Auto: when a GitHub release is published (or workflow_dispatch with no version),
-#   delegate to build-logic's standard extension-release-published.yml. Works for
-#   tags shaped v<version> (the H7 case on this branch).
-# - Manual: when dispatched with explicit releaseId/tag + version, run the publish
-#   directly. Use this for parallel-branch releases (e.g. hibernate6) where the
-#   GitHub tag carries a suffix like v5.0.3-hibernate6 — build-logic strips only
-#   the leading "v", which leaves "5.0.3-hibernate6" and matches no artifact files.
+# Inputs declared here so GitHub accepts manual dispatches from the
+# hibernate6 branch (used to publish liquibase-hibernate6 releases).
+# The actual manual-publish job lives on hibernate6.
 
 on:
   workflow_dispatch:
     inputs:
       releaseId:
-        description: "GitHub release ID for manual publish (works with drafts). If set, runs the manual path."
         required: false
         type: string
       tag:
-        description: "GitHub release tag for manual publish (alternative to releaseId, e.g. v5.0.3-hibernate6)."
         required: false
         type: string
       version:
-        description: "Maven Central artifact version for manual publish (e.g. 5.0.3). Required to take the manual path."
         required: false
-        type: string
-      javaBuildVersion:
-        description: "Java version for the manual publish step"
-        required: false
-        default: "21"
-        type: string
-      artifactPath:
-        description: "Directory to download release artifacts into (manual path)"
-        required: false
-        default: "."
         type: string
 
   release:
@@ -46,77 +28,5 @@ permissions:
 
 jobs:
   release:
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.version == '')
     uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@main
     secrets: inherit
-
-  manual-publish:
-    if: github.event_name == 'workflow_dispatch' && inputs.version != ''
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Validate release inputs
-        run: |
-          if [ -z "${{ inputs.releaseId }}" ] && [ -z "${{ inputs.tag }}" ]; then
-            echo "::error::One of 'releaseId' or 'tag' must be provided for manual publish."
-            exit 1
-          fi
-
-      - name: Configure AWS credentials for vault access
-        uses: aws-actions/configure-aws-credentials@d979d5b3a71173a29b74b5b88418bfda9437d885 # v6.1.1
-        with:
-          role-to-assume: ${{ secrets.LIQUIBASE_VAULT_OIDC_ROLE_ARN }}
-          aws-region: us-east-1
-
-      - name: Get secrets from vault
-        id: vault-secrets
-        uses: aws-actions/aws-secretsmanager-get-secrets@2cb1a461cbd4865ac4299648312e4704c646cd53 # v3.0.1
-        with:
-          secret-ids: |
-            ,/vault/liquibase
-          parse-json-secrets: true
-
-      - name: Set up Java for publishing to Maven Central Repository
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
-        with:
-          java-version: ${{ inputs.javaBuildVersion }}
-          distribution: "temurin"
-          cache: "maven"
-
-      - name: Set up Maven settings.xml
-        uses: liquibase/build-logic/.github/actions/setup-maven-settings@main
-        with:
-          gpm-token: ${{ env.LIQUIBOT_PAT_GPM_ACCESS }}
-
-      - name: Checkout build-logic for publish action
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          repository: liquibase/build-logic
-          ref: main
-          path: build-logic
-          sparse-checkout: .github/actions/publish-to-central-portal
-
-      - name: Download Release Artifacts (by release ID)
-        if: ${{ inputs.releaseId != '' }}
-        uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
-        with:
-          releaseId: ${{ inputs.releaseId }}
-          fileName: "*"
-          out-file-path: ${{ inputs.artifactPath }}
-
-      - name: Download Release Artifacts (by tag)
-        if: ${{ inputs.releaseId == '' && inputs.tag != '' }}
-        uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05 # v1.12
-        with:
-          tag: ${{ inputs.tag }}
-          fileName: "*"
-          out-file-path: ${{ inputs.artifactPath }}
-
-      - name: Publish to Central Portal
-        uses: ./build-logic/.github/actions/publish-to-central-portal
-        with:
-          artifacts-dir: ${{ inputs.artifactPath }}
-          version: ${{ inputs.version }}
-          sonatype-username: ${{ env.SONATYPE_USERNAME }}
-          sonatype-token: ${{ env.SONATYPE_TOKEN }}
