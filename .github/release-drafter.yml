@@ -1,6 +1,6 @@
 
-name-template: 'Support for Liquibase Hibernate Extension v$RESOLVED_VERSION'
-tag-template: 'v$RESOLVED_VERSION'
+name-template: 'Liquibase Hibernate 6 v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION-hibernate6'
 exclude-labels:
   - 'skipReleaseNotes'
 categories:
