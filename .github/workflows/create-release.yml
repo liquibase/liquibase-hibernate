@@ -2,9 +2,6 @@ name: Create Release
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - hibernate6
 
 permissions:
   contents: write
