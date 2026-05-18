@@ -1,7 +1,22 @@
 name: Release Extension to Sonatype
 
+# Inputs declared here so GitHub accepts manual dispatches from the
+# hibernate6 branch (used to publish liquibase-hibernate6 releases).
+# The actual manual-publish job lives on hibernate6.
+
 on:
   workflow_dispatch:
+    inputs:
+      releaseId:
+        required: false
+        type: string
+      tag:
+        required: false
+        type: string
+      version:
+        required: false
+        type: string
+
   release:
     types: [published]
 
