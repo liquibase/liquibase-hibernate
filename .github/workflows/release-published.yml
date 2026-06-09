@@ -25,6 +25,7 @@ permissions:
   pull-requests: write
   packages: write
   id-token: write
+  actions: read # required by "Get build-logic ref" to query the Actions API (TECHOPS-609)
 
 jobs:
   release:
