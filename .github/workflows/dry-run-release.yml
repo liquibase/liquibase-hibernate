@@ -72,6 +72,7 @@ jobs:
     uses: liquibase/build-logic/.github/workflows/extension-release-published.yml@main
     secrets: inherit
     permissions:
+      actions: read
       id-token: write
       contents: write
       packages: write
