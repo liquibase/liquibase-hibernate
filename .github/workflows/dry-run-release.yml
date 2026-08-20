@@ -76,6 +76,7 @@ jobs:
       contents: write
       packages: write
       pull-requests: write
+      actions: read
     with:
       dry_run: true
       dry_run_version: "0.0.${{ github.run_number }}"
