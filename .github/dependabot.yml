@@ -12,3 +12,20 @@ updates:
   directory: "/"
   schedule:
     interval: "daily"
+
+# The hibernate6 branch keeps the 6.x line alive and is not the default branch,
+# so it needs its own entries or dependabot never looks at it.
+- package-ecosystem: maven
+  directory: "/"
+  target-branch: "hibernate6"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 10
+  labels:
+      - "sdou"
+
+- package-ecosystem: "github-actions"
+  directory: "/"
+  target-branch: "hibernate6"
+  schedule:
+    interval: weekly
