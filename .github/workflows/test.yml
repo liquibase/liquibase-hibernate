@@ -1,5 +1,11 @@
 name: Build and Test
 
+permissions:
+  contents: read
+  pull-requests: write
+  packages: read
+  id-token: write
+
 on:
   workflow_dispatch:
   pull_request:
