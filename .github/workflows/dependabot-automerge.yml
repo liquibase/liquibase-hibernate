@@ -1,5 +1,9 @@
 name: Dependabot Automerge
 
+# Separate from test.yml: this workflow never checks out or runs PR code, it only
+# approves and merges Dependabot PRs, so it needs a write-capable token (which the
+# build workflow deliberately does not have). The reusable job is gated to
+# github.event.pull_request.user.login == 'dependabot[bot]'.
 on:
   pull_request_target:
     types:
