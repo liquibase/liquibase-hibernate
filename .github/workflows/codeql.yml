@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   codeql:
-    uses: liquibase/build-logic/.github/workflows/codeql.yml@main
+    uses: liquibase/build-logic/.github/workflows/codeql.yml@techops-1492-fork-pr-no-vault
     secrets: inherit
     with:
       languages: '["java"]'

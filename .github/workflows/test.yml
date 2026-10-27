@@ -17,7 +17,7 @@ on:
 jobs:
 
   build-test:
-    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@main
+    uses: liquibase/build-logic/.github/workflows/os-extension-test.yml@techops-1492-fork-pr-no-vault
     secrets: inherit
     with:
       java: '[17, 21]'
