@@ -29,7 +29,7 @@ jobs:
     steps:
 
       - name: Get the GitHub App credentials from vault
-        uses: liquibase/build-logic/.github/actions/setup-aws-vault@2003fece51886ec69cda3df1cb4520b3ceeb2e0c # main
+        uses: liquibase/build-logic/.github/actions/setup-aws-vault@872a0b8a796d398f970cd1095a98ceed5d6277c7 # main
         with:
           group: github-app-liquibase
           role-arn: ${{ secrets.VAULT_GROUPED_GITHUB_APP_LIQUIBASE_ROLE_ARN }}
@@ -89,7 +89,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Get the GitHub App credentials from vault
-        uses: liquibase/build-logic/.github/actions/setup-aws-vault@2003fece51886ec69cda3df1cb4520b3ceeb2e0c # main
+        uses: liquibase/build-logic/.github/actions/setup-aws-vault@872a0b8a796d398f970cd1095a98ceed5d6277c7 # main
         with:
           group: github-app-liquibase
           role-arn: ${{ secrets.VAULT_GROUPED_GITHUB_APP_LIQUIBASE_ROLE_ARN }}
@@ -134,7 +134,7 @@ jobs:
       ]
     steps:
       - name: Get the dry-run Slack webhook from vault
-        uses: liquibase/build-logic/.github/actions/setup-aws-vault@2003fece51886ec69cda3df1cb4520b3ceeb2e0c # main
+        uses: liquibase/build-logic/.github/actions/setup-aws-vault@872a0b8a796d398f970cd1095a98ceed5d6277c7 # main
         with:
           group: dry-run-release-slack-webhook
           role-arn: ${{ secrets.VAULT_GROUPED_DRY_RUN_RELEASE_SLACK_WEBHOOK_ROLE_ARN }}
